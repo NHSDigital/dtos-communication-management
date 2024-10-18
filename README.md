@@ -32,7 +32,7 @@ graph TD
 
 ## Contacts
 
-For any info please contact the Invite team on Slack: https://nhsdigitalcorporate.enterprise.slack.com/archives/C07QHFSV79U
+For any info please contact the [Invite team on Slack](https://nhsdigitalcorporate.enterprise.slack.com/archives/C07QHFSV79U)
 
 ## Licence
 
