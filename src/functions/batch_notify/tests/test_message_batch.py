@@ -4,8 +4,8 @@ import requests_mock
 import uuid
 
 from unittest.mock import MagicMock
-from functions.batch_notify.message_batch import MessageBatch
-from functions.batch_notify.message_batch_body import MessageBatchBody
+from batch_notify.message_batch import MessageBatch
+from batch_notify.message_batch_body import MessageBatchBody
 
 
 class TestMessageBatch:

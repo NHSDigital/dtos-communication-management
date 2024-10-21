@@ -1,7 +1,7 @@
 import logging
 import os
 import requests
-from functions.batch_notify.message_batch_body import MessageBatchBody
+from batch_notify.message_batch_body import MessageBatchBody
 
 
 class MessageBatch:
@@ -30,7 +30,7 @@ class MessageBatch:
             logging.error(response.text)
 
         # TODO: Wrap this response for consumers
-        return response
+        return response.text
 
     @classmethod
     def url(cls):

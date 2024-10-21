@@ -3,7 +3,7 @@ import pytest
 import requests_mock
 
 from unittest.mock import MagicMock
-from functions.process_pilot_data.data_processor import DataProcessor
+from process_pilot_data.data_processor import DataProcessor
 
 
 class TestDataProcessor:
@@ -31,7 +31,7 @@ class TestDataProcessor:
         }
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/batch-message/breast-screening-pilot',
+                'http://example.com/api/batch-message/breast-screening-pilot',
                 text=response_text
             )
             DataProcessor.call(csv_data)

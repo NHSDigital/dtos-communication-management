@@ -29,11 +29,11 @@ class DataProcessor:
         else:
             logging.error(response.text)
 
-        return response
+        return response.text
 
     @classmethod
     def url(cls):
-        return cls.base_url() + "/batch-message/breast-screening-pilot"
+        return cls.base_url() + "/api/batch-message/breast-screening-pilot"
 
     @classmethod
     def base_url(cls):
@@ -47,6 +47,7 @@ class DataProcessor:
         try:
             reader = csv.DictReader(self.raw_data, self.FIELDNAMES)
             for row in reader:
+                logging.info(row)
                 if self.__valid_row(row):
                     data.append(row)
         except csv.Error:

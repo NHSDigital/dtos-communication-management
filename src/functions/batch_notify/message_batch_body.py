@@ -36,4 +36,4 @@ class MessageBatchBody:
     @classmethod
     def reference_uuid(cls, val):
         str_val = str(val)
-        return uuid.UUID(hashlib.md5(str_val.encode()).hexdigest()).hex
+        return str(uuid.UUID(hashlib.md5(str_val.encode()).hexdigest()))
