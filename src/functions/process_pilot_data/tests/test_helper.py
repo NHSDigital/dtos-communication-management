@@ -1,13 +1,13 @@
 import json
 import pytest
 import requests_mock
-from process_pilot_data.data_processor import process_data
+from process_pilot_data.helper import process_data
 
 
-class TestDataProcessor:
+class TestHelper:
     @pytest.fixture
     def setup(self, monkeypatch):
-        monkeypatch.setenv("BASE_URL", "http://example.com")
+        monkeypatch.setenv("BATCH_NOTIFY_URL", "http://example.com/api/batch-notify/breast-screening-pilot")
 
     def test_process_data(self, setup):
         response_text = json.dumps({"data": "OK"})
@@ -27,7 +27,7 @@ class TestDataProcessor:
         }
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/api/batch-message/breast-screening-pilot',
+                'http://example.com/api/batch-notify/breast-screening-pilot',
                 text=response_text
             )
             process_data(csv_data)
@@ -46,7 +46,7 @@ class TestDataProcessor:
 
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/batch-message/breast-screening-pilot',
+                'http://example.com/api/batch-notify/breast-screening-pilot',
                 text=response_text
             )
             process_data(csv_data)
@@ -61,7 +61,7 @@ class TestDataProcessor:
 
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/batch-message/breast-screening-pilot',
+                'http://example.com/api/batch-notify/breast-screening-pilot',
                 text=response_text
             )
             process_data(invalid_data)

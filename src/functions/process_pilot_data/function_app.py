@@ -6,7 +6,7 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from process_pilot_data.data_processor import process_data
+from process_pilot_data.helper import process_data
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 

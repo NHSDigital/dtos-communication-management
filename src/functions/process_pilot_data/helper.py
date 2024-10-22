@@ -20,7 +20,7 @@ def process_data(raw_data):
         "routing_plan": "breast-screening-pilot",
         "data": data
     }
-    response = requests.post(url(), json=post_body, headers=HEADERS)
+    response = requests.post(batch_notify_url(), json=post_body, headers=HEADERS)
 
     if response:
         logging.info(response.text)
@@ -63,9 +63,5 @@ def valid_date_of_birth(date_of_birth):
         return False
 
 
-def url():
-    return base_url() + "/api/batch-message/breast-screening-pilot"
-
-
-def base_url():
-    return os.environ['BASE_URL']
+def batch_notify_url():
+    return os.environ['BATCH_NOTIFY_URL']
