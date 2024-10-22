@@ -6,15 +6,15 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from batch_notify.message_batch import send_message_batch
+from batch_notify.helper import send_message_batch
 
 import azure.functions as func
 
 app = func.FunctionApp()
 
 
-@app.function_name(name="BatchMessageBreastScreeningPilot")
-@app.route(route="batch-message/breast-screening-pilot", auth_level=func.AuthLevel.ANONYMOUS)
+@app.function_name(name="BatchNotify")
+@app.route(route="batch-notify/breast-screening-pilot", auth_level=func.AuthLevel.ANONYMOUS)
 def main(req: func.HttpRequest):
     req_body_bytes = req.get_body()
     json_body = json.loads(req_body_bytes.decode("utf-8"))
