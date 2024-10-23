@@ -7,7 +7,10 @@ from process_pilot_data.helper import process_data
 class TestHelper:
     @pytest.fixture
     def setup(self, monkeypatch):
-        monkeypatch.setenv("BATCH_NOTIFY_URL", "http://example.com/api/batch-notify/breast-screening-pilot")
+        monkeypatch.setenv(
+            "BATCH_NOTIFY_URL",
+            "http://example.com/api/batch-notify/breast-screening-pilot",
+        )
 
     def test_process_data(self, setup):
         response_text = json.dumps({"data": "OK"})
@@ -23,12 +26,12 @@ class TestHelper:
                 {"nhs_number": "0000000000", "date_of_birth": "2001-02-03"},
                 {"nhs_number": "1111111111", "date_of_birth": "2002-04-04"},
                 {"nhs_number": "2222222222", "date_of_birth": "1985-05-04"},
-            ]
+            ],
         }
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/api/batch-notify/breast-screening-pilot',
-                text=response_text
+                "http://example.com/api/batch-notify/breast-screening-pilot",
+                text=response_text,
             )
             process_data(csv_data)
 
@@ -46,8 +49,8 @@ class TestHelper:
 
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/api/batch-notify/breast-screening-pilot',
-                text=response_text
+                "http://example.com/api/batch-notify/breast-screening-pilot",
+                text=response_text,
             )
             process_data(csv_data)
 
@@ -61,8 +64,8 @@ class TestHelper:
 
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                'http://example.com/api/batch-notify/breast-screening-pilot',
-                text=response_text
+                "http://example.com/api/batch-notify/breast-screening-pilot",
+                text=response_text,
             )
             process_data(invalid_data)
 

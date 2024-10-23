@@ -16,10 +16,7 @@ def process_data(raw_data):
     if not data:
         logging.error("No valid data found")
         return
-    post_body = {
-        "routing_plan": "breast-screening-pilot",
-        "data": data
-    }
+    post_body = {"routing_plan": "breast-screening-pilot", "data": data}
     response = requests.post(batch_notify_url(), json=post_body, headers=HEADERS)
 
     if response:
@@ -44,7 +41,9 @@ def valid_csv_data(raw_data):
 
 
 def valid_row(row):
-    return valid_nhs_number(row["nhs_number"]) and valid_date_of_birth(row["date_of_birth"])
+    return valid_nhs_number(row["nhs_number"]) and valid_date_of_birth(
+        row["date_of_birth"]
+    )
 
 
 def valid_nhs_number(nhs_number):
@@ -64,4 +63,4 @@ def valid_date_of_birth(date_of_birth):
 
 
 def batch_notify_url():
-    return os.environ['BATCH_NOTIFY_URL']
+    return os.environ["BATCH_NOTIFY_URL"]
