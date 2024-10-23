@@ -17,7 +17,7 @@ HEADERS = {
 }
 
 
-def send_messages(data: dict) -> list:
+def send_messages(data: dict) -> str:
     responses: list = []
     routing_plan_id: str = None
 
@@ -32,7 +32,7 @@ def send_messages(data: dict) -> list:
             response: str = send_message(routing_plan_id, message_data)
             responses.append(response)
 
-    return responses
+    return "\n".join(responses)
 
 
 def send_message(routing_plan_id, message_data) -> str:
@@ -49,7 +49,7 @@ def send_message(routing_plan_id, message_data) -> str:
 
 
 def url() -> str:
-    return os.environ["BASE_URL"] + "/comms/v1/message"
+    return os.environ["BASE_URL"] + "/comms/v1/messages"
 
 
 def message_body(routing_plan_id, message_data) -> dict:

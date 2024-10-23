@@ -1,11 +1,11 @@
-from notify.function_app import main
+from function_app import main
 import azure.functions as func
 import json
 
 
 class TestFunction:
     def test_main(self, mocker):
-        mock = mocker.patch("notify.function_app.send_messages")
+        mock = mocker.patch("function_app.send_messages")
         data = {
             "routing_plan": "breast-screening-pilot",
             "recipients": [

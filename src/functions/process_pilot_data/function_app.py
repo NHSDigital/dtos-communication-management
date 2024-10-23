@@ -6,14 +6,16 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from process_pilot_data.helper import process_data
+from helper import process_data
+
+BLOB_CONTAINER_NAME = os.environ["BLOB_CONTAINER_NAME"]
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 
 @app.function_name(name="ProcessPilotData")
 @app.blob_trigger(
-    arg_name="csvblob", path="blobs/{name}.csv", connection="AzureWebJobsStorage"
+    arg_name="csvblob", path="%BLOB_CONTAINER_NAME%/{name}.csv", connection="AzureWebJobsStorage"
 )
 def process_pilot_data(csvblob: func.InputStream) -> str:
     logging.info("Triggering data processor from blob update")

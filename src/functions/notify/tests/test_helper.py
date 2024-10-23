@@ -3,11 +3,11 @@ import pytest
 import requests_mock
 import uuid
 
-from notify.helper import send_messages
-from notify.helper import send_message
-from notify.helper import ROUTING_PLANS
-from notify.helper import message_body
-from notify.helper import reference_uuid
+from helper import send_messages
+from helper import send_message
+from helper import ROUTING_PLANS
+from helper import message_body
+from helper import reference_uuid
 
 
 class TestHelper:
@@ -16,7 +16,7 @@ class TestHelper:
         monkeypatch.setenv("BASE_URL", "http://example.com")
 
     def test_send_messages(self, mocker):
-        send_message_mock = mocker.patch("notify.helper.send_message")
+        send_message_mock = mocker.patch("helper.send_message", return_value="OK")
         data = {
             "routing_plan": "breast-screening-pilot",
             "recipients": [
@@ -25,9 +25,11 @@ class TestHelper:
                 {"nhs_number": "0000000002"},
             ]
         }
-        send_messages(data)
+        response = send_messages(data)
 
         assert send_message_mock.call_count == 3
+
+        assert response == "OK\nOK\nOK"
         send_message_mock.assert_any_call(ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000000"})
         send_message_mock.assert_any_call(ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000001"})
         send_message_mock.assert_any_call(ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000002"})
@@ -36,7 +38,7 @@ class TestHelper:
         test_routing_plans = ROUTING_PLANS.copy()
         test_routing_plans["cervical-screening-pilot"] = "c838b13c-f98c-4def-93f0-515d4e4f4ee1"
         test_routing_plans["bowel-cancer-screening-pilot"] = "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1"
-        routing_plans_mock = mocker.patch("notify.helper.ROUTING_PLANS", test_routing_plans)
+        routing_plans_mock = mocker.patch("helper.ROUTING_PLANS", test_routing_plans)
 
         data = {
             "recipients": [
@@ -46,11 +48,12 @@ class TestHelper:
             ]
         }
 
-        send_message_mock = mocker.patch("notify.helper.send_message")
+        send_message_mock = mocker.patch("helper.send_message", return_value="OK")
 
-        send_messages(data)
+        response = send_messages(data)
 
         assert send_message_mock.call_count == 3
+        assert response == "OK\nOK\nOK"
         send_message_mock.assert_any_call("b838b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000000"})
         send_message_mock.assert_any_call("0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000001"})
         send_message_mock.assert_any_call("c838b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000002"})

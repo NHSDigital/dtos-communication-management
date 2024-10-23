@@ -4,6 +4,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "BATCH_NOTIFY_URL": "http://localhost:7072/api/batch-notify/breast-screening-pilot"
+    "BLOB_CONTAINER_NAME": "blobs",
+    "NOTIFY_FUNCTION_URL": "http://localhost:7072/api/notify/message/send"
   }
 }
