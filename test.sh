@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON_VERSION="3.9.7"
+PYTHON_VERSION="3.11"
 
 isMacOS() {
     [[ "$OSTYPE" == "darwin"* ]]
