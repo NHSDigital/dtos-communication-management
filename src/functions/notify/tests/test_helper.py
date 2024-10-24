@@ -3,11 +3,7 @@ import pytest
 import requests_mock
 import uuid
 
-from helper import send_messages
-from helper import send_message
-from helper import ROUTING_PLANS
-from helper import message_body
-from helper import reference_uuid
+import helper
 
 
 class TestHelper:
@@ -27,22 +23,34 @@ class TestHelper:
             ]
         }
         with requests_mock.Mocker() as rm:
-            adapter = rm.post(
+            rm.post(
                 "http://example.com/comms", text="access_token"
             )
 
-            response = send_messages(data)
+            response = helper.send_messages(data)
 
             assert send_message_mock.call_count == 3
 
             assert response == "OK\nOK\nOK"
-            send_message_mock.assert_any_call("access_token", ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000000"})
-            send_message_mock.assert_any_call("access_token", ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000001"})
-            send_message_mock.assert_any_call("access_token", ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000002"})
+            send_message_mock.assert_any_call(
+                "access_token",
+                helper.ROUTING_PLANS["breast-screening-pilot"],
+                {"nhs_number": "0000000000"},
+            )
+            send_message_mock.assert_any_call(
+                "access_token",
+                helper.ROUTING_PLANS["breast-screening-pilot"],
+                {"nhs_number": "0000000001"},
+            )
+            send_message_mock.assert_any_call(
+                "access_token",
+                helper.ROUTING_PLANS["breast-screening-pilot"],
+                {"nhs_number": "0000000002"},
+            )
 
     def test_send_messages_with_individual_routing_plans(self, mocker):
         mocker.patch("helper.get_access_token", return_value="access_token")
-        test_routing_plans = ROUTING_PLANS.copy()
+        test_routing_plans = helper.ROUTING_PLANS.copy()
         test_routing_plans["cervical-screening-pilot"] = "c838b13c-f98c-4def-93f0-515d4e4f4ee1"
         test_routing_plans["bowel-cancer-screening-pilot"] = "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1"
         routing_plans_mock = mocker.patch("helper.ROUTING_PLANS", test_routing_plans)
@@ -58,10 +66,10 @@ class TestHelper:
         send_message_mock = mocker.patch("helper.send_message", return_value="OK")
 
         with requests_mock.Mocker() as rm:
-            adapter = rm.post(
+            rm.post(
                 "http://example.com/comms", text="access_token"
             )
-            response = send_messages(data)
+            response = helper.send_messages(data)
 
             assert send_message_mock.call_count == 3
             assert response == "OK\nOK\nOK"
@@ -72,7 +80,7 @@ class TestHelper:
     def test_send_message(self, setup):
         access_token = "access_token"
         routing_plan = "breast-screening-pilot"
-        routing_plan_id = ROUTING_PLANS[routing_plan]
+        routing_plan_id = helper.ROUTING_PLANS[routing_plan]
         patient_data = {
             "nhs_number": "0000000000",
             "date_of_birth": "1981-10-07",
@@ -109,8 +117,8 @@ class TestHelper:
             adapter = rm.post(
                 "http://example.com/comms/v1/messages", text=response_text
             )
-            send_message(access_token, routing_plan_id, message_data)
-            expected_request_body = message_body(routing_plan_id, patient_data)
+            helper.send_message(access_token, routing_plan_id, message_data)
+            expected_request_body = helper.message_body(routing_plan_id, patient_data)
 
             assert adapter.called
             assert adapter.call_count == 1
@@ -128,13 +136,13 @@ class TestHelper:
             "appointment_location": "Breast Screening Clinic, 123 High Street, London",
         }
 
-        actual = message_body(routing_plan_id, data)
+        actual = helper.message_body(routing_plan_id, data)
 
         expected = {
             "data": {
                 "type": "Message",
                 "attributes": {
-                    "messageReference": reference_uuid(data["nhs_number"]),
+                    "messageReference": helper.reference_uuid(data["nhs_number"]),
                     "routingPlanId": routing_plan_id,
                     "recipient": {
                         "nhsNumber": "0000000000",
