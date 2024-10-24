@@ -16,6 +16,7 @@ class TestHelper:
         monkeypatch.setenv("BASE_URL", "http://example.com")
 
     def test_send_messages(self, mocker):
+        mocker.patch("helper.get_access_token", return_value="access_token")
         send_message_mock = mocker.patch("helper.send_message", return_value="OK")
         data = {
             "routing_plan": "breast-screening-pilot",
@@ -25,16 +26,22 @@ class TestHelper:
                 {"nhs_number": "0000000002"},
             ]
         }
-        response = send_messages(data)
+        with requests_mock.Mocker() as rm:
+            adapter = rm.post(
+                "http://example.com/comms", text="access_token"
+            )
 
-        assert send_message_mock.call_count == 3
+            response = send_messages(data)
 
-        assert response == "OK\nOK\nOK"
-        send_message_mock.assert_any_call(ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000000"})
-        send_message_mock.assert_any_call(ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000001"})
-        send_message_mock.assert_any_call(ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000002"})
+            assert send_message_mock.call_count == 3
+
+            assert response == "OK\nOK\nOK"
+            send_message_mock.assert_any_call("access_token", ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000000"})
+            send_message_mock.assert_any_call("access_token", ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000001"})
+            send_message_mock.assert_any_call("access_token", ROUTING_PLANS["breast-screening-pilot"], {"nhs_number": "0000000002"})
 
     def test_send_messages_with_individual_routing_plans(self, mocker):
+        mocker.patch("helper.get_access_token", return_value="access_token")
         test_routing_plans = ROUTING_PLANS.copy()
         test_routing_plans["cervical-screening-pilot"] = "c838b13c-f98c-4def-93f0-515d4e4f4ee1"
         test_routing_plans["bowel-cancer-screening-pilot"] = "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1"
@@ -50,15 +57,20 @@ class TestHelper:
 
         send_message_mock = mocker.patch("helper.send_message", return_value="OK")
 
-        response = send_messages(data)
+        with requests_mock.Mocker() as rm:
+            adapter = rm.post(
+                "http://example.com/comms", text="access_token"
+            )
+            response = send_messages(data)
 
-        assert send_message_mock.call_count == 3
-        assert response == "OK\nOK\nOK"
-        send_message_mock.assert_any_call("b838b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000000"})
-        send_message_mock.assert_any_call("0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000001"})
-        send_message_mock.assert_any_call("c838b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000002"})
+            assert send_message_mock.call_count == 3
+            assert response == "OK\nOK\nOK"
+            send_message_mock.assert_any_call("access_token", "b838b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000000"})
+            send_message_mock.assert_any_call("access_token", "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000001"})
+            send_message_mock.assert_any_call("access_token", "c838b13c-f98c-4def-93f0-515d4e4f4ee1", {"nhs_number": "0000000002"})
 
     def test_send_message(self, setup):
+        access_token = "access_token"
         routing_plan = "breast-screening-pilot"
         routing_plan_id = ROUTING_PLANS[routing_plan]
         patient_data = {
@@ -68,6 +80,7 @@ class TestHelper:
             "appointment_date": "2021-12-01",
             "appointment_type": "Mammogram",
             "appointment_location": "Breast Screening Clinic, 123 High Street, London",
+            "correlation_id": "da0b1495-c7cb-468c-9d81-07dee089d728",
         }
         message_data = patient_data.copy()
         message_data["routing_plan"] = routing_plan
@@ -94,9 +107,9 @@ class TestHelper:
 
         with requests_mock.Mocker() as rm:
             adapter = rm.post(
-                "http://example.com/comms/v1/message", text=response_text
+                "http://example.com/comms/v1/messages", text=response_text
             )
-            send_message(routing_plan_id, message_data)
+            send_message(access_token, routing_plan_id, message_data)
             expected_request_body = message_body(routing_plan_id, patient_data)
 
             assert adapter.called

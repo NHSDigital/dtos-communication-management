@@ -17,6 +17,8 @@ def send_messages(data: dict) -> str:
     responses: list = []
     routing_plan_id: str = None
 
+    access_token: str = get_access_token()
+
     if "routing_plan" in data:
         routing_plan_id = ROUTING_PLANS[data.pop("routing_plan")]
 
@@ -25,15 +27,16 @@ def send_messages(data: dict) -> str:
             if "routing_plan" in message_data:
                 routing_plan_id = ROUTING_PLANS[message_data.pop("routing_plan")]
 
-            response: str = send_message(routing_plan_id, message_data)
+            response: str = send_message(access_token, routing_plan_id, message_data)
             responses.append(response)
 
     return "\n".join(responses)
 
 
-def send_message(routing_plan_id, message_data) -> str:
+def send_message(access_token, routing_plan_id, message_data) -> str:
     body: str = message_body(routing_plan_id, message_data)
-    response = requests.post(url(), json=body, headers=HEADERS)
+    correlation_id: str = message_data["correlation_id"]
+    response = requests.post(url(), json=body, headers=headers(access_token, correlation_id))
 
     if response:
         logging.info(response.text)
@@ -42,6 +45,15 @@ def send_message(routing_plan_id, message_data) -> str:
         logging.error(response.text)
 
     return response.text
+
+
+def headers(access_token: str, correlation_id: str) -> dict:
+    return {
+        "content-type": "application/vnd.api+json",
+        "accept": "application/vnd.api+json",
+        "x-correlation-id": correlation_id,
+        "authorization": "Bearer " + access_token,
+    }
 
 
 def url() -> str:
@@ -103,7 +115,6 @@ def get_access_token() -> str:
 
 def generate_auth_jwt() -> str:
     algorithm: str = "RS512"
-    expiry_minutes: int = 5
     headers: dict = {"alg": algorithm, "typ": "JWT", "kid": os.getenv("KID")}
 
     payload: dict = {
@@ -111,12 +122,15 @@ def generate_auth_jwt() -> str:
         "iss": os.getenv("API_KEY"),
         "jti": str(uuid.uuid4()),
         "aud": os.getenv("TOKEN_URL"),
-        "exp": int(time()) + 300,  # 5mins in the future
+        "exp": int(time.time()) + 300,  # 5mins in the future
     }
 
-    private_key = get_private_key(os.getenv("PRIVATE_KEY_PATH"))
+    private_key = get_private_key(os.getenv("PRIVATE_KEY_PATH", "private.pem"))
 
-    return generate_jwt(algorithm, private_key, headers, payload, expiry_minutes=5)
+    return generate_jwt(
+            algorithm, private_key, headers,
+            payload, expiry_minutes=5
+        )
 
 
 def generate_jwt(
