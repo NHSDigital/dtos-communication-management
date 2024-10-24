@@ -17,6 +17,7 @@ install_pyenv_via_homebrew() {
         exit 1
     fi
     brew install pyenv
+    configure_pyenv_for_shell
 }
 
 install_pyenv_via_apt() {
@@ -36,14 +37,32 @@ install_pyenv_via_apt() {
     # Clone pyenv from GitHub and set it up
     curl https://pyenv.run | bash
 
-    # Add pyenv to the shell startup file
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-    echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
-    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+    configure_pyenv_for_shell
+}
 
-    # Source the shell startup script to make pyenv available
-    source ~/.bashrc
+configure_pyenv_for_shell() {
+    shell_config=""
+
+    if [[ "$SHELL" == */bash ]]; then
+        if [ -f "$HOME/.bashrc" ]; then
+            shell_config="$HOME/.bashrc"
+        elif [ -f "$HOME/.bash_profile" ]; then
+            shell_config="$HOME/.bash_profile"
+        fi
+    elif [[ "$SHELL" == */zsh ]]; then
+        shell_config="$HOME/.zshrc"
+    else
+        echo "Unknown shell. Please manually add pyenv initialization to your shell's startup script."
+        return 1
+    fi
+
+    if [[ -n "$shell_config" ]]; then
+        echo "Adding pyenv initialization to $shell_config"
+        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$shell_config"
+        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> "$shell_config"
+        echo 'eval "$(pyenv init --path)"' >> "$shell_config"
+        echo 'eval "$(pyenv init -)"' >> "$shell_config"
+    fi
 }
 
 install_pyenv_if_not_already_installed() {
