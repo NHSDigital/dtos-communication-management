@@ -7,6 +7,10 @@ from helper import process_data
 class TestHelper:
     @pytest.fixture
     def setup(self, monkeypatch):
+        monkeypatch.setattr(
+            "uuid.uuid4",
+            lambda: "00000000-0000-0000-0000-000000000000",
+        )
         monkeypatch.setenv(
             "NOTIFY_FUNCTION_URL",
             "http://example.com/api/notify/message/send",
@@ -29,6 +33,7 @@ class TestHelper:
                     "appointment_time": "10:00",
                     "appointment_location": "London",
                     "appointment_type": "Breast Screening",
+                    "correlation_id": "00000000-0000-0000-0000-000000000000",
                 },
                 {
                     "nhs_number": "1111111111",
@@ -37,6 +42,7 @@ class TestHelper:
                     "appointment_time": "11:00",
                     "appointment_location": "Croydon",
                     "appointment_type": "Breast Screening",
+                    "correlation_id": "00000000-0000-0000-0000-000000000000",
                 },
             ],
         }
