@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Define the Python version you want to install using pyenv
-PYTHON_VERSION="3.9.7"  # Update this to the desired version
+PYTHON_VERSION="3.9.7"
 
 isMacOS() {
     [[ "$OSTYPE" == "darwin"* ]]
