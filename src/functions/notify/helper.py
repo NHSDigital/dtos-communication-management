@@ -1,0 +1,139 @@
+import hashlib
+import jwt
+import logging
+import os
+import requests
+import time
+import uuid
+
+
+ROUTING_PLANS = {
+    # FIXME: This is a sandbox routing plan id, not a real one.
+    "breast-screening-pilot": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+}
+
+
+def send_messages(data: dict) -> str:
+    responses: list = []
+    routing_plan_id: str = None
+
+    if "routing_plan" in data:
+        routing_plan_id = ROUTING_PLANS[data.pop("routing_plan")]
+
+    if "recipients" in data:
+        for message_data in data["recipients"]:
+            if "routing_plan" in message_data:
+                routing_plan_id = ROUTING_PLANS[message_data.pop("routing_plan")]
+
+            response: str = send_message(routing_plan_id, message_data)
+            responses.append(response)
+
+    return "\n".join(responses)
+
+
+def send_message(routing_plan_id, message_data) -> str:
+    body: str = message_body(routing_plan_id, message_data)
+    response = requests.post(url(), json=body, headers=HEADERS)
+
+    if response:
+        logging.info(response.text)
+    else:
+        logging.error(f"{response.status_code} response from Notify API {url()}")
+        logging.error(response.text)
+
+    return response.text
+
+
+def url() -> str:
+    return os.environ["BASE_URL"] + "/comms/v1/messages"
+
+
+def message_body(routing_plan_id, message_data) -> dict:
+    nhs_number: str = message_data["nhs_number"]
+    date_of_birth: str = message_data["date_of_birth"]
+    appointment_time: str = message_data["appointment_time"]
+    appointment_date: str = message_data["appointment_date"]
+    appointment_type: str = message_data["appointment_type"]
+    appointment_location: str = message_data["appointment_location"]
+
+    return {
+        "data": {
+            "type": "Message",
+            "attributes": {
+                "messageReference": reference_uuid(nhs_number),
+                "routingPlanId": routing_plan_id,
+                "recipient": {
+                    "nhsNumber": nhs_number,
+                    "dateOfBirth": date_of_birth,
+                },
+                "personalisation": {
+                    "appointmentDate": appointment_date,
+                    "appointmentLocation": appointment_location,
+                    "appointmentTime": appointment_time,
+                    "appointmentType": appointment_type,
+                },
+                "originator": {
+                    "odsCode": "X26"
+                },
+            },
+        }
+    }
+
+
+def reference_uuid(val) -> str:
+    str_val = str(val)
+    return str(uuid.UUID(hashlib.md5(str_val.encode()).hexdigest()))
+
+
+def get_access_token() -> str:
+    jwt: str = generate_auth_jwt()
+    headers: dict = {"Content-Type": "application/x-www-form-urlencoded"}
+
+    body = {
+        "grant_type": "client_credentials",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": jwt,
+    }
+
+    response = requests.post(base_url(), data=body, headers=headers)
+    access_token = response["access_token"]
+
+    return access_token
+
+
+def generate_auth_jwt() -> str:
+    algorithm: str = "RS512"
+    expiry_minutes: int = 5
+    headers: dict = {"alg": algorithm, "typ": "JWT", "kid": os.getenv("KID")}
+
+    payload: dict = {
+        "sub": os.getenv("API_KEY"),
+        "iss": os.getenv("API_KEY"),
+        "jti": str(uuid.uuid4()),
+        "aud": os.getenv("TOKEN_URL"),
+        "exp": int(time()) + 300,  # 5mins in the future
+    }
+
+    private_key = get_private_key(os.getenv("PRIVATE_KEY_PATH"))
+
+    return generate_jwt(algorithm, private_key, headers, payload, expiry_minutes=5)
+
+
+def generate_jwt(
+    algorithm: str,
+    private_key,
+    headers: dict,
+    payload: dict,
+    expiry_minutes: int = None,
+) -> str:
+    if expiry_minutes:
+        expiry_date = datetime.now(timezone.utc) + timedelta(minutes=expiry_minutes)
+        payload["exp"] = expiry_date
+
+    return jwt.encode(payload, private_key, algorithm, headers)
+
+
+def get_private_key(private_key_path: str) -> str:
+    with open(private_key_path, "r", encoding="utf-8") as f:
+        private_key = f.read()
+        return private_key
