@@ -78,13 +78,11 @@ install_python_if_not_already_installed() {
     if ! pyenv versions | grep "$PYTHON_VERSION" &> /dev/null; then
         echo "Python $PYTHON_VERSION is not installed. Attempting to install using pyenv..."
 
-        # Install the specified Python version using pyenv
         pyenv install "$PYTHON_VERSION"
     else
         echo "Python $PYTHON_VERSION is already installed via pyenv."
     fi
 
-    # Set the global Python version using pyenv
     pyenv global "$PYTHON_VERSION"
 }
 
