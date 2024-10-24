@@ -1,8 +1,8 @@
 import csv
+import dateutil.parser
 import logging
 import os
 import requests
-import dateutil.parser
 import uuid
 
 FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location", "appointment_type")
