@@ -20,7 +20,6 @@ install_pyenv_via_homebrew() {
 }
 
 install_pyenv_via_apt() {
-    # Linux - Use apt
     echo "Detected Linux. Installing pyenv using apt..."
     if ! command -v apt &> /dev/null; then
         echo "apt is not available. Please install it, or update this script to add your preferred package installer."
