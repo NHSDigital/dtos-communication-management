@@ -42,10 +42,7 @@ jobs:
         uses: actions/checkout@v4
       - name: "Run unit test suite"
         run: |
-          make test-unit
-      - name: "Save the result of fast test suite"
-        run: |
-          echo "Nothing to save"
+          ./test.sh
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
