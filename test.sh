@@ -142,9 +142,12 @@ run_all_test_suites() {
 }
 
 # Actually run the things
-install_pyenv_if_not_already_installed
-initialise_pyenv
-install_python_if_not_already_installed
+if [[ "$GITHUB_ACTIONS" != "true" ]]; then
+    install_pyenv_if_not_already_installed
+    initialise_pyenv
+    install_python_if_not_already_installed
+fi
+
 create_virtual_env
 install_pytest_if_not_already_installed
 run_all_test_suites
