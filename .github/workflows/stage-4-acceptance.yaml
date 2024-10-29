@@ -15,6 +15,10 @@ on:
         description: "Build epoch, set by the CI/CD pipeline workflow"
         required: true
         type: string
+      environment_tag:
+        description: "Environment of the deployement"
+        required: true
+        type: string
       nodejs_version:
         description: "Node.js version, set by the CI/CD pipeline workflow"
         required: true

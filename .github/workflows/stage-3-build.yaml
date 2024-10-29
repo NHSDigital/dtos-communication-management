@@ -1,6 +1,10 @@
-name: "Build stage"
+name: Docker Image CI
 
 on:
+  push:
+    branches:
+      - main
+
   workflow_call:
     inputs:
       build_datetime:
@@ -13,6 +17,10 @@ on:
         type: string
       build_epoch:
         description: "Build epoch, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      environment_tag:
+        description: "Environment of the deployement"
         required: true
         type: string
       nodejs_version:
@@ -33,37 +41,156 @@ on:
         type: string
 
 jobs:
-  artefact-1:
-    name: "Artefact 1"
+  build-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        function: [process-pilot-data, notify]
     steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Build artefact 1"
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          fetch-depth: 0
+
+      - name: Az CLI login
+        if: github.ref == 'refs/heads/main'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure Container Registry login
+        if: github.ref == 'refs/heads/main'
+        run: az acr login --name ${{ secrets.ACR_NAME }}
+
+      - name: Create Tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
         run: |
-          echo "Building artefact 1 ..."
-      - name: "Check artefact 1"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "The branch is: ${{ github.ref }}"
+
+          if [[ "$GITHUB_REF" == refs/pull/*/merge ]]; then
+            PR_NUM_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          else
+            PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
+            ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
+            echo "ORIGINATING_BRANCH: $ORIGINATING_BRANCH"
+            PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
+          fi
+
+          echo "PR_NUM_TAG: pr$PR_NUM_TAG"
+          echo "PR_NUM_TAG=pr$PR_NUM_TAG" >> $GITHUB_ENV
+
+          SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
+          echo "Commit hash tag: $SHORT_COMMIT_HASH"
+          echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+
+          echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
+
+      - name: Build and Push Image
+        working-directory: ./
         run: |
-          echo "Checking artefact 1 ..."
-      - name: "Upload artefact 1"
+          function=${{ matrix.function }}
+
+          # Build the image
+          docker compose build $function
+
+          full_function_name="communication-management-$function"
+          repo_name="${{ secrets.ACR_NAME }}.azurecr.io/$full_function_name"
+
+          # Tag the image
+          docker tag $full_function_name:latest "$repo_name:$COMMIT_HASH_TAG"
+          docker tag $full_function_name:latest "$repo_name:$PR_NUM_TAG"
+          docker tag $full_function_name:latest "$repo_name:$ENVIRONMENT_TAG"
+
+          export CHECK_DOCKER_IMAGE=$full_function_name:latest   # If this is set it will scan this docker image instead.
+          export FORCE_USE_DOCKER=true
+
+          export PR_NUM_TAG=$PR_NUM_TAG
+          echo "PR_NUM_TAG=$PR_NUM_TAG" >> $GITHUB_ENV
+
+          export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
+          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
+          ../../scripts/reports/create-sbom-report.sh
+
+          export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
+          echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
+          ../../scripts/reports/scan-vulnerabilities.sh
+
+          # Push the image to the repository
+          if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+            docker push "$repo_name:$COMMIT_HASH_TAG"
+            if [ "$PR_NUM_TAG" != 'pr' ]; then
+              docker push "$repo_name:$PR_NUM_TAG"
+            fi
+            docker push "$repo_name:$ENVIRONMENT_TAG"
+          fi
+
+          # Remove the image
+          docker rmi "$repo_name:$COMMIT_HASH_TAG"
+          docker rmi "$repo_name:$PR_NUM_TAG"
+          docker rmi "$repo_name:$ENVIRONMENT_TAG"
+          docker rmi $full_function_name:latest
+
+      - name: "Compress SBOM report"
+        shell: bash
         run: |
-          echo "Uploading artefact 1 ..."
-          # TODO: Use either action/cache or action/upload-artifact
-  artefact-2:
-    name: "Artefact 2"
+          echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+          zip "$SBOM_REPOSITORY_REPORT.json.zip" "$SBOM_REPOSITORY_REPORT.json"
+
+      - name: "Upload SBOM report as an artefact"
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SBOM_REPOSITORY_REPORT }}.json.zip
+          path: ./${{ env.SBOM_REPOSITORY_REPORT }}.json.zip
+          retention-days: 21
+      - name: "Compress vulnerabilities report"
+        shell: bash
+        run: |
+          echo VULNERABILITIES_REPOSITORY_REPORT: $VULNERABILITIES_REPOSITORY_REPORT
+          zip $VULNERABILITIES_REPOSITORY_REPORT.json.zip $VULNERABILITIES_REPOSITORY_REPORT.json
+      - name: "Upload vulnerabilities report as an artefact"
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.VULNERABILITIES_REPOSITORY_REPORT }}.json.zip
+          path: ./${{ env.VULNERABILITIES_REPOSITORY_REPORT }}.json.zip
+          retention-days: 21
+    outputs:
+      pr_num_tag: ${{ env.PR_NUM_TAG }}
+
+  aggregate-json:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    needs: build-and-push
     steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Build artefact 2"
+      - name: Download SBOM JSON artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./downloaded-artifacts
+
+      - name: Combine sbom report JSON files
         run: |
-          echo "Building artefact 2 ..."
-      - name: "Check artefact 2"
+          zip sbom-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip downloaded-artifacts/**/sbom*.json.zip
+
+      - name: Combine vulnerabilities report JSON files
         run: |
-          echo "Checking artefact 2 ..."
-      - name: "Upload artefact 2"
-        run: |
-          echo "Uploading artefact 2 ..."
-          # TODO: Use either action/cache or action/upload-artifact
+          zip vulnerabilities-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip downloaded-artifacts/**/vulnerabilities*.json.zip
+
+      - name: Upload sbom zip file
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-sbom-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
+          path: sbom-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
+
+      - name: Upload repository zip file
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-vulnerabilities-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
+          path: vulnerabilities-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
