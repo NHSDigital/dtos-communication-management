@@ -46,4 +46,4 @@ services:
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7072
-      - BASE_URL=https://sandbox.api.service.nhs.uk
+      - NOTIFY_API_URL=https://sandbox.api.service.nhs.uk

@@ -7,7 +7,8 @@ import uuid
 
 @pytest.fixture
 def setup(monkeypatch):
-    monkeypatch.setenv("BASE_URL", "http://example.com")
+    monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
+    monkeypatch.setenv("TOKEN_URL", "http://tokens.example.com")
 
 
 def test_send_messages(mocker):

@@ -57,7 +57,7 @@ def headers(access_token: str, correlation_id: str) -> dict:
 
 
 def url() -> str:
-    return os.environ["BASE_URL"] + "/comms/v1/messages"
+    return os.environ["NOTIFY_API_URL"] + "/comms/v1/messages"
 
 
 def message_body(routing_plan_id, message_data) -> dict:
@@ -107,7 +107,7 @@ def get_access_token() -> str:
         "client_assertion": jwt,
     }
 
-    response = requests.post(base_url(), data=body, headers=headers)
+    response = requests.post(os.getenv("TOKEN_URL"), data=body, headers=headers)
     access_token = response["access_token"]
 
     return access_token
