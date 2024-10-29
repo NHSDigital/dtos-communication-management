@@ -17,8 +17,8 @@ services:
     depends_on:
       - azurite
     environment:
-      # See https://github.com/Azure/Azurite?tab=readme-ov-file#connection-strings for connection string
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
+      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
 
   # Functions
   process-pilot-data:
@@ -32,7 +32,7 @@ services:
       - ASPNETCORE_URLS=http://*:7071
       - FUNCTIONS_WORKER_RUNTIME=python
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
-      - NOTIFICATION_FUNCTION_URL=http://localhost:7072/api/notify/message/send
+      - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
 
     depends_on:
       - azurite
@@ -46,4 +46,8 @@ services:
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7072
-      - NOTIFY_API_URL=https://sandbox.api.service.nhs.uk
+      - NOTIFY_API_URL=${NOTIFY_API_URL}
+      - NOTIFY_API_KEY=${NOTIFY_API_KEY}
+      - NOTIFY_API_KID=${NOTIFY_API_KID}
+      - OAUTH2_TOKEN_URL=${OAUTH2_TOKEN_URL}
+      - PRIVATE_KEY_PATH=${PRIVATE_KEY_PATH}
