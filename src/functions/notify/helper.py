@@ -53,7 +53,7 @@ def headers(access_token: str, correlation_id: str) -> dict:
         "content-type": "application/vnd.api+json",
         "accept": "application/vnd.api+json",
         "x-correlation-id": correlation_id,
-        "authorization": "Bearer " + access_token,
+        # "authorization": "Bearer " + access_token,
     }
 
 
@@ -99,6 +99,9 @@ def reference_uuid(val) -> str:
 
 
 def get_access_token() -> str:
+    if os.getenv("NOTIFY_API_KEY") is None:
+        return "awaiting-token"
+
     jwt: str = generate_auth_jwt()
     headers: dict = {"Content-Type": "application/x-www-form-urlencoded"}
 
@@ -108,7 +111,7 @@ def get_access_token() -> str:
         "client_assertion": jwt,
     }
 
-    response = requests.post(os.getenv("TOKEN_URL"), data=body, headers=headers)
+    response = requests.post(os.getenv("OAUTH2_TOKEN_URL"), data=body, headers=headers)
     access_token = response.json()["access_token"]
 
     return access_token
@@ -127,7 +130,7 @@ def generate_auth_jwt() -> str:
         "sub": api_key,
         "iss": api_key,
         "jti": str(uuid.uuid4()),
-        "aud": os.getenv("TOKEN_URL"),
+        "aud": os.getenv("OAUTH2_TOKEN_URL"),
         "exp": int(time.time()) + 300,  # 5mins in the future
     }
 
