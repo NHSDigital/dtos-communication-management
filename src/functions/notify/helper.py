@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import jwt
 import logging
@@ -108,18 +109,23 @@ def get_access_token() -> str:
     }
 
     response = requests.post(os.getenv("TOKEN_URL"), data=body, headers=headers)
-    access_token = response["access_token"]
+    access_token = response.json()["access_token"]
 
     return access_token
 
 
 def generate_auth_jwt() -> str:
     algorithm: str = "RS512"
-    headers: dict = {"alg": algorithm, "typ": "JWT", "kid": os.getenv("KID")}
+    headers: dict = {
+        "alg": algorithm,
+        "typ": "JWT",
+        "kid": str(os.getenv("NOTIFY_KID"))
+    }
+    api_key: str = os.getenv("NOTIFY_API_KEY")
 
     payload: dict = {
-        "sub": os.getenv("API_KEY"),
-        "iss": os.getenv("API_KEY"),
+        "sub": api_key,
+        "iss": api_key,
         "jti": str(uuid.uuid4()),
         "aud": os.getenv("TOKEN_URL"),
         "exp": int(time.time()) + 300,  # 5mins in the future
@@ -141,7 +147,10 @@ def generate_jwt(
     expiry_minutes: int = None,
 ) -> str:
     if expiry_minutes:
-        expiry_date = datetime.now(timezone.utc) + timedelta(minutes=expiry_minutes)
+        expiry_date = (
+            datetime.datetime.now(datetime.timezone.utc) +
+            datetime.timedelta(minutes=expiry_minutes)
+        )
         payload["exp"] = expiry_date
 
     return jwt.encode(payload, private_key, algorithm, headers)

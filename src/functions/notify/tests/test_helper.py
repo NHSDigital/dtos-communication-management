@@ -2,6 +2,7 @@ import helper
 import json
 import pytest
 import requests_mock
+import cryptography.hazmat.primitives.asymmetric.rsa as rsa
 import uuid
 
 
@@ -176,3 +177,18 @@ def test_message_body():
     }
 
     assert actual == expected
+
+
+def test_get_access_token(monkeypatch, mocker, setup):
+    monkeypatch.setenv("NOTIFY_API_KEY", "an_api_key")
+    monkeypatch.setenv("NOTIFY_API_KID", "a_kid")
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    mocker.patch("helper.get_private_key", return_value=private_key)
+
+    with requests_mock.Mocker() as rm:
+        rm.post(
+            "http://tokens.example.com/",
+            json={"access_token": "an_access_token"},
+        )
+        access_token = helper.get_access_token()
+        assert access_token == "an_access_token"
