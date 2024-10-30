@@ -1,15 +1,47 @@
 # Local development setup
 
-The following instructions will help you set up your local development environment to run the Azure functions locally along with the Azurite Azure Storage Emulator.
-This allows you to create and update blob data in emulated storage and trigger the **process-pilot-data** azure function.
-This in turn will make a request to the **notify** function which will send a message to the NHS Notify API Sandbox environment.
+This project uses Azure Functions to process data and send messages to the NHS Notify API Sandbox environment.
+Docker containers can be used to run the Azure functions in a local development environment.
+Docker compose is used to run the Azure functions and Azurite Azure Storage Emulator.
+Alternatively, you can run the Azure functions locally using Azure Functions Core Tools.
 
 ## Prerequisites
 
 - Python 3.11
-- [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-python?pivots=python-mode-decorators&tabs=linux%2Cbash%2Cazure-cli%2Cbrowser#install-the-azure-functions-core-tools)
-- [Azurite (Azure Storage Emulator)](https://github.com/Azure/Azurite?tab=readme-ov-file#getting-started)
-- [Azure Storage Explorer (optional)](https://azure.microsoft.com/en-us/features/storage-explorer/) - to view and manage Azure Storage resources
+- Docker
+- Docker Compose (included with Docker Desktop)
+- Azure Functions Core Tools (Optional, see below)
+
+## Using Docker Compose to run Azure Functions and Azurite
+
+This is the preferred method for running the Azure functions locally.
+
+### Prepare environment variables
+
+Copy `.env.example` to `.env.local` in the root of the project and populate with valid values. You may need to ask another developer for these values.
+
+### Start Azurite and Azure functions
+
+To start the Azure functions and Azurite, run the following command:
+
+```bash
+docker compose --env-file .env.local up
+```
+
+### Testing a file upload
+
+There is a convenience script to upload a test file to the Azurite storage emulator. This script will upload a test file to the `pilot-data` container in the Azurite storage emulator.
+
+```bash
+pip install azure-storage-blob python-dotenv
+python dependencies/azurite/send_file.py dependencies/azurite/example.csv
+```
+
+You should see the Azure functions being triggered in the console output and success messages from the functions.
+
+## Manual setup using Azure Functions Core Tools to run functions outside of Docker
+
+It's also possible to run one or more functions locally without using Docker. This can be useful for debugging or testing individual functions.
 
 ### Setup Python virtual environment
 
@@ -43,8 +75,8 @@ To run an end-to-end test, you will need to run both functions locally. Function
 2. Start the **process-pilot-data** function with the default port (omit the -p flag)
 3. Start the **notify** function on port 7072 (use the `-p 7072` flag)
 4. Start Storage Explorer and connect to the Azurite Emulator
-5. Create a container called `blobs` via the Storage Explorer
-6. Create or update a blob in the `blobs` container.
+5. Create a container called `pilot-data` via the Storage Explorer
+6. Create or update a blob in the `pilot-data` container.
 The CSV file contents should look like (the NHS numbers are valid example data):
 
     ```csv
