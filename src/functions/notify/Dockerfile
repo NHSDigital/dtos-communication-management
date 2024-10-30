@@ -7,7 +7,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsFeatureFlags=EnableWorkerIndexing \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
-    BASE_URL=https://sandbox.api.service.nhs.uk \
+    NOTIFY_API_URL=https://sandbox.api.service.nhs.uk \
     WEBSITES_PORT=8080
 
 
