@@ -68,6 +68,7 @@ def message_body(routing_plan_id, message_data) -> dict:
     appointment_date: str = message_data["appointment_date"]
     appointment_type: str = message_data["appointment_type"]
     appointment_location: str = message_data["appointment_location"]
+    contact_telephone_number: str = message_data["contact_telephone_number"]
 
     return {
         "data": {
@@ -80,10 +81,12 @@ def message_body(routing_plan_id, message_data) -> dict:
                     "dateOfBirth": date_of_birth,
                 },
                 "personalisation": {
-                    "appointmentDate": appointment_date,
-                    "appointmentLocation": appointment_location,
-                    "appointmentTime": appointment_time,
-                    "appointmentType": appointment_type,
+                    "appointment_date": appointment_date,
+                    "appointment_location": appointment_location,
+                    "appointment_time": appointment_time,
+                    "appointment_type": appointment_type,
+                    "tracking_id": nhs_number,
+                    "contact_telephone_number": contact_telephone_number,
                 },
                 "originator": {
                     "odsCode": "X26"

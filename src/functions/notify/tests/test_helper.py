@@ -104,6 +104,7 @@ def test_send_message(setup):
         "appointment_type": "Mammogram",
         "appointment_location": "Breast Screening Clinic, 123 High Street, London",
         "correlation_id": "da0b1495-c7cb-468c-9d81-07dee089d728",
+        "contact_telephone_number": "012345678",
     }
     message_data = patient_data.copy()
     message_data["routing_plan"] = routing_plan
@@ -149,6 +150,8 @@ def test_message_body():
         "appointment_date": "2021-12-01",
         "appointment_type": "Mammogram",
         "appointment_location": "Breast Screening Clinic, 123 High Street, London",
+        "correlation_id": "da0b1495-c7cb-468c-9d81-07dee089d728",
+        "contact_telephone_number": "012345678",
     }
 
     actual = helper.message_body(routing_plan_id, data)
@@ -164,10 +167,12 @@ def test_message_body():
                     "dateOfBirth": "1990-01-02",
                 },
                 "personalisation": {
-                    "appointmentDate": "2021-12-01",
-                    "appointmentLocation": "Breast Screening Clinic, 123 High Street, London",
-                    "appointmentTime": "10:00",
-                    "appointmentType": "Mammogram",
+                    "appointment_date": "2021-12-01",
+                    "appointment_location": "Breast Screening Clinic, 123 High Street, London",
+                    "appointment_time": "10:00",
+                    "appointment_type": "Mammogram",
+                    "tracking_id": "0000000000",
+                    "contact_telephone_number": "012345678",
                 },
                 "originator": {
                     "odsCode": "X26",

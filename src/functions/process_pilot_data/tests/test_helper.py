@@ -14,6 +14,10 @@ def setup(monkeypatch):
         "NOTIFY_FUNCTION_URL",
         "http://example.com/api/notify/message/send",
     )
+    monkeypatch.setenv(
+        "CONTACT_TELEPHONE_NUMBER",
+        "01234567890",
+    )
 
 
 def test_process_data(setup):
@@ -34,6 +38,7 @@ def test_process_data(setup):
                 "appointment_location": "London",
                 "appointment_type": "Breast Screening",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
+                "contact_telephone_number": "01234567890",
             },
             {
                 "nhs_number": "1111111111",
@@ -43,6 +48,7 @@ def test_process_data(setup):
                 "appointment_location": "Croydon",
                 "appointment_type": "Breast Screening",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
+                "contact_telephone_number": "01234567890",
             },
         ],
     }

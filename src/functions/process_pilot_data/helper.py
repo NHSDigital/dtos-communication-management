@@ -35,6 +35,7 @@ def valid_csv_data(raw_data) -> list:
         for row in reader:
             if valid_row(row):
                 row["correlation_id"] = str(uuid.uuid4())
+                row["contact_telephone_number"] = contact_telephone_number()
                 data.append(row)
     except csv.Error:
         logging.error("Invalid CSV data")
@@ -71,3 +72,7 @@ def valid_date_or_time(val: str) -> bool:
 
 def notify_function_url():
     return os.environ["NOTIFY_FUNCTION_URL"]
+
+
+def contact_telephone_number() -> str:
+    return os.environ["CONTACT_TELEPHONE_NUMBER"]
