@@ -1,7 +1,6 @@
 import azure.functions as func
 import json
-import logging
-import notify.helper as helper
+import helper
 
 app = func.FunctionApp()
 
