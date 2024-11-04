@@ -1,8 +1,9 @@
-import asyncio
 import logging
 import pytest
 import os
+import pytest
 import subprocess
+import time
 
 """
 End to end test for the azure functions using docker compose.
@@ -11,6 +12,7 @@ To run the test with logging output use the following command:
 pytest --log-cli-level=INFO tests/test_end_to_end.py
 """
 
+ENV_FILE = os.getenv("ENV_FILE", ".env.e2e")
 
 @pytest.fixture()
 def setup():
@@ -18,77 +20,127 @@ def setup():
         pytest.skip("Skipping end to end test, set GITHUB_ACTIONS env var to run this test")
 
 
-def run_docker_compose():
+@pytest.fixture
+def docker():
     try:
-
-        result = subprocess.Popen(
-            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.local', 'up'],
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            text=True,
-        )
-    except Exception as e:
-        logging.error("Error starting containers:")
-        logging.error(e)
-
-    return result.stdout, result.stderr
+        assert docker_compose_build(), "Error building containers"
+        assert docker_compose_up()
+        yield
+    finally:
+        docker_compose_down()
 
 
-def upload_file_to_blob_storage():
+def docker_arglist(command, *args):
+    return ['docker', 'compose', '--env-file', ENV_FILE, command, *args]
+
+
+def docker_compose_build():
+    logging.info("Building containers")
     try:
-        result = subprocess.run(
-            ['python', 'dependencies/azurite/send_file.py', 'dependencies/azurite/example.csv'],
+        subprocess.run(
+            docker_arglist('build', 'azurite', 'azurite-setup', 'notify', 'process-pilot-data'),
             check=True,
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
             text=True,
         )
-
-    except subprocess.CalledProcessError as e:
-        logging.error("Error uploading file:")
-        logging.error(e)
-
-    return result.stdout, result.stderr
+        return True
+    except Exception as e:
+        logging.error(f"Error building containers: {e.stderr}")
+        return False
 
 
-def stop_containers():
+def docker_compose_up():
+    logging.info("Starting containers")
     try:
         subprocess.Popen(
-            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.local', 'down'],
+            docker_arglist('up', '-d'),
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
-
+        return True
     except Exception as e:
-        logging.error("Error stopping containers:")
-        logging.error(e)
+        logging.error(f"Error building containers: {e.stderr}")
+        return False
 
 
-async def main():
-    logging.info("Starting containers")
-    output, errors = run_docker_compose()
-    logging.info("Pausing for 20 seconds to allow containers to start")
-    await asyncio.sleep(20)
-    logging.info("Uploading file to blob storage")
-    upload_file_to_blob_storage()
-    logging.info("Pausing for 5 seconds to allow functions to execute")
-    await asyncio.sleep(5)
+def docker_compose_down():
     logging.info("Stopping containers")
-    stop_containers()
-
-    container_output = output.read()
-
-    logging.debug("Container output:")
-    logging.debug(container_output)
-
-    assert "Executing 'Functions.ProcessPilotData' (Reason='New blob detected(LogsAndContainerScan): pilot-data/example.csv'" in container_output
-    assert "Executed 'Functions.ProcessPilotData' (Succeeded," in container_output
-
-    assert "Executing 'Functions.Notify' (Reason='This function was programmatically called via the host APIs.'" in container_output
-    assert "Executed 'Functions.Notify' (Succeeded," in container_output
-
-    logging.info("End to end test completed successfully")
+    subprocess.run(
+        docker_arglist('down'),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
 
 
-def test_end_to_end(setup):
-    asyncio.run(main())
+def upload_file_to_blob_storage():
+    logging.info("Uploading file to blob storage")
+    try:
+        subprocess.run(
+            ['python', 'dependencies/azurite/send_file.py', 'dependencies/azurite/example.csv'],
+            check=True,
+            env=dict(os.environ, ENV_FILE=ENV_FILE),
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+        )
+        logging.info("File uploaded successfully")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Error uploading file to blob storage: {e.stderr}")
+        return False
+
+    return True
+
+
+def logs_for_container(container_name):
+    result = subprocess.run(
+        docker_arglist('logs', container_name, '--since', '30s'),
+        check=True,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    logging.debug(f"Logs for {container_name}: {result.stdout}")
+
+    return result.stdout
+
+
+def logs_contain_message(container_name, message):
+    container_logs = logs_for_container(container_name)
+    return message in container_logs
+
+
+def poll_logs_for_message(container_name, message, cycles=15):
+    for _ in range(cycles):
+        time.sleep(2)
+        if logs_contain_message(container_name, message):
+            return True
+
+    return False
+
+
+def test_end_to_end(skip_test, docker):
+    assert poll_logs_for_message("azurite-setup", "Blob containers created"), (
+        "Containers not ready")
+
+    logging.info("Containers are ready")
+
+    assert upload_file_to_blob_storage(), "File upload unsuccessful"
+
+    assert poll_logs_for_message("process-pilot-data", "Trigger Details:"), (
+            "ProcessPilotData function not triggered by file upload")
+
+    assert logs_contain_message(
+            "process-pilot-data", "Executing 'Functions.ProcessPilotData'"), (
+            "ProcessPilotData function not executed")
+    assert logs_contain_message(
+            "notify", "Executing 'Functions.Notify'"), (
+            "Notify function not executed")
+    assert poll_logs_for_message(
+            "process-pilot-data", "Executed 'Functions.ProcessPilotData' (Succeeded,"), (
+            "ProcessPilotData function did not succeed")
+    assert poll_logs_for_message(
+            "notify", "Executed 'Functions.Notify' (Succeeded,"), (
+            "Notify function did not succeed")
+
+    logging.info("End to end test successful")
