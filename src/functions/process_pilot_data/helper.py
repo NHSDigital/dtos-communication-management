@@ -5,7 +5,7 @@ import os
 import requests
 import uuid
 
-FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location", "appointment_type")
+FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
 HEADERS = {
     "Content-type": "application/json",
     "Accept": "application/json",
@@ -49,8 +49,7 @@ def valid_row(row) -> bool:
         valid_date_or_time(row["date_of_birth"]) and
         valid_date_or_time(row["appointment_date"]) and
         valid_date_or_time(row["appointment_time"]) and
-        row["appointment_location"] and
-        row["appointment_type"]
+        row["appointment_location"]
     )
 
 

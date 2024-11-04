@@ -23,8 +23,8 @@ def setup(monkeypatch):
 def test_process_data(setup):
     response_text = json.dumps({"data": "OK"})
     csv_data = [
-        "0000000000,2001-02-03,2022-02-03,10:00,London,Breast Screening",
-        "1111111111,2002-04-04,2024-04-04,11:00,Croydon,Breast Screening",
+        "0000000000,2001-02-03,2022-02-03,10:00,London",
+        "1111111111,2002-04-04,2024-04-04,11:00,Croydon",
     ]
 
     expected_request_body = {
@@ -36,7 +36,6 @@ def test_process_data(setup):
                 "appointment_date": "2022-02-03",
                 "appointment_time": "10:00",
                 "appointment_location": "London",
-                "appointment_type": "Breast Screening",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
                 "contact_telephone_number": "01234567890",
             },
@@ -46,7 +45,6 @@ def test_process_data(setup):
                 "appointment_date": "2024-04-04",
                 "appointment_time": "11:00",
                 "appointment_location": "Croydon",
-                "appointment_type": "Breast Screening",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
                 "contact_telephone_number": "01234567890",
             },
