@@ -4,7 +4,7 @@ import json
 
 
 def test_main(mocker):
-    mock = mocker.patch("helper.send_messages")
+    mock = mocker.patch("notifier.send_messages")
     data = {
         "routing_plan": "breast-screening-pilot",
         "recipients": [

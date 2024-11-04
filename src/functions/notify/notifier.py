@@ -100,7 +100,7 @@ def reference_uuid(val) -> str:
 
 
 def get_access_token() -> str:
-    if os.getenv("NOTIFY_API_KEY") is None:
+    if not os.getenv("NOTIFY_API_KEY"):
         return "awaiting-token"
 
     jwt: str = generate_auth_jwt()

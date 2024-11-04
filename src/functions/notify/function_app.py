@@ -1,6 +1,6 @@
 import azure.functions as func
 import json
-import helper
+import notifier
 
 app = func.FunctionApp()
 
@@ -13,4 +13,4 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     json_body: str = json.loads(req_body_bytes.decode("utf-8"))
 
     if notification_type == "message":
-        return helper.send_messages(json_body)
+        return notifier.send_messages(json_body)
