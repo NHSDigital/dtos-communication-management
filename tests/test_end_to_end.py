@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import subprocess
 
 """
@@ -83,4 +84,5 @@ async def main():
 
 
 def test_end_to_end():
-    asyncio.run(main())
+    if os.getenv("GITHUB_ACTIONS"):
+        asyncio.run(main())
