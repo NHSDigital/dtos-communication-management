@@ -66,7 +66,6 @@ def message_body(routing_plan_id, message_data) -> dict:
     date_of_birth: str = message_data["date_of_birth"]
     appointment_time: str = message_data["appointment_time"]
     appointment_date: str = message_data["appointment_date"]
-    appointment_type: str = message_data["appointment_type"]
     appointment_location: str = message_data["appointment_location"]
     contact_telephone_number: str = message_data["contact_telephone_number"]
 
@@ -84,7 +83,6 @@ def message_body(routing_plan_id, message_data) -> dict:
                     "appointment_date": appointment_date,
                     "appointment_location": appointment_location,
                     "appointment_time": appointment_time,
-                    "appointment_type": appointment_type,
                     "tracking_id": nhs_number,
                     "contact_telephone_number": contact_telephone_number,
                 },
