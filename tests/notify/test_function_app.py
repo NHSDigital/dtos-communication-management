@@ -1,10 +1,10 @@
 import azure.functions as func
-import notify.function_app
+import function_app
 import json
 
 
 def test_main(mocker):
-    mock = mocker.patch("notify.helper.send_messages")
+    mock = mocker.patch("helper.send_messages")
     data = {
         "routing_plan": "breast-screening-pilot",
         "recipients": [
@@ -24,7 +24,7 @@ def test_main(mocker):
         route_params={"notification_type": "message"},
     )
 
-    func_call = notify.function_app.main.build().get_user_function()
+    func_call = function_app.main.build().get_user_function()
     func_call(req)
 
     mock.assert_called_once()

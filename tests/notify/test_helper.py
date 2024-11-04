@@ -1,5 +1,5 @@
 import json
-import notify.helper as helper
+import helper
 import pytest
 import requests_mock
 import cryptography.hazmat.primitives.asymmetric.rsa as rsa
@@ -13,8 +13,8 @@ def setup(monkeypatch):
 
 
 def test_send_messages(mocker):
-    mocker.patch("notify.helper.get_access_token", return_value="access_token")
-    send_message_mock = mocker.patch("notify.helper.send_message", return_value="OK")
+    mocker.patch("helper.get_access_token", return_value="access_token")
+    send_message_mock = mocker.patch("helper.send_message", return_value="OK")
     data = {
         "routing_plan": "breast-screening-pilot",
         "recipients": [
@@ -51,11 +51,11 @@ def test_send_messages(mocker):
 
 
 def test_send_messages_with_individual_routing_plans(mocker):
-    mocker.patch("notify.helper.get_access_token", return_value="access_token")
+    mocker.patch("helper.get_access_token", return_value="access_token")
     test_routing_plans = helper.ROUTING_PLANS.copy()
     test_routing_plans["cervical-screening-pilot"] = "c838b13c-f98c-4def-93f0-515d4e4f4ee1"
     test_routing_plans["bowel-cancer-screening-pilot"] = "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1"
-    routing_plans_mock = mocker.patch("notify.helper.ROUTING_PLANS", test_routing_plans)
+    routing_plans_mock = mocker.patch("helper.ROUTING_PLANS", test_routing_plans)
 
     data = {
         "recipients": [
@@ -65,7 +65,7 @@ def test_send_messages_with_individual_routing_plans(mocker):
         ]
     }
 
-    send_message_mock = mocker.patch("notify.helper.send_message", return_value="OK")
+    send_message_mock = mocker.patch("helper.send_message", return_value="OK")
 
     with requests_mock.Mocker() as rm:
         rm.post(
@@ -185,7 +185,7 @@ def test_get_access_token(monkeypatch, mocker, setup):
     monkeypatch.setenv("NOTIFY_API_KEY", "an_api_key")
     monkeypatch.setenv("NOTIFY_API_KID", "a_kid")
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    mocker.patch("notify.helper.get_private_key", return_value=private_key)
+    mocker.patch("helper.get_private_key", return_value=private_key)
 
     with requests_mock.Mocker() as rm:
         rm.post(

@@ -1,5 +1,5 @@
 import json
-import process_pilot_data.helper as helper
+import data_processor
 import pytest
 import requests_mock
 
@@ -55,7 +55,7 @@ def test_process_data(setup):
             "http://example.com/api/notify/message/send",
             text=response_text,
         )
-        helper.process_data(csv_data)
+        data_processor.process_data(csv_data)
 
         assert adapter.called
         assert adapter.call_count == 1
@@ -75,7 +75,7 @@ def test_process_data_with_missing_csv_data(setup):
             "http://example.com/api/notify/message/send",
             text=response_text,
         )
-        helper.process_data(csv_data)
+        data_processor.process_data(csv_data)
 
         assert not adapter.called
         assert adapter.call_count == 0
@@ -91,7 +91,7 @@ def test_process_data_with_invalid_csv_data(setup):
             "http://example.com/api/notify/message/send",
             text=response_text,
         )
-        helper.process_data(invalid_data)
+        data_processor.process_data(invalid_data)
 
         assert not adapter.called
         assert adapter.call_count == 0
