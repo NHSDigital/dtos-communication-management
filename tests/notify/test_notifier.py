@@ -166,8 +166,8 @@ def test_message_body():
 
 
 def test_get_access_token(monkeypatch, mocker, setup):
-    monkeypatch.setenv("NOTIFY_API_KEY", "an_api_key")
-    monkeypatch.setenv("NOTIFY_API_KID", "a_kid")
+    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
+    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     mocker.patch("notifier.get_private_key", return_value=private_key)
 
@@ -181,8 +181,8 @@ def test_get_access_token(monkeypatch, mocker, setup):
 
 
 def test_get_access_token_with_error_response(monkeypatch, mocker, setup):
-    monkeypatch.setenv("NOTIFY_API_KEY", "an_api_key")
-    monkeypatch.setenv("NOTIFY_API_KID", "a_kid")
+    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
+    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     mocker.patch("notifier.get_private_key", return_value=private_key)
 

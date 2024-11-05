@@ -94,7 +94,7 @@ def reference_uuid(val) -> str:
 
 
 def get_access_token() -> str:
-    if not os.getenv("NOTIFY_API_KEY"):
+    if not os.getenv("OAUTH2_API_KEY"):
         return "awaiting-token"
 
     jwt: str = generate_auth_jwt()
@@ -124,9 +124,9 @@ def generate_auth_jwt() -> str:
     headers: dict = {
         "alg": algorithm,
         "typ": "JWT",
-        "kid": os.getenv("NOTIFY_API_KID")
+        "kid": os.getenv("OAUTH2_API_KID")
     }
-    api_key: str = os.getenv("NOTIFY_API_KEY")
+    api_key: str = os.getenv("OAUTH2_API_KEY")
 
     payload: dict = {
         "sub": api_key,
