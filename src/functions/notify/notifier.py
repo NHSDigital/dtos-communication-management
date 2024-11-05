@@ -47,7 +47,7 @@ def headers(access_token: str, correlation_id: str) -> dict:
         "content-type": "application/vnd.api+json",
         "accept": "application/vnd.api+json",
         "x-correlation-id": correlation_id,
-        # "authorization": "Bearer " + access_token,
+        "authorization": "Bearer " + access_token,
     }
 
 
@@ -107,7 +107,14 @@ def get_access_token() -> str:
     }
 
     response = requests.post(os.getenv("OAUTH2_TOKEN_URL"), data=body, headers=headers)
-    access_token = response.json()["access_token"]
+    logging.info(f"Response from OAuth2 token provider: {response.status_code}")
+    response_json = response.json()
+
+    if response.status_code == 200:
+        access_token = response_json["access_token"]
+    else:
+        logging.error(f"Failed to get access token: {response_json}")
+        access_token = ""
 
     return access_token
 
@@ -117,7 +124,7 @@ def generate_auth_jwt() -> str:
     headers: dict = {
         "alg": algorithm,
         "typ": "JWT",
-        "kid": str(os.getenv("NOTIFY_KID"))
+        "kid": os.getenv("NOTIFY_API_KID")
     }
     api_key: str = os.getenv("NOTIFY_API_KEY")
 

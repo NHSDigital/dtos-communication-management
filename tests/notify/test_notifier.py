@@ -178,3 +178,19 @@ def test_get_access_token(monkeypatch, mocker, setup):
         )
         access_token = notifier.get_access_token()
         assert access_token == "an_access_token"
+
+
+def test_get_access_token_with_error_response(monkeypatch, mocker, setup):
+    monkeypatch.setenv("NOTIFY_API_KEY", "an_api_key")
+    monkeypatch.setenv("NOTIFY_API_KID", "a_kid")
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    mocker.patch("notifier.get_private_key", return_value=private_key)
+
+    with requests_mock.Mocker() as rm:
+        rm.post(
+            "http://tokens.example.com/",
+            status_code=403,
+            json={"error": "an_error"},
+        )
+        access_token = notifier.get_access_token()
+        assert access_token == ""
