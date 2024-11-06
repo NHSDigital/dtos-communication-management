@@ -4,7 +4,7 @@ import pytest
 import requests_mock
 import cryptography.hazmat.primitives.asymmetric.rsa as rsa
 import uuid
-
+import routing_plans
 
 @pytest.fixture
 def setup(monkeypatch):
@@ -34,12 +34,12 @@ def test_send_messages(mocker):
         assert response == "OK\nOK"
         send_message_mock.assert_any_call(
             "access_token",
-            notifier.ROUTING_PLANS["breast-screening-pilot"],
+            routing_plans.get_id("breast-screening-pilot"),
             {"nhs_number": "0000000000"},
         )
         send_message_mock.assert_any_call(
             "access_token",
-            notifier.ROUTING_PLANS["breast-screening-pilot"],
+            routing_plans.get_id("breast-screening-pilot"),
             {"nhs_number": "0000000001"},
         )
 
@@ -79,7 +79,7 @@ def test_send_messages_with_individual_routing_plans(mocker):
 def test_send_message(setup):
     access_token = "access_token"
     routing_plan = "breast-screening-pilot"
-    routing_plan_id = notifier.ROUTING_PLANS[routing_plan]
+    routing_plan_id = routing_plans.get_id(routing_plan)
     patient_data = {
         "nhs_number": "0000000000",
         "date_of_birth": "1981-10-07",

@@ -8,12 +8,6 @@ import time
 import uuid
 import routing_plans
 
-ROUTING_PLANS = {
-    # TODO: This is just the sandbox routing plan ID. We need to account for dev/prod/etc. but also we need these to be selected by environment
-    "breast-screening-pilot": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-}
-
-
 def send_messages(data: dict) -> str:
     responses: list = []
     routing_plan_id: str = None
