@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import pytest
 import os
 import subprocess
 
@@ -9,6 +10,12 @@ To run the test with logging output use the following command:
 
 pytest --log-cli-level=INFO tests/test_end_to_end.py
 """
+
+
+@pytest.fixture()
+def setup():
+    if not os.getenv("GITHUB_ACTIONS"):
+        pytest.skip("Skipping end to end test, set GITHUB_ACTIONS env var to run this test")
 
 
 def run_docker_compose():
@@ -83,6 +90,5 @@ async def main():
     logging.info("End to end test completed successfully")
 
 
-def test_end_to_end():
-    if os.getenv("GITHUB_ACTIONS"):
-        asyncio.run(main())
+def test_end_to_end(setup):
+    asyncio.run(main())
