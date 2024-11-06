@@ -80,9 +80,6 @@ def message_body(routing_plan_id, message_data) -> dict:
                     "tracking_id": nhs_number,
                     "contact_telephone_number": contact_telephone_number,
                 },
-                "originator": {
-                    "odsCode": "X26"
-                },
             },
         }
     }

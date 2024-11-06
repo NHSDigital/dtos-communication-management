@@ -155,9 +155,6 @@ def test_message_body():
                     "tracking_id": "0000000000",
                     "contact_telephone_number": "012345678",
                 },
-                "originator": {
-                    "odsCode": "X26",
-                },
             },
         }
     }
