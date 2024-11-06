@@ -1,7 +1,6 @@
 import asyncio
 import azure.storage.blob
 import dotenv
-import io
 import logging
 import pytest
 import os
@@ -38,6 +37,7 @@ def run_docker_compose_build():
     except Exception as e:
         logging.error("Error building containers:")
         logging.error(e)
+        traceback.print_exc()
         return False
 
     return True
@@ -55,6 +55,7 @@ def run_docker_compose_up():
     except Exception as e:
         logging.error("Error starting containers:")
         logging.error(e)
+        traceback.print_exc()
 
     return result.stdout, result.stderr
 
@@ -70,9 +71,9 @@ def upload_file_to_blob_storage():
         content_settings = azure.storage.blob.ContentSettings(content_type='text/csv')
         blob_client.upload_blob(data, blob_type="BlockBlob", content_settings=content_settings, overwrite=True)
     except Exception as e:
-        traceback.print_exc()
         logging.error("Error uploading file to blob storage:")
         logging.error(e)
+        traceback.print_exc()
         return False
 
     return True
@@ -89,6 +90,7 @@ def stop_containers():
     except Exception as e:
         logging.error("Error stopping containers:")
         logging.error(e)
+        traceback.print_exc()
 
 
 async def main():
