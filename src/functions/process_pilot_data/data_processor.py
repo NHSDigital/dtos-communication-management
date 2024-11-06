@@ -17,7 +17,7 @@ def process_data(raw_data) -> str:
     if not data:
         logging.error("No valid data found")
         return
-    post_body = {"routing_plan": "breast_screening_first_appointment", "recipients": data}
+    post_body = {"routing_plan": "breast-screening-pilot", "recipients": data}
     response = requests.post(notify_function_url(), json=post_body, headers=HEADERS)
 
     if response:
