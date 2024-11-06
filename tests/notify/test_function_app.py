@@ -6,7 +6,7 @@ import json
 def test_main(mocker):
     mock = mocker.patch("notifier.send_messages")
     data = {
-        "routing_plan": "breast-screening-pilot",
+        "routing_plan": "breast_screening_first_appointment",
         "recipients": [
             {
                 "nhs_number": "0000000000",

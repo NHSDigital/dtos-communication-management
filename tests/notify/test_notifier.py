@@ -4,7 +4,7 @@ import pytest
 import requests_mock
 import cryptography.hazmat.primitives.asymmetric.rsa as rsa
 import uuid
-
+import routing_plans
 
 @pytest.fixture
 def setup(monkeypatch):
@@ -20,7 +20,6 @@ def test_send_messages(mocker):
         "recipients": [
             {"nhs_number": "0000000000"},
             {"nhs_number": "0000000001"},
-            {"nhs_number": "0000000002"},
         ]
     }
     with requests_mock.Mocker() as rm:
@@ -30,38 +29,28 @@ def test_send_messages(mocker):
 
         response = notifier.send_messages(data)
 
-        assert send_message_mock.call_count == 3
+        assert send_message_mock.call_count == 2
 
-        assert response == "OK\nOK\nOK"
+        assert response == "OK\nOK"
         send_message_mock.assert_any_call(
             "access_token",
-            notifier.ROUTING_PLANS["breast-screening-pilot"],
+            routing_plans.get_id("breast-screening-pilot"),
             {"nhs_number": "0000000000"},
         )
         send_message_mock.assert_any_call(
             "access_token",
-            notifier.ROUTING_PLANS["breast-screening-pilot"],
+            routing_plans.get_id("breast-screening-pilot"),
             {"nhs_number": "0000000001"},
-        )
-        send_message_mock.assert_any_call(
-            "access_token",
-            notifier.ROUTING_PLANS["breast-screening-pilot"],
-            {"nhs_number": "0000000002"},
         )
 
 
 def test_send_messages_with_individual_routing_plans(mocker):
     mocker.patch("notifier.get_access_token", return_value="access_token")
-    test_routing_plans = notifier.ROUTING_PLANS.copy()
-    test_routing_plans["cervical-screening-pilot"] = "c838b13c-f98c-4def-93f0-515d4e4f4ee1"
-    test_routing_plans["bowel-cancer-screening-pilot"] = "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1"
-    routing_plans_mock = mocker.patch("notifier.ROUTING_PLANS", test_routing_plans)
 
     data = {
         "recipients": [
             {"routing_plan": "breast-screening-pilot", "nhs_number": "0000000000"},
-            {"routing_plan": "bowel-cancer-screening-pilot", "nhs_number": "0000000001"},
-            {"routing_plan": "cervical-screening-pilot", "nhs_number": "0000000002"},
+            {"routing_plan": "bowel-screening-pilot", "nhs_number": "0000000001"},
         ]
     }
 
@@ -73,8 +62,8 @@ def test_send_messages_with_individual_routing_plans(mocker):
         )
         response = notifier.send_messages(data)
 
-        assert send_message_mock.call_count == 3
-        assert response == "OK\nOK\nOK"
+        assert send_message_mock.call_count == 2
+        assert response == "OK\nOK"
         send_message_mock.assert_any_call(
             "access_token",
             "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
@@ -82,20 +71,15 @@ def test_send_messages_with_individual_routing_plans(mocker):
         )
         send_message_mock.assert_any_call(
             "access_token",
-            "0b1e3b13c-f98c-4def-93f0-515d4e4f4ee1",
+            "b1e3b13c-f98c-4def-93f0-515d4e4f4ee1",
             {"nhs_number": "0000000001"},
-        )
-        send_message_mock.assert_any_call(
-            "access_token",
-            "c838b13c-f98c-4def-93f0-515d4e4f4ee1",
-            {"nhs_number": "0000000002"},
         )
 
 
 def test_send_message(setup):
     access_token = "access_token"
     routing_plan = "breast-screening-pilot"
-    routing_plan_id = notifier.ROUTING_PLANS[routing_plan]
+    routing_plan_id = routing_plans.get_id(routing_plan)
     patient_data = {
         "nhs_number": "0000000000",
         "date_of_birth": "1981-10-07",
