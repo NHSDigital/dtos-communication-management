@@ -36,7 +36,7 @@ def run_docker_compose():
 
 def upload_file_to_blob_storage():
     try:
-        result = subprocess.run(
+        subprocess.run(
             ['python', 'dependencies/azurite/send_file.py', 'dependencies/azurite/example.csv'],
             check=True,
             stderr=subprocess.PIPE,
@@ -46,9 +46,10 @@ def upload_file_to_blob_storage():
 
     except subprocess.CalledProcessError as e:
         logging.error("Error uploading file:")
-        logging.error(e)
+        logging.error(e.stderr)
+        return False
 
-    return result.stdout, result.stderr
+    return True
 
 
 def stop_containers():
@@ -70,7 +71,7 @@ async def main():
     logging.info("Pausing for 20 seconds to allow containers to start")
     await asyncio.sleep(20)
     logging.info("Uploading file to blob storage")
-    upload_file_to_blob_storage()
+    assert upload_file_to_blob_storage()
     logging.info("Pausing for 5 seconds to allow functions to execute")
     await asyncio.sleep(5)
     logging.info("Stopping containers")
