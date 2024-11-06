@@ -3,18 +3,17 @@ import logging
 import notifier
 import pytest
 import requests_mock
-import cryptography.hazmat.primitives.asymmetric.rsa as rsa
 import uuid
 import routing_plans
+
 
 @pytest.fixture
 def setup(monkeypatch):
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
-    monkeypatch.setenv("OAUTH2_TOKEN_URL", "http://tokens.example.com")
 
 
 def test_send_messages(mocker):
-    mocker.patch("notifier.get_access_token", return_value="access_token")
+    mocker.patch("access_token.get_token", return_value="an_access_token")
     send_message_mock = mocker.patch("notifier.send_message", return_value="OK")
     data = {
         "routing_plan": "breast-screening-pilot",
@@ -23,30 +22,26 @@ def test_send_messages(mocker):
             {"nhs_number": "0000000001"},
         ]
     }
-    with requests_mock.Mocker() as rm:
-        rm.post(
-            "http://example.com/comms", text="access_token"
-        )
 
-        response = notifier.send_messages(data)
+    response = notifier.send_messages(data)
 
-        assert send_message_mock.call_count == 2
+    assert send_message_mock.call_count == 2
 
-        assert response == "OK\nOK"
-        send_message_mock.assert_any_call(
-            "access_token",
-            routing_plans.get_id("breast-screening-pilot"),
-            {"nhs_number": "0000000000"},
-        )
-        send_message_mock.assert_any_call(
-            "access_token",
-            routing_plans.get_id("breast-screening-pilot"),
-            {"nhs_number": "0000000001"},
-        )
+    assert response == "OK\nOK"
+    send_message_mock.assert_any_call(
+        "an_access_token",
+        routing_plans.get_id("breast-screening-pilot"),
+        {"nhs_number": "0000000000"},
+    )
+    send_message_mock.assert_any_call(
+        "an_access_token",
+        routing_plans.get_id("breast-screening-pilot"),
+        {"nhs_number": "0000000001"},
+    )
 
 
 def test_send_messages_with_individual_routing_plans(mocker):
-    mocker.patch("notifier.get_access_token", return_value="access_token")
+    mocker.patch("access_token.get_token", return_value="an_access_token")
 
     data = {
         "recipients": [
@@ -57,24 +52,20 @@ def test_send_messages_with_individual_routing_plans(mocker):
 
     send_message_mock = mocker.patch("notifier.send_message", return_value="OK")
 
-    with requests_mock.Mocker() as rm:
-        rm.post(
-            "http://example.com/comms", text="access_token"
-        )
-        response = notifier.send_messages(data)
+    response = notifier.send_messages(data)
 
-        assert send_message_mock.call_count == 2
-        assert response == "OK\nOK"
-        send_message_mock.assert_any_call(
-            "access_token",
-            "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-            {"nhs_number": "0000000000"},
-        )
-        send_message_mock.assert_any_call(
-            "access_token",
-            "b1e3b13c-f98c-4def-93f0-515d4e4f4ee1",
-            {"nhs_number": "0000000001"},
-        )
+    assert send_message_mock.call_count == 2
+    assert response == "OK\nOK"
+    send_message_mock.assert_any_call(
+        "an_access_token",
+        "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+        {"nhs_number": "0000000000"},
+    )
+    send_message_mock.assert_any_call(
+        "an_access_token",
+        "b1e3b13c-f98c-4def-93f0-515d4e4f4ee1",
+        {"nhs_number": "0000000001"},
+    )
 
 
 def test_send_message(setup):
@@ -203,37 +194,3 @@ def test_message_body():
     }
 
     assert actual == expected
-
-
-def test_get_access_token(monkeypatch, mocker, setup):
-    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
-    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    mocker.patch("notifier.get_private_key", return_value=private_key)
-
-    with requests_mock.Mocker() as rm:
-        rm.post(
-            "http://tokens.example.com/",
-            json={"access_token": "an_access_token"},
-        )
-        access_token = notifier.get_access_token()
-        assert access_token == "an_access_token"
-
-
-def test_get_access_token_with_error_response(monkeypatch, mocker, setup):
-    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
-    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    mocker.patch("notifier.get_private_key", return_value=private_key)
-    error_logging_spy = mocker.spy(logging, "error")
-
-    with requests_mock.Mocker() as rm:
-        rm.post(
-            "http://tokens.example.com/",
-            status_code=403,
-            json={"error": "an_error"},
-        )
-        access_token = notifier.get_access_token()
-        assert access_token == ""
-        error_logging_spy.assert_any_call("Failed to get access token")
-        error_logging_spy.assert_any_call({"error": "an_error"})
