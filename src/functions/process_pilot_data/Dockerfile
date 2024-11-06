@@ -7,8 +7,9 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsFeatureFlags=EnableWorkerIndexing \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
-    BLOB_CONTAINER_NAME=blobs \
-    NOTIFY_FUNCTION_URL=http://localhost:7072/api/notify/message/send
+    BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME} \
+    CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER} \
+    NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
 
 COPY requirements.txt /
 RUN pip install -r /requirements.txt

@@ -69,9 +69,9 @@ def valid_date_or_time(val: str) -> bool:
         return False
 
 
-def notify_function_url():
-    return os.environ["NOTIFY_FUNCTION_URL"]
+def notify_function_url() -> str:
+    return os.getenv("NOTIFY_FUNCTION_URL")
 
 
 def contact_telephone_number() -> str:
-    return os.environ["CONTACT_TELEPHONE_NUMBER"]
+    return os.getenv("CONTACT_TELEPHONE_NUMBER")
