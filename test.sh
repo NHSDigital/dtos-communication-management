@@ -120,32 +120,23 @@ install_pytest_if_not_already_installed() {
 }
 
 run_all_test_suites() {
-    # Find all directories under tests/ that contain a test suite for each function
-    find tests/ -type d -mindepth 1 -maxdepth 1 | while read -r test_dir; do
-        # Derive the function name from the test directory name
-        function_name=$(basename "$test_dir")
-        function_dir="src/functions/$function_name"
+  # Find all requirements files in the functions directory
+  requirements_files=$(find src/functions/*/ -name "requirements.txt")
+  temp_requirements_file=".requirements.tmp"
+  # Merge all unique requirements into a temp file
+  sort -u $requirements_files > $temp_requirements_file
 
-        echo "Processing function directory: $function_dir"
+  # Install all requirements
+  pip install -r $temp_requirements_file
+  rm $temp_requirements_file
 
-        # Check if requirements.txt exists in the function directory and install dependencies
-        if [ -f "$function_dir/requirements.txt" ]; then
-            echo "Installing requirements for $function_dir"
-            pip install -r "$function_dir/requirements.txt" || {
-                echo "Failed to install dependencies for $function_dir"
-                exit 1
-            }
-        else
-            echo "No requirements.txt found in $function_dir"
-        fi
-
-        # Run tests located in the tests directory for this function
-        echo "Running tests in $test_dir"
-        pytest "$test_dir" || {
-            echo "Tests failed in $test_dir"
-            exit 1
-        }
-    done
+  # Run all tests
+  test_dir="tests/"
+  echo "Running tests in $test_dir directory..."
+  pytest $test_dir || {
+    echo "Tests failed in $test_dir directory."
+    exit 1
+  }
 }
 
 # Actually run the things
