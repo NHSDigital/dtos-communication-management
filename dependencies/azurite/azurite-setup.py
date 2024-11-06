@@ -3,7 +3,7 @@
 
 import os
 from azure.storage.blob import BlobServiceClient
-from azure.core.exceptions import ResourceExistsError
+from azure.core.exceptions import ResourceExistsError, ResourceNotFoundError
 
 
 def setup_azurite():
@@ -16,6 +16,8 @@ def setup_azurite():
         print("Blob containers created")
     except ResourceExistsError:
         print("Blob containers already exist")
+    except ResourceNotFoundError:
+        print(f"Error creating blob containers: {os.getenv('BLOB_CONTAINER_NAME')} does not exist")
 
 
 setup_azurite()

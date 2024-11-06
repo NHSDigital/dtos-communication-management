@@ -1,8 +1,12 @@
 import asyncio
+import azure.storage.blob
+import dotenv
+import io
 import logging
 import pytest
 import os
 import subprocess
+import traceback
 
 """
 End to end test for the azure functions using docker compose.
@@ -11,18 +15,39 @@ To run the test with logging output use the following command:
 pytest --log-cli-level=INFO tests/test_end_to_end.py
 """
 
+ENV_FILE = os.getenv("ENV_FILE", ".env.e2e")
+
 
 @pytest.fixture()
 def setup():
     if not os.getenv("GITHUB_ACTIONS"):
         pytest.skip("Skipping end to end test, set GITHUB_ACTIONS env var to run this test")
 
+    dotenv.load_dotenv(dotenv_path=ENV_FILE)
 
-def run_docker_compose():
+
+def run_docker_compose_build():
+    logging.info("Building containers")
     try:
+        subprocess.run(
+            ['docker', 'compose', '-f', 'compose.yml', '--env-file', ENV_FILE, 'build'],
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+        )
+    except Exception as e:
+        logging.error("Error building containers:")
+        logging.error(e)
+        return False
 
+    return True
+
+
+def run_docker_compose_up():
+    logging.info("Starting containers")
+    try:
         result = subprocess.Popen(
-            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.e2e', 'up'],
+            ['docker', 'compose', '-f', 'compose.yml', '--env-file', ENV_FILE, 'up'],
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
             text=True,
@@ -36,17 +61,18 @@ def run_docker_compose():
 
 def upload_file_to_blob_storage():
     try:
-        subprocess.run(
-            ['python', 'dependencies/azurite/send_file.py', 'dependencies/azurite/example.csv'],
-            check=True,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            text=True,
-        )
-
-    except subprocess.CalledProcessError as e:
-        logging.error("Error uploading file:")
-        logging.error(e.stderr)
+        azurite_connection_string = os.getenv('AZURITE_CONNECTION_STRING')
+        blob_container_name = os.getenv('BLOB_CONTAINER_NAME')
+        blob_service_client = azure.storage.blob.BlobServiceClient.from_connection_string(azurite_connection_string)
+        pilot_data_client = blob_service_client.get_container_client(blob_container_name)
+        blob_client = pilot_data_client.get_blob_client("example.csv")
+        data = "1234567890,01/01/2000,01/01/2022,09:00,123 Fake Street,First Appointment\n"
+        content_settings = azure.storage.blob.ContentSettings(content_type='text/csv')
+        blob_client.upload_blob(data, blob_type="BlockBlob", content_settings=content_settings, overwrite=True)
+    except Exception as e:
+        traceback.print_exc()
+        logging.error("Error uploading file to blob storage:")
+        logging.error(e)
         return False
 
     return True
@@ -54,8 +80,8 @@ def upload_file_to_blob_storage():
 
 def stop_containers():
     try:
-        subprocess.Popen(
-            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.e2e', 'down'],
+        subprocess.run(
+            ['docker', 'compose', '-f', 'compose.yml', '--env-file', ENV_FILE, 'down'],
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
@@ -66,10 +92,11 @@ def stop_containers():
 
 
 async def main():
-    logging.info("Starting containers")
-    output, errors = run_docker_compose()
-    logging.info("Pausing for 20 seconds to allow containers to start")
-    await asyncio.sleep(20)
+    logging.info("Starting end to end test")
+    run_docker_compose_build()
+    output, errors = run_docker_compose_up()
+    logging.info("Pausing for 30 seconds to allow containers to start")
+    await asyncio.sleep(30)
     logging.info("Uploading file to blob storage")
     assert upload_file_to_blob_storage()
     logging.info("Pausing for 5 seconds to allow functions to execute")
