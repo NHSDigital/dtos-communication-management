@@ -11,15 +11,15 @@ import sys
 
 def send_file(file):
     try:
-        dotenv.load_dotenv(dotenv_path=".env.local")
+        dotenv.load_dotenv(dotenv_path=".env.e2e")
         azurite_connection_string = os.environ.get('AZURITE_CONNECTION_STRING')
         blob_container_name = os.environ.get('BLOB_CONTAINER_NAME')
 
         if not azurite_connection_string or not blob_container_name:
-            sys.exit("One or more required environment variables AZURITE_CONNECTION_STRING or BLOB_CONTAINER_NAME are missing from .env.local")
+            sys.exit("One or more required environment variables AZURITE_CONNECTION_STRING or BLOB_CONTAINER_NAME are missing from .env.e2e")
 
     except FileNotFoundError:
-        sys.exit(".env.local not found, please create one based on .env.example")
+        sys.exit(".env.e2e not found, please create one based on .env.example")
 
     blob_service_client = azure.storage.blob.BlobServiceClient.from_connection_string(azurite_connection_string)
     print("Connected to Azurite: " + azurite_connection_string)
@@ -27,7 +27,7 @@ def send_file(file):
     file_name = os.path.basename(file)
     blob_client = pilot_data_client.get_blob_client(file_name)
 
-    print("Blob client established for: " + os.getenv('BLOB_CONTAINER_NAME') + "/" + file_name)
+    print("Blob client established for: " + blob_container_name + "/" + file_name)
 
     content_settings = azure.storage.blob.ContentSettings(content_type='text/csv')
 

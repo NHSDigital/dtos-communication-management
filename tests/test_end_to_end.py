@@ -22,7 +22,7 @@ def run_docker_compose():
     try:
 
         result = subprocess.Popen(
-            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.local', 'up'],
+            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.e2e', 'up'],
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
             text=True,
@@ -55,7 +55,7 @@ def upload_file_to_blob_storage():
 def stop_containers():
     try:
         subprocess.Popen(
-            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.local', 'down'],
+            ['docker', 'compose', '-f', 'compose.yml', '--env-file', '.env.e2e', 'down'],
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
