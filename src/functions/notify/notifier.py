@@ -4,9 +4,10 @@ import jwt
 import logging
 import os
 import requests
+import routing_plans
 import time
 import uuid
-import routing_plans
+
 
 def send_messages(data: dict) -> str:
     responses: list = []
@@ -33,10 +34,10 @@ def send_message(access_token, routing_plan_id, message_data) -> str:
     correlation_id: str = message_data["correlation_id"]
     response = requests.post(url(), json=body, headers=headers(access_token, correlation_id))
 
-    if response:
+    logging.info(f"Response from Notify API {url()}: {response.status_code}")
+    if response.status_code == 201:
         logging.info(response.text)
     else:
-        logging.error(f"{response.status_code} response from Notify API {url()}")
         logging.error(response.text)
 
     return response.text
@@ -103,15 +104,20 @@ def get_access_token() -> str:
         "client_assertion": jwt,
     }
 
-    response = requests.post(os.getenv("OAUTH2_TOKEN_URL"), data=body, headers=headers)
+    response = requests.post(
+        os.getenv("OAUTH2_TOKEN_URL"),
+        data=body,
+        headers=headers,
+    )
     logging.info(f"Response from OAuth2 token provider: {response.status_code}")
     response_json = response.json()
 
     if response.status_code == 200:
         access_token = response_json["access_token"]
     else:
-        logging.error(f"Failed to get access token: {response_json}")
         access_token = ""
+        logging.error("Failed to get access token")
+        logging.error(response_json)
 
     return access_token
 

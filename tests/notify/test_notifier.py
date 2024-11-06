@@ -1,4 +1,5 @@
 import json
+import logging
 import notifier
 import pytest
 import requests_mock
@@ -123,6 +124,48 @@ def test_send_message(setup):
         assert adapter.call_count == 1
         assert adapter.last_request.json() == expected_request_body
 
+
+def test_send_message_with_error_response(mocker, setup):
+    access_token = "access_token"
+    routing_plan = "breast-screening-pilot"
+    routing_plan_id = routing_plans.get_id(routing_plan)
+    message_data = {
+        "routing_plan": routing_plan,
+        "nhs_number": "0000000000",
+        "date_of_birth": "1981-10-07",
+        "appointment_time": "10:00",
+        "appointment_date": "2021-12-01",
+        "appointment_location": "Breast Screening Clinic, 123 High Street, London",
+        "correlation_id": "da0b1495-c7cb-468c-9d81-07dee089d728",
+        "contact_telephone_number": "012345678",
+    }
+
+    response_text = json.dumps(
+        {
+            "errors": [
+                {
+                    "status": "401",
+                    "title": "Access Denied",
+                    "detail": "Access token missing",
+                },
+            ],
+        },
+    )
+
+    error_logging_spy = mocker.spy(logging, "error")
+
+    with requests_mock.Mocker() as rm:
+        adapter = rm.post(
+            "http://example.com/comms/v1/messages", status_code=401, text=response_text
+        )
+        result = notifier.send_message(access_token, routing_plan_id, message_data)
+
+        assert adapter.called
+        assert adapter.call_count == 1
+        assert result == response_text
+        error_logging_spy.assert_called_once_with(response_text)
+
+
 def test_message_body():
     routing_plan_id = str(uuid.uuid4())
 
@@ -182,6 +225,7 @@ def test_get_access_token_with_error_response(monkeypatch, mocker, setup):
     monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     mocker.patch("notifier.get_private_key", return_value=private_key)
+    error_logging_spy = mocker.spy(logging, "error")
 
     with requests_mock.Mocker() as rm:
         rm.post(
@@ -191,3 +235,5 @@ def test_get_access_token_with_error_response(monkeypatch, mocker, setup):
         )
         access_token = notifier.get_access_token()
         assert access_token == ""
+        error_logging_spy.assert_any_call("Failed to get access token")
+        error_logging_spy.assert_any_call({"error": "an_error"})
