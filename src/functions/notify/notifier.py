@@ -6,10 +6,10 @@ import os
 import requests
 import time
 import uuid
-
+import routing_plans
 
 ROUTING_PLANS = {
-    # FIXME: This is a sandbox routing plan id, not a real one.
+    # TODO: This is just the sandbox routing plan ID. We need to account for dev/prod/etc. but also we need these to be selected by environment
     "breast-screening-pilot": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
 }
 
@@ -21,12 +21,12 @@ def send_messages(data: dict) -> str:
     access_token: str = get_access_token()
 
     if "routing_plan" in data:
-        routing_plan_id = ROUTING_PLANS[data.pop("routing_plan")]
+        routing_plan_id = routing_plans.get_id(data.pop("routing_plan"))
 
     if "recipients" in data:
         for message_data in data["recipients"]:
             if "routing_plan" in message_data:
-                routing_plan_id = ROUTING_PLANS[message_data.pop("routing_plan")]
+                routing_plan_id = routing_plans.get_id(message_data.pop("routing_plan"))
 
             response: str = send_message(access_token, routing_plan_id, message_data)
             responses.append(response)

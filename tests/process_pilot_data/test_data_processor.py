@@ -28,7 +28,7 @@ def test_process_data(setup):
     ]
 
     expected_request_body = {
-        "routing_plan": "breast-screening-pilot",
+        "routing_plan": "breast_screening_first_appointment",
         "recipients": [
             {
                 "nhs_number": "0000000000",
