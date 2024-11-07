@@ -1,5 +1,6 @@
+import azure.storage.blob
+import dotenv
 import logging
-import pytest
 import os
 import pytest
 import subprocess
@@ -14,10 +15,13 @@ pytest --log-cli-level=INFO tests/test_end_to_end.py
 
 ENV_FILE = os.getenv("ENV_FILE", ".env.e2e")
 
+
 @pytest.fixture()
 def setup():
     if not os.getenv("GITHUB_ACTIONS"):
         pytest.skip("Skipping end to end test, set GITHUB_ACTIONS env var to run this test")
+
+    dotenv.load_dotenv(dotenv_path=ENV_FILE)
 
 
 @pytest.fixture
@@ -76,17 +80,20 @@ def docker_compose_down():
 def upload_file_to_blob_storage():
     logging.info("Uploading file to blob storage")
     try:
-        subprocess.run(
-            ['python', 'dependencies/azurite/send_file.py', 'dependencies/azurite/example.csv'],
-            check=True,
-            env=dict(os.environ, ENV_FILE=ENV_FILE),
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            text=True,
-        )
-        logging.info("File uploaded successfully")
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Error uploading file to blob storage: {e.stderr}")
+        azurite_connection_string = os.getenv('AZURITE_CONNECTION_STRING')
+        blob_container_name = os.getenv('BLOB_CONTAINER_NAME')
+        blob_service_client = azure.storage.blob.BlobServiceClient.from_connection_string(azurite_connection_string)
+        pilot_data_client = blob_service_client.get_container_client(blob_container_name)
+        blob_client = pilot_data_client.get_blob_client("example.csv")
+        csv_data = "\n".join([
+            "9990548609,1971-09-07,2024-12-01,10:15,London E5,Mammogram",
+            "9435732992,1980-02-04,2025-01-03,11:25,London E1,Mammogram"
+        ]) + "\n"
+        content_settings = azure.storage.blob.ContentSettings(content_type='text/csv')
+        blob_client.upload_blob(csv_data, blob_type="BlockBlob", content_settings=content_settings, overwrite=True)
+    except Exception as e:
+        logging.error("Error uploading file to blob storage:")
+        logging.error(e)
         return False
 
     return True
@@ -119,7 +126,7 @@ def poll_logs_for_message(container_name, message, cycles=15):
     return False
 
 
-def test_end_to_end(skip_test, docker):
+def test_end_to_end(setup, docker):
     assert poll_logs_for_message("azurite-setup", "Blob containers created"), (
         "Containers not ready")
 
