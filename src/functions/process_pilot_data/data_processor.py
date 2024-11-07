@@ -5,7 +5,7 @@ import os
 import requests
 import uuid
 
-FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location", "appointment_type")
+FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
 HEADERS = {
     "Content-type": "application/json",
     "Accept": "application/json",
@@ -35,6 +35,7 @@ def valid_csv_data(raw_data) -> list:
         for row in reader:
             if valid_row(row):
                 row["correlation_id"] = str(uuid.uuid4())
+                row["contact_telephone_number"] = contact_telephone_number()
                 data.append(row)
     except csv.Error:
         logging.error("Invalid CSV data")
@@ -48,8 +49,7 @@ def valid_row(row) -> bool:
         valid_date_or_time(row["date_of_birth"]) and
         valid_date_or_time(row["appointment_date"]) and
         valid_date_or_time(row["appointment_time"]) and
-        row["appointment_location"] and
-        row["appointment_type"]
+        row["appointment_location"]
     )
 
 
@@ -69,5 +69,9 @@ def valid_date_or_time(val: str) -> bool:
         return False
 
 
-def notify_function_url():
-    return os.environ["NOTIFY_FUNCTION_URL"]
+def notify_function_url() -> str:
+    return os.getenv("NOTIFY_FUNCTION_URL")
+
+
+def contact_telephone_number() -> str:
+    return os.getenv("CONTACT_TELEPHONE_NUMBER")

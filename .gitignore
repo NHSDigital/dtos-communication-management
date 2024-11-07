@@ -10,6 +10,11 @@
 *.code-workspace
 !project.code-workspace
 
+.env.local
+.env.development.local
+.env.test.local
+
+*.pem
 # Please, add your custom content below!
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -81,3 +86,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.DS_Store
