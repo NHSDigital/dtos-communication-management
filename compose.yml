@@ -7,6 +7,8 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     command: azurite --silent
     network_mode: host
+    profiles:
+      - test
 
   azurite-setup:
     container_name: azurite-setup
@@ -19,6 +21,8 @@ services:
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+    profiles:
+      - test
 
   # Functions
   process-pilot-data:

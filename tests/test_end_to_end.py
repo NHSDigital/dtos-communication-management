@@ -35,7 +35,7 @@ def docker():
 
 
 def docker_arglist(command, *args):
-    return ['docker', 'compose', '--env-file', ENV_FILE, command, *args]
+    return ['docker', 'compose', '--env-file', ENV_FILE, '--profile', 'test', command, *args]
 
 
 def docker_compose_build():
