@@ -17,8 +17,7 @@ def process_data(raw_data) -> str:
     if not data:
         logging.error("No valid data found")
         return
-    post_body = {"routing_plan": "breast-screening-pilot", "recipients": data}
-    response = requests.post(notify_function_url(), json=post_body, headers=HEADERS)
+    response = requests.post(notify_function_url(), json=post_body(data), headers=HEADERS)
 
     if response:
         logging.info(response.text)
@@ -26,6 +25,13 @@ def process_data(raw_data) -> str:
         logging.error(response.text)
 
     return response.text
+
+
+def post_body(data) -> dict:
+    return {
+        "routing_plan": "breast-screening-pilot",
+        "recipients": data,
+    }
 
 
 def valid_csv_data(raw_data) -> list:

@@ -1,0 +1,43 @@
+{
+  "consumer": {
+    "name": "ProcessPilotDataFunction"
+  },
+  "provider": {
+    "name": "NotifyFunction"
+  },
+  "interactions": [
+    {
+      "description": "A request to notify recipients",
+      "providerState": "Recipient data is sent",
+      "request": {
+        "method": "post",
+        "path": "/api/notify/send",
+        "body": {
+          "routing_plan": "breast-screening-pilot",
+          "recipients": [
+            {
+              "nhs_number": "1234567890",
+              "date_of_birth": "1990-01-01",
+              "appointment_date": "2023-11-17",
+              "appointment_time": "14:30",
+              "appointment_location": "The Hospital"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+        },
+        "body": {
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
+
