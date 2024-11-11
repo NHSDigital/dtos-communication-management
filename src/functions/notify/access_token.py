@@ -55,7 +55,7 @@ def generate_auth_jwt() -> str:
         "exp": int(time.time()) + 300,  # 5mins in the future
     }
 
-    private_key = get_private_key(os.getenv("PRIVATE_KEY_PATH", "private.pem"))
+    private_key = os.getenv("PRIVATE_KEY")
 
     return generate_jwt(
             algorithm, private_key, headers,
@@ -78,9 +78,3 @@ def generate_jwt(
         payload["exp"] = expiry_date
 
     return jwt.encode(payload, private_key, algorithm, headers)
-
-
-def get_private_key(private_key_path: str) -> str:
-    with open(private_key_path, "r", encoding="utf-8") as f:
-        private_key = f.read()
-        return private_key

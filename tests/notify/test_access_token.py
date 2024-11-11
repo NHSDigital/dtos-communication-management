@@ -3,19 +3,27 @@ import logging
 import pytest
 import requests_mock
 import cryptography.hazmat.primitives.asymmetric.rsa as rsa
+from cryptography.hazmat.primitives import serialization
 
 
 @pytest.fixture
 def setup(monkeypatch):
     monkeypatch.setenv("OAUTH2_TOKEN_URL", "http://tokens.example.com")
+    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
+    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048
+    )
+    pk_str = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode()
+    monkeypatch.setenv("PRIVATE_KEY", pk_str)
 
 
 def test_get_token(monkeypatch, mocker, setup):
-    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
-    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    mocker.patch("access_token.get_private_key", return_value=private_key)
-
     with requests_mock.Mocker() as rm:
         rm.post(
             "http://tokens.example.com/",
@@ -26,10 +34,6 @@ def test_get_token(monkeypatch, mocker, setup):
 
 
 def test_get_token_with_error_response(monkeypatch, mocker, setup):
-    monkeypatch.setenv("OAUTH2_API_KEY", "an_api_key")
-    monkeypatch.setenv("OAUTH2_API_KID", "a_kid")
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    mocker.patch("access_token.get_private_key", return_value=private_key)
     error_logging_spy = mocker.spy(logging, "error")
 
     with requests_mock.Mocker() as rm:
