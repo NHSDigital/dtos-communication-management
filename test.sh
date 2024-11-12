@@ -126,7 +126,7 @@ run_all_test_suites() {
     pip install -r $temp_requirements_file
     rm $temp_requirements_file
 
-    $tests_dir = "tests/"
+    tests_dir="tests/"
     pytest $tests_dir || {
         echo "Tests failed in $tests_dir"
         exit 1
