@@ -53,3 +53,13 @@ services:
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
       - CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER}
       - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
+
+  status-callback:
+    container_name: status-callback
+    network_mode: host
+    build:
+      context: ./src/functions/status_callback/
+      dockerfile: Dockerfile
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ASPNETCORE_URLS=http://*:7073
