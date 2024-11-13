@@ -9,8 +9,9 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     FUNCTIONS_WORKER_RUNTIME=python \
     NOTIFY_API_URL=${NOTIFY_API_URL}
 
-
-COPY requirements.txt /
-RUN pip install -r /requirements.txt
+COPY --from=root_dir Pipfile /
+COPY --from=root_dir Pipfile.lock /
+RUN pip install pipenv
+RUN pipenv install --system
 
 COPY . /home/site/wwwroot
