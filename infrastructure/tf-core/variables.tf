@@ -8,6 +8,26 @@ variable "AUDIT_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME" {
+  description = "The name of the Azure Storage Account for the audit backend"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME" {
+  description = "The name of the container in the Audit Azure Storage Account for the backend"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_KEY" {
+  description = "The name of the Statefile for the audit  resources"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME" {
+  description = "The name of the audit resource group for the Azure Storage Account"
+  type        = string
+}
+
 variable "HUB_SUBSCRIPTION_ID" {
   description = "ID of the subscription hosting the DevOps resources"
   type        = string
@@ -23,7 +43,7 @@ variable "HUB_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME" {
   type        = string
 }
 
-variable "HUB_BACKEND_AZURE_STORAGE_KEY" {
+variable "HUB_BACKEND_AZURE_STORAGE_ACCOUNT_KEY" {
   description = "The name of the Statefile for the hub resources"
   type        = string
 }
@@ -174,6 +194,7 @@ variable "function_apps" {
         env_var_name     = string
         function_app_key = string
       })), [])
+      env_vars_static = optional(map(string), {})
     }))
   })
 }

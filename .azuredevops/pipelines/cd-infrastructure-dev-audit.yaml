@@ -2,13 +2,8 @@
 
 name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 
-trigger:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - infrastructure/*
+trigger: none
+pr: none
 
 pool:
   # vmImage: ubuntu-latest
@@ -19,7 +14,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 8eac5e6ffc4ebc704880128b64a1a716b923c44a
+      ref: fix/DTOSS-4810-incorrect-index-in-function-app-module-rbac-loop
       endpoint: NHSDigital
 
 variables:
@@ -39,7 +34,7 @@ stages:
     displayName: Terraform Plan
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      tfvars: environments/$(ENVIRONMENT).tfvars
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
     jobs:
       - job: init_and_plan
         displayName: Init, plan, store artifact

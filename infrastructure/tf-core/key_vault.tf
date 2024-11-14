@@ -12,6 +12,9 @@ module "key_vault" {
   purge_protection_enabled = var.key_vault.purge_prot
   sku_name                 = var.key_vault.sku_name
 
+  enable_rbac_authorization = true
+  rbac_roles                = local.terraform_mi_rbac_roles_key_vault
+
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids_keyvault        = [data.terraform_remote_state.hub.outputs.private_dns_zone_key_vault[each.key].private_dns_zone.id]

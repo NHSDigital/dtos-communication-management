@@ -5,10 +5,15 @@ services:
   azurite:
     container_name: azurite
     image: mcr.microsoft.com/azure-storage/azurite
-    command: azurite --silent
-    network_mode: host
+    command: "azurite --loose --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001"
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
     profiles:
       - test
+    networks:
+      - frontend
 
   azurite-setup:
     container_name: azurite-setup
@@ -24,27 +29,56 @@ services:
     profiles:
       - test
 
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/pgdata
+    profiles:
+      - test
+
   # Functions
+  message-status:
+    container_name: message-status
+    network_mode: host
+    build:
+      context: ./src/functions/message_status/
+      dockerfile: Dockerfile
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ASPNETCORE_URLS=http://*:7073
+      - APPLICATION_ID=${APPLICATION_ID}
+      - OAUTH2_API_KEY=${OAUTH2_API_KEY}
+
   notify:
     container_name: notify
     network_mode: host
     build:
       context: ./src/functions/notify/
+      additional_contexts:
+        root_dir: .
       dockerfile: Dockerfile
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7072
       - NOTIFY_API_URL=${NOTIFY_API_URL}
-      - NOTIFY_API_KEY=${NOTIFY_API_KEY}
-      - NOTIFY_API_KID=${NOTIFY_API_KID}
+      - OAUTH2_API_KEY=${OAUTH2_API_KEY}
+      - OAUTH2_API_KID=${OAUTH2_API_KID}
       - OAUTH2_TOKEN_URL=${OAUTH2_TOKEN_URL}
-      - PRIVATE_KEY_PATH=${PRIVATE_KEY_PATH}
+      - PRIVATE_KEY=${PRIVATE_KEY}
 
   process-pilot-data:
     container_name: process-pilot-data
     network_mode: host
     build:
       context: ./src/functions/process_pilot_data/
+      additional_contexts:
+        root_dir: .
       dockerfile: Dockerfile
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
@@ -53,5 +87,10 @@ services:
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
       - CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER}
       - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
-    depends_on:
-      - azurite
+
+networks:
+  frontend:
+    # Specify driver options
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"

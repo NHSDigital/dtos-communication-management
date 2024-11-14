@@ -7,13 +7,12 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsFeatureFlags=EnableWorkerIndexing \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
-    BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME} \
-    CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER} \
-    NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
+    APPLICATION_ID=${APPLICATION_ID} \
+    OAUTH2_API_KEY=${OAUTH2_API_KEY}
 
-COPY --from=root_dir Pipfile /
-COPY --from=root_dir Pipfile.lock /
-RUN pip install pipenv
-RUN pipenv install --system
+
+
+COPY requirements.txt /
+RUN pip install -r /requirements.txt
 
 COPY . /home/site/wwwroot

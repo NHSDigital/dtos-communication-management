@@ -6,8 +6,19 @@ data "terraform_remote_state" "hub" {
     subscription_id      = var.HUB_SUBSCRIPTION_ID
     storage_account_name = var.HUB_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
     container_name       = var.HUB_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-    key                  = var.HUB_BACKEND_AZURE_STORAGE_KEY
+    key                  = var.HUB_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
     resource_group_name  = var.HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
+  }
+}
+
+data "terraform_remote_state" "audit" {
+  backend = "azurerm"
+  config = {
+    subscription_id      = var.HUB_SUBSCRIPTION_ID
+    storage_account_name = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
+    container_name       = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+    key                  = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
+    resource_group_name  = var.AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
   }
 }
 
@@ -51,4 +62,32 @@ data "azurerm_application_insights" "ai" {
 
   name                = var.function_apps.app_insights_name
   resource_group_name = var.function_apps.app_insights_rg_name
+}
+
+data "azurerm_key_vault_secret" "application_id" {
+  for_each = var.regions
+
+  name         = "APPLICATION-ID"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azurerm_key_vault_secret" "oauth2_api_kid" {
+  for_each = var.regions
+
+  name         = "OAUTH2-API-KID"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azurerm_key_vault_secret" "oauth2_api_key" {
+  for_each = var.regions
+
+  name         = "OAUTH2-API-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azurerm_key_vault_key" "private_key" {
+  for_each = var.regions
+
+  name         = "PRIVATE-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
 }

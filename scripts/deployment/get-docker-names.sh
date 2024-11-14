@@ -1,7 +1,8 @@
 #!/bin/bash
 
 declare -A docker_functions_map=(
-    ["functions/process_pilot_data"]="process-pilot-data"
+    ["functions/message-status"]="message-status"
+    ["functions/process-pilot-data"]="process-pilot-data"
     ["functions/notify"]="notify"
 )
 

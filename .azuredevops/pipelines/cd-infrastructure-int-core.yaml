@@ -18,17 +18,17 @@ resources:
       endpoint: NHSDigital
 
 variables:
-  - group: DEV_core_backend
-  - group: DEV_audit_backend_remote_state
+  - group: INT_core_backend
+  - group: INT_audit_backend_remote_state
   - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
   - name: TF_VERSION
     value: 1.9.2
   - name: TF_PLAN_ARTIFACT
-    value: tf_plan_core_DEV
+    value: tf_plan_core_INT
   - name: ENVIRONMENT
-    value: development
+    value: integration
 
 stages:
   - stage: terraform_plan
