@@ -105,27 +105,26 @@ install_python_if_not_already_installed() {
     pyenv global "$PYTHON_VERSION"
 }
 
-create_virtual_env() {
-    python3 -m venv .venv
-    source .venv/bin/activate
-}
-
-install_pytest_if_not_already_installed() {
-    if ! python3 -m pytest --version &> /dev/null; then
-        echo "pytest is not installed. Installing pytest..."
-        pip install pytest
+install_pipenv() {
+    if ! command -v pipenv &> /dev/null; then
+        echo "pipenv is not installed. Installing pipenv..."
+        pip install pipenv
     else
-        echo "pytest is already installed."
+        echo "pipenv is already installed."
     fi
 }
 
-run_all_test_suites() {
-    requirements_files=$(find src/functions/*/ -name "requirements.txt")
-    temp_requirements_file=".requirements.tmp"
-    sort -u $requirements_files > $temp_requirements_file
-    pip install -r $temp_requirements_file
-    rm $temp_requirements_file
+install_pipenv_dependencies() {
+  if [[ "$GITHUB_ACTIONS" != "true" ]]; then
+    pipenv sync
+    pipenv sync --dev
+  else
+    pipenv install --system
+    pipenv install --system --dev
+  fi
+}
 
+run_all_test_suites() {
     tests_dir="tests/"
     pytest $tests_dir || {
         echo "Tests failed in $tests_dir"
@@ -140,6 +139,6 @@ if [[ "$GITHUB_ACTIONS" != "true" ]]; then
     install_python_if_not_already_installed
 fi
 
-create_virtual_env
-install_pytest_if_not_already_installed
+install_pipenv
+install_pipenv_dependencies
 run_all_test_suites
