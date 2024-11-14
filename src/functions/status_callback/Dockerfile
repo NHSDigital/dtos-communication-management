@@ -6,7 +6,10 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true \
     AzureWebJobsFeatureFlags=EnableWorkerIndexing \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
-    FUNCTIONS_WORKER_RUNTIME=python
+    FUNCTIONS_WORKER_RUNTIME=python \
+    APPLICATION_ID=${APPLICATION_ID} \
+    OAUTH2_API_KEY=${OAUTH2_API_KEY}
+
 
 
 COPY requirements.txt /

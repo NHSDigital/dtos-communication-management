@@ -67,3 +67,5 @@ services:
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7073
+      - APPLICATION_ID=${APPLICATION_ID}
+      - OAUTH2_API_KEY=${OAUTH2_API_KEY}
