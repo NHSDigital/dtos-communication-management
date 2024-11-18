@@ -5,10 +5,15 @@ services:
   azurite:
     container_name: azurite
     image: mcr.microsoft.com/azure-storage/azurite
-    command: azurite --silent
-    network_mode: host
+    command: "azurite --loose --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001"
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
     profiles:
       - test
+    networks:
+      - frontend
 
   azurite-setup:
     container_name: azurite-setup
@@ -82,3 +87,10 @@ services:
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
       - CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER}
       - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
+
+networks:
+  frontend:
+    # Specify driver options
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
