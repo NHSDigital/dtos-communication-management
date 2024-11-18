@@ -3,7 +3,7 @@
 declare -A docker_functions_map=(
     ["functions/process_pilot_data"]="process-pilot-data"
     ["functions/notify"]="notify"
-    ["functions/status_callback"]="status-callback"
+    ["functions/message-status"]="message-status"
 )
 
 changed_functions=""
