@@ -24,6 +24,19 @@ services:
     profiles:
       - test
 
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/pgdata
+    profiles:
+      - test
+
   # Functions
   notify:
     container_name: notify
