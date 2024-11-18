@@ -66,7 +66,7 @@ def message_body(routing_plan_id, message_data) -> dict:
         "data": {
             "type": "Message",
             "attributes": {
-                "messageReference": reference_uuid(nhs_number),
+                "messageReference": message_reference(message_data),
                 "routingPlanId": routing_plan_id,
                 "recipient": {
                     "nhsNumber": nhs_number,
@@ -82,6 +82,16 @@ def message_body(routing_plan_id, message_data) -> dict:
             },
         }
     }
+
+
+def message_reference(message_data: dict) -> str:
+    str_val: str = ",".join([
+        message_data["nhs_number"],
+        message_data["date_of_birth"],
+        message_data["appointment_date"],
+        message_data["appointment_time"],
+    ])
+    return reference_uuid(str_val)
 
 
 def reference_uuid(val) -> str:
