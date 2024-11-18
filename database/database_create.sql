@@ -1,4 +1,4 @@
-CREATE TABLE message_status (
+CREATE TABLE IF NOT EXISTS message_status (
     batch_id UUID NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     current_state TEXT NOT NULL DEFAULT 'NOT_SENT',
