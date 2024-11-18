@@ -72,7 +72,7 @@ def test_send_message(setup):
     access_token = "access_token"
     routing_plan = "breast-screening-pilot"
     routing_plan_id = routing_plans.get_id(routing_plan)
-    patient_data = {
+    message_data = {
         "nhs_number": "0000000000",
         "date_of_birth": "1981-10-07",
         "appointment_time": "10:00",
@@ -80,9 +80,8 @@ def test_send_message(setup):
         "appointment_location": "Breast Screening Clinic, 123 High Street, London",
         "correlation_id": "da0b1495-c7cb-468c-9d81-07dee089d728",
         "contact_telephone_number": "012345678",
+        "routing_plan": routing_plan,
     }
-    message_data = patient_data.copy()
-    message_data["routing_plan"] = routing_plan
 
     response_text = json.dumps(
         {
@@ -104,12 +103,13 @@ def test_send_message(setup):
         }
     )
 
+    expected_request_body = notifier.message_body(routing_plan_id, message_data)
+
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
             "http://example.com/comms/v1/messages", text=response_text
         )
         notifier.send_message(access_token, routing_plan_id, message_data)
-        expected_request_body = notifier.message_body(routing_plan_id, patient_data)
 
         assert adapter.called
         assert adapter.call_count == 1
@@ -176,7 +176,7 @@ def test_message_body():
         "data": {
             "type": "Message",
             "attributes": {
-                "messageReference": notifier.reference_uuid(data["nhs_number"]),
+                "messageReference": notifier.message_reference(data),
                 "routingPlanId": routing_plan_id,
                 "recipient": {
                     "nhsNumber": "0000000000",
