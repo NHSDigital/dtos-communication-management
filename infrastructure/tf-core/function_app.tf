@@ -3,22 +3,24 @@ module "functionapp" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/function-app"
 
-  function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
-  resource_group_name = azurerm_resource_group.core[each.value.region_key].name
-  location            = each.value.region_key
+  function_app_name   = "${module.regions_config[each.value.region].names.function-app}-${lower(each.value.name_suffix)}"
+  resource_group_name = azurerm_resource_group.core[each.value.region].name
+  location            = each.value.region
 
-  app_settings = local.app_settings[each.value.region_key][each.value.function_key]
+  app_settings = each.value.app_settings
+
+  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
 
   public_network_access_enabled = var.features.public_network_access_enabled
-  vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
+  vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
 
-  rbac_role_assignments = local.rbac_role_assignments[each.value.region_key]
+  rbac_role_assignments = each.value.rbac_role_assignments
 
-  asp_id = module.app-service-plan["${each.value.function_config.app_service_plan_key}-${each.value.region_key}"].app_service_plan_id
+  asp_id = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
 
   # Use the storage account assigned identity for the Function Apps:
-  storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
-  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
+  storage_account_name          = module.storage["fnapp-${each.value.region}"].storage_account_name
+  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region}"].storage_account_primary_access_key
   storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
 
   # Connection string for Application Insights:
@@ -38,14 +40,14 @@ module "functionapp" {
   assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
 
   image_tag  = var.function_apps.docker_env_tag
-  image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.function_config.name_suffix)}"
+  image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
-    private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zone_app_services[each.value.region_key].private_dns_zone.id]
+    private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zone_app_services[each.value.region].private_dns_zone.id]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
-    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
-    private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name
+    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region].names.subnet}-pep"].id
+    private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
@@ -55,66 +57,10 @@ module "functionapp" {
 }
 
 
-/* --------------------------------------------------------------------------------------------------
-  Function App Access Policies
--------------------------------------------------------------------------------------------------- */
-
-# Loop through the Key Vault URLs for each region and create the Key Vault Access Policies for each Function App:
-resource "azurerm_key_vault_access_policy" "functionapp" {
-  for_each = local.keyvault_function_app_object_ids_map
-
-  key_vault_id = each.value.key_vault_id
-  object_id    = each.value.function_app_sami_id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
-
-  certificate_permissions = [
-    "Get",
-    "List"
-  ]
-}
-
-/* --------------------------------------------------------------------------------------------------
-  RBAC roles to assign to the Function Apps
--------------------------------------------------------------------------------------------------- */
-
 locals {
-  rbac_role_assignments = {
-    for region_key in keys(module.regions_config) :
-    region_key => concat(
-      [
-        for _, role_value in local.rbac_roles_storage : {
-          role_definition_name = role_value
-          scope                = module.storage["fnapp-${region_key}"].storage_account_id
-        }
-      ]
-    )
-  }
-}
+  primary_region = [for k, v in var.regions : k if v.is_primary_region][0]
 
-/* --------------------------------------------------------------------------------------------------
-  Local variables used to create the Environment Variables for the Function Apps
--------------------------------------------------------------------------------------------------- */
-
-locals {
-
-  # Create a map of the function apps config per region
-  function_apps_config = {
-    for region_key, region_value in module.regions_config :
-    region_key => {
-      for key, value in var.function_apps.fa_config :
-      key => value
-    }
-  }
-
-
-  # To Do - move these directly into the tfvars file as a map as this way limits adding extra values
-  # WEBSITE_PULL_IMAGE_OVER_VNET reuses the private_endpoints_enabled variable as these settings are implicitly coupled.
-  global_app_settings = {
+  app_settings_common = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage
@@ -122,74 +68,75 @@ locals {
     FUNCTIONS_WORKER_RUNTIME            = "python"
   }
 
-  # Create a map of the function app urls for each function app
-  env_vars_app_urls = {
-    for region_key, region_value in module.regions_config :
-    region_key => {
-      for key, value in var.function_apps.fa_config :
-      key => {
-        for app_url_key, app_url_value in value.app_urls :
-        app_url_value.env_var_name => "https://${module.regions_config[region_key].names.function-app}-${var.function_apps.fa_config[app_url_value.function_app_key].name_suffix}.azurewebsites.net/api/${var.function_apps.fa_config[app_url_value.function_app_key].function_endpoint_name}"
+  # There are multiple Function Apps and possibly multiple regions.
+  # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
+  function_app_config_object_list = flatten([
+    for region in keys(var.regions) : [
+      for function, config in var.function_apps.fa_config : merge(
+        {
+          region   = region   # 1st iterator
+          function = function # 2nd iterator
+        },
+        config, # the rest of the key/value pairs for a specific function
+        {
+          app_settings = merge(
+            local.app_settings_common,
+            config.env_vars_static,
 
-      }
-    }
-  }
+            # Dynamic env vars which cannot be stored in tfvars file
+            function == "message-status" ? {
+              APPLICATION_ID = data.azurerm_key_vault_secret.application_id[region].versionless_id
+              OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
+            } : {},
+            function == "notify" ? {
+              OAUTH2_API_KID = data.azurerm_key_vault_secret.oauth2_api_kid[region].versionless_id
+              OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
+              PRIVATE_KEY    = data.azurerm_key_vault_key.private_key[region].versionless_id
+            } : {},
 
-  # Create a map of the key vault urls for each function app that requires one
-  env_vars_key_vault_urls = {
-    for region_key, region_value in module.regions_config :
-    region_key => {
-      for key, value in var.function_apps.fa_config :
-      key => length(value.key_vault_url) > 0 ? {
-      "${value.key_vault_url}" = module.key_vault[region_key].key_vault_url }
-      : null
-    }
-  }
+            # Dynamic references to other Function App URLs
+            {
+              for obj in config.app_urls : obj.env_var_name => format(
+                "https://%s-%s.azurewebsites.net/api/%s",
+                module.regions_config[region].names["function-app"],
+                var.function_apps.fa_config[obj.function_app_key].name_suffix,
+                var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
+              )
+            },
 
-  # Merge the local maps into a single map taking care to remove any null values and to loop round each region and each function app where necessary:
-  app_settings = {
-    for region_key, region_value in module.regions_config :
-    region_key => {
-      for app_key, app_value in var.function_apps.fa_config :
-      app_key => merge(
-        local.global_app_settings,
-        try(local.env_vars_app_urls[region_key][app_key], {}),
-        try(local.env_vars_key_vault_urls[region_key][app_key], {})
-      )
-    }
-  }
+            # Dynamic reference to Key Vault
+            length(config.key_vault_url) > 0 ? {
+              (config.key_vault_url) = module.key_vault[region].key_vault_url
+            } : {}
+          )
 
-  # Finaly build a "super map" of all the app settings for each function app in each region
-  function_app_map = {
-    for value in flatten([
-      for region_key, region_functions in local.function_apps_config : [
-        for function_key, function_config in region_functions : {
-          region_key      = region_key
-          function_key    = function_key
-          function_config = function_config
+          rbac_role_assignments = flatten([
+
+            # Key Vault
+            var.key_vault != {} ? [
+              for role in local.rbac_roles_key_vault : {
+                role_definition_name = role
+                scope                = module.key_vault[region].key_vault_id
+              }
+            ] : [],
+
+            # Storage Accounts
+            [
+              for account in keys(var.storage_accounts) : [
+                for role in local.rbac_roles_storage : {
+                  role_definition_name = role
+                  scope                = module.storage["${account}-${region}"].storage_account_id
+                }
+              ]
+            ]
+          ])
         }
-      ]
-    ]) : "${value.function_key}-${value.region_key}" => value
-  }
-
-  # Create a flat list for the key vault access policy resource contianing just the details
-  # for functions that have key vault urls
-  keyvault_function_app_object_ids = flatten([
-    for region_key, region_value in module.regions_config :
-    [
-      for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
-      {
-        region_key           = region_key
-        function_key         = function_key
-        key_vault_id         = module.key_vault[region_key].key_vault_id
-        function_app_sami_id = module.functionapp["${function_key}-${region_key}"].function_app_sami_id
-      }
-      if function_value != null
+      )
     ]
   ])
-  # Project the above list into a map with unique keys for consumption in a for_each meta argument
-  # (although in this case we don't actually need the key as we will create everything from the list as-is)
-  keyvault_function_app_object_ids_map = {
-    for value in local.keyvault_function_app_object_ids : "${value.function_key}-${value.region_key}" => value
+
+  # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
+  function_app_map = {
+    for object in local.function_app_config_object_list : "${object.function}-${object.region}" => object
   }
 }
