@@ -13,7 +13,7 @@ To run the test with logging output use the following command:
 pytest --log-cli-level=INFO tests/test_end_to_end.py
 """
 
-ENV_FILE = os.getenv("ENV_FILE", ".env.e2e")
+ENV_FILE = os.getenv("ENV_FILE", ".env.test")
 
 
 @pytest.fixture()
