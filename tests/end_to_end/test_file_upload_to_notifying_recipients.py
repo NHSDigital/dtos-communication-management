@@ -6,7 +6,7 @@ import os
 import pytest
 import time
 
-ENV_FILE = os.getenv("ENV_FILE", ".env.e2e")
+ENV_FILE = os.getenv("ENV_FILE", ".env.test")
 
 
 @pytest.fixture()
