@@ -6,8 +6,12 @@ import request_verifier
 app = func.FunctionApp()
 
 
-@app.function_name(name="StatusCallback")
-@app.route(route="status/callback", auth_level=func.AuthLevel.ANONYMOUS)
+@app.function_name(name="MessageStatus")
+@app.route(
+    route="message-status/create",
+    auth_level=func.AuthLevel.ANONYMOUS,
+    methods=[func.HttpMethod.POST],
+)
 def main(req: func.HttpRequest) -> func.HttpResponse:
     req_body: str = req.get_body().decode("utf-8")
 

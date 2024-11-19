@@ -37,7 +37,7 @@ def test_main(mocker, payload):
     req = func.HttpRequest(
         method="POST",
         body=bytes(json.dumps(payload).encode("utf-8")),
-        url="/api/status/callback",
+        url="/api/message-status/create",
     )
 
     func_call = function_app.main.build().get_user_function()
@@ -55,7 +55,7 @@ def test_main_verify_signature(mocker, payload):
     req = func.HttpRequest(
         method="POST",
         body=bytes(json.dumps(payload).encode("utf-8")),
-        url="/api/status/callback",
+        url="/api/message-status/create",
     )
 
     func_call = function_app.main.build().get_user_function()
@@ -73,7 +73,7 @@ def test_main_verify_signature_failure(mocker, payload):
     req = func.HttpRequest(
         method="POST",
         body=bytes(json.dumps(payload).encode("utf-8")),
-        url="/api/status/callback",
+        url="/api/message-status/create",
     )
 
     func_call = function_app.main.build().get_user_function()
@@ -90,7 +90,7 @@ def test_main_verify_headers_missing(mocker, payload):
     req = func.HttpRequest(
         method="POST",
         body=bytes(json.dumps(payload).encode("utf-8")),
-        url="/api/status/callback",
+        url="/api/message-status/create",
     )
 
     func_call = function_app.main.build().get_user_function()
