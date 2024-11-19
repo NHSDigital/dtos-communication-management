@@ -8,11 +8,17 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
     APPLICATION_ID=${APPLICATION_ID} \
-    OAUTH2_API_KEY=${OAUTH2_API_KEY}
+    OAUTH2_API_KEY=${OAUTH2_API_KEY} \
+    DATABASE_HOST=${DATABASE_HOST} \
+    DATABASE_USER=${DATABASE_USER} \
+    DATABASE_PASSWORD=${DATABASE_PASSWORD} \
+    DATABASE_NAME=${DATABASE_NAME}
 
 
-
-COPY requirements.txt /
-RUN pip install -r /requirements.txt
+COPY --from=root_dir Pipfile /
+COPY --from=root_dir Pipfile.lock /
+RUN pip install pipenv
+RUN pipenv install --system
 
 COPY . /home/site/wwwroot
+COPY --from=root_dir src/shared/ /home/site/wwwroot
