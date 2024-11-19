@@ -126,8 +126,14 @@ install_pipenv_dependencies() {
 
 run_all_test_suites() {
     tests_dir="tests/"
-    pytest $tests_dir || {
+    integration_tests_dir="$tests_dir/integration/"
+    integration_tests_script="./test-integration.sh"
+    pytest --ignore=$integration_tests_dir $tests_dir || {
         echo "Tests failed in $tests_dir"
+        exit 1
+    }
+    source $integration_tests_script || {
+        echo "Integration tests failed in $integration_tests_dir"
         exit 1
     }
 }
