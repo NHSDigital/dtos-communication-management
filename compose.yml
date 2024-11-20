@@ -42,6 +42,32 @@ services:
     profiles:
       - test
 
+  end-to-end-tests:
+    container_name: end-to-end-tests
+    network_mode: host
+    build:
+      context: ./tests/end_to_end/
+      additional_contexts:
+        root_dir: .
+      dockerfile: Dockerfile
+    environment:
+      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
+      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+    profiles:
+      - test
+    depends_on:
+      azurite-setup:
+        condition: service_completed_successfully
+      azurite:
+        condition: service_started
+      notify:
+        condition: service_started
+      process-pilot-data:
+        condition: service_started
+    volumes:
+      - ./log/functions/notify:/tests/end_to_end/log/functions/notify
+      - ./log/functions/process-pilot-data:/tests/end_to_end/log/functions/process-pilot-data
+
   # Functions
   message-status:
     container_name: message-status
@@ -71,6 +97,8 @@ services:
       - OAUTH2_API_KID=${OAUTH2_API_KID}
       - OAUTH2_TOKEN_URL=${OAUTH2_TOKEN_URL}
       - PRIVATE_KEY=${PRIVATE_KEY}
+    volumes:
+      - ./log/functions/notify:/tmp/Functions/Host
 
   process-pilot-data:
     container_name: process-pilot-data
@@ -87,6 +115,8 @@ services:
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
       - CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER}
       - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
+    volumes:
+      - ./log/functions/process-pilot-data:/tmp/Functions/Host
 
 networks:
   frontend:
