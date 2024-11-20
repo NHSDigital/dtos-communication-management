@@ -23,7 +23,7 @@ def message_status_data(merge_data={}):
         "nhs_number": "1234567890",
         "payload": json.dumps({"test": "data"}),
         "recipient_id": str(uuid.uuid4()),
-        "state": "test",
+        "state": "created",
     }
     return original_data | merge_data
 
@@ -57,3 +57,24 @@ def test_create_message_status_record_without_batch_id():
     data.pop("batch_id")
 
     assert datastore.create_message_status_record(data) == data["idempotency_key"]
+
+
+def test_create_message_status_record_with_invalid_state():
+    data = message_status_data({"state": "invalid"})
+    datastore.create_message_status_record(data)
+
+    assert datastore.create_message_status_record(data) is False
+
+
+def test_create_message_status_record_with_invalid_payload():
+    data = message_status_data({"payload": "invalid"})
+    datastore.create_message_status_record(data)
+
+    assert datastore.create_message_status_record(data) is False
+
+
+def test_create_message_status_record_with_malicious_values():
+    data = message_status_data({"recipient_id": "DROP TABLE message_statuses;"})
+    datastore.create_message_status_record(data)
+
+    assert datastore.create_message_status_record(data) is False
