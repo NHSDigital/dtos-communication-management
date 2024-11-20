@@ -27,7 +27,6 @@ def setup():
 @pytest.fixture
 def docker():
     try:
-        assert docker_compose_build(), "Error building containers"
         assert docker_compose_up()
         yield
     finally:
@@ -38,33 +37,17 @@ def docker_arglist(command, *args):
     return ['docker', 'compose', '--env-file', ENV_FILE, '--profile', 'test', command, *args]
 
 
-def docker_compose_build():
-    logging.info("Building containers")
-    try:
-        subprocess.run(
-            docker_arglist('build', 'azurite', 'azurite-setup', 'notify', 'process-pilot-data'),
-            check=True,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            text=True,
-        )
-        return True
-    except Exception as e:
-        logging.error(f"Error building containers: {e.stderr}")
-        return False
-
-
 def docker_compose_up():
     logging.info("Starting containers")
     try:
         subprocess.Popen(
-            docker_arglist('up', '-d'),
+            docker_arglist('up', '-d', '--build'),
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
         return True
     except Exception as e:
-        logging.error(f"Error building containers: {e.stderr}")
+        logging.error(f"Error starting containers: {e.stderr}")
         return False
 
 
@@ -117,7 +100,7 @@ def logs_contain_message(container_name, message):
     return message in container_logs
 
 
-def poll_logs_for_message(container_name, message, cycles=20):
+def poll_logs_for_message(container_name, message, cycles=40):
     for _ in range(cycles):
         time.sleep(2)
         if logs_contain_message(container_name, message):
