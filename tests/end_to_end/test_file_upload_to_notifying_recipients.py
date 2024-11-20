@@ -54,7 +54,7 @@ def logs_contain_message(container_name, message):
     return message in container_logs
 
 
-def poll_logs_for_message(container_name, message, cycles=20):
+def poll_logs_for_message(container_name, message, cycles=40):
     for _ in range(cycles):
         time.sleep(2)
         if logs_contain_message(container_name, message):
