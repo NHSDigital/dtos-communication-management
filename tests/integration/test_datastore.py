@@ -21,7 +21,7 @@ def message_status_data(merge_data={}):
         "message_id": str(uuid.uuid4()),
         "message_reference": str(uuid.uuid4()),
         "nhs_number": "1234567890",
-        "payload": json.dumps({"test": "data"}),
+        "details": json.dumps({"test": "data"}),
         "recipient_id": str(uuid.uuid4()),
         "state": "created",
     }
@@ -66,8 +66,8 @@ def test_create_message_status_record_with_invalid_state():
     assert datastore.create_message_status_record(data) is False
 
 
-def test_create_message_status_record_with_invalid_payload():
-    data = message_status_data({"payload": "invalid"})
+def test_create_message_status_record_with_invalid_details():
+    data = message_status_data({"details": "invalid"})
     datastore.create_message_status_record(data)
 
     assert datastore.create_message_status_record(data) is False

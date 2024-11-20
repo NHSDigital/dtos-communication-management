@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS message_statuses (
     message_id TEXT DEFAULT 'UNKNOWN',
     message_reference UUID NOT NULL,
     nhs_number TEXT NOT NULL,
-    payload JSONB,
+    details JSONB,
     recipient_id TEXT NOT NULL,
     state message_state DEFAULT 'not_sent'
 );

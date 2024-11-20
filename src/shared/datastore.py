@@ -49,7 +49,7 @@ def create_message_status_record(message_status_data: dict) -> bool:
                         message_id,
                         message_reference,
                         nhs_number,
-                        payload,
+                        details,
                         recipient_id,
                         state
                     ) VALUES (
@@ -58,7 +58,7 @@ def create_message_status_record(message_status_data: dict) -> bool:
                         %(message_id)s,
                         %(message_reference)s,
                         %(nhs_number)s,
-                        %(payload)s,
+                        %(details)s,
                         %(recipient_id)s,
                         %(state)s
                     ) RETURNING idempotency_key""", data)
