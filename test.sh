@@ -126,8 +126,15 @@ install_pipenv_dependencies() {
 
 run_all_test_suites() {
     tests_dir="tests/"
-    pytest $tests_dir || {
+    end_to_end_tests_dir="$tests_dir/end_to_end"
+    end_to_end_tests_script="./test-end-to-end.sh"
+
+    pytest --ignore=$end_to_end_tests_dir $tests_dir || {
         echo "Tests failed in $tests_dir"
+        exit 1
+    }
+    source $end_to_end_tests_script || {
+        echo "End to end tests failed in $end_to_end_tests_dir"
         exit 1
     }
 }
