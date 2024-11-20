@@ -3,6 +3,8 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'communication_managem
 
 \c communication_management
 
+CREATE TYPE message_state AS ENUM ('not_sent', 'created', 'pending_enrichment', 'enriched', 'sending', 'delivered', 'failed');
+
 CREATE TABLE IF NOT EXISTS message_statuses (
     batch_id UUID NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
@@ -12,5 +14,5 @@ CREATE TABLE IF NOT EXISTS message_statuses (
     nhs_number TEXT NOT NULL,
     payload JSONB,
     recipient_id TEXT NOT NULL,
-    state TEXT DEFAULT 'NOT_SENT'
+    state message_state DEFAULT 'not_sent'
 );
