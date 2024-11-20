@@ -1,17 +1,23 @@
 import json
+import logging
 
 
 def message_status_params(request_body: dict) -> list[dict]:
     params = []
     for status_data in request_body["data"]:
-        attributes = status_data["attributes"]
-        meta = status_data["meta"]
-        params.append({
-            "message_id": attributes["messageId"],
-            "message_reference": attributes["messageReference"],
-            "idempotency_key": meta["idempotencyKey"],
-            "status_description": attributes["messageStatusDescription"],
-            "status": attributes["messageStatus"],
-            "details": json.dumps(request_body),
-        })
+        try:
+            attributes = status_data["attributes"]
+            meta = status_data["meta"]
+            params.append({
+                "details": json.dumps(request_body),
+                "idempotency_key": meta["idempotencyKey"],
+                "message_id": attributes["messageId"],
+                "message_reference": attributes["messageReference"],
+                "status": attributes["messageStatus"],
+            })
+        except KeyError as e:
+            logging.error(f"Missing required field: {e}")
+            logging.error(f"Request body: {request_body}")
+            continue
+
     return params
