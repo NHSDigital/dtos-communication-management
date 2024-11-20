@@ -127,22 +127,22 @@ install_pipenv_dependencies() {
 run_all_test_suites() {
     tests_dir="tests/"
     end_to_end_tests_dir="$tests_dir/end_to_end"
-    end_to_end_tests_script="./test-end-to-end.sh"
     integration_tests_dir="$tests_dir/integration/"
-    integration_tests_script="./test-integration.sh"
 
     pytest --ignore=$end_to_end_tests_dir --ignore=$integration_tests_dir $tests_dir || {
         echo "Tests failed in $tests_dir"
         exit 1
     }
-    source $integration_tests_script || {
+    ./test-integration.sh
+    if [ $? -ne 0 ]; then
         echo "Integration tests failed in $integration_tests_dir"
         exit 1
-    }
-    source $end_to_end_tests_script || {
+    fi
+    ./test-end-to-end.sh
+    if [ $? -ne 0 ]; then
         echo "End to end tests failed in $end_to_end_tests_dir"
         exit 1
-    }
+    fi
 }
 
 # Actually run the things
