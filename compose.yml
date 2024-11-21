@@ -11,7 +11,9 @@ services:
       - 10001:10001
       - 10002:10002
     profiles:
-      - test
+      - test-end-to-end
+      - test-integration
+      - dev
     networks:
       - frontend
 
@@ -27,7 +29,9 @@ services:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
     profiles:
-      - test
+      - test-end-to-end
+      - test-integration
+      - dev
 
   db:
     image: postgres
@@ -48,7 +52,9 @@ services:
       - ./pgdata:/var/lib/postgresql/pgdata
       - ./database/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
     profiles:
-      - test
+      - test-end-to-end
+      - test-integration
+      - dev
 
   end-to-end-tests:
     container_name: end-to-end-tests
@@ -62,7 +68,7 @@ services:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
     profiles:
-      - test
+      - test-end-to-end
     depends_on:
       azurite-setup:
         condition: service_completed_successfully
@@ -147,7 +153,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_USER=${DATABASE_USER}
     profiles:
-      - test
+      - test-integration
     depends_on:
       db:
         condition: service_healthy
