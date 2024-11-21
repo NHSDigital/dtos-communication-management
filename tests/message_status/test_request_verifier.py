@@ -16,10 +16,10 @@ def test_verify_signature(setup):
     assert not request_verifier.verify_signature(headers, 'body')
 
     signature = hmac.new(
-        bytes('application_id.api_key', 'utf-8'),
-        msg=bytes('body', 'utf-8'),
+        bytes('application_id.api_key', 'ASCII'),
+        msg=bytes('body', 'ASCII'),
         digestmod=hashlib.sha256
-    ).hexdigest().upper()
+    ).hexdigest()
 
     headers[request_verifier.SIGNATURE_HEADER_NAME] = signature
 

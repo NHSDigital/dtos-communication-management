@@ -19,12 +19,15 @@ def verify_headers(headers: dict) -> bool:
 
 def verify_signature(headers: dict, body: str) -> bool:
     expected_signature = hmac.new(
-        bytes(signature_secret(), 'utf-8'),
-        msg=bytes(body, 'utf-8'),
+        bytes(signature_secret(), 'ASCII'),
+        msg=bytes(body, 'ASCII'),
         digestmod=hashlib.sha256
-    ).hexdigest().upper()
+    ).hexdigest()
 
-    return expected_signature == headers[SIGNATURE_HEADER_NAME]
+    return hmac.compare_digest(
+        expected_signature,
+        headers[SIGNATURE_HEADER_NAME],
+    )
 
 
 def signature_secret() -> str:
