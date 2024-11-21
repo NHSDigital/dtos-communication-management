@@ -4,8 +4,6 @@ import psycopg2
 
 
 def create_batch_message_record(batch_message_data: dict) -> bool | list[str, str]:
-    data = batch_message_data.copy()
-
     try:
         with connection() as conn:
             with conn.cursor() as cur:
@@ -24,7 +22,7 @@ def create_batch_message_record(batch_message_data: dict) -> bool | list[str, st
                         %(nhs_number)s,
                         %(recipient_id)s,
                         %(status)s
-                    ) RETURNING batch_id, message_reference""", data)
+                    ) RETURNING batch_id, message_reference""", batch_message_data)
 
                 return cur.fetchone()
     except psycopg2.Error as e:
@@ -34,8 +32,6 @@ def create_batch_message_record(batch_message_data: dict) -> bool | list[str, st
 
 
 def create_message_status_record(message_status_data: dict) -> bool | str:
-    data = message_status_data.copy()
-
     try:
         with connection() as conn:
             with conn.cursor() as cur:
@@ -52,7 +48,7 @@ def create_message_status_record(message_status_data: dict) -> bool | str:
                         %(message_reference)s,
                         %(details)s,
                         %(status)s
-                    ) RETURNING idempotency_key""", data)
+                    ) RETURNING idempotency_key""", message_status_data)
 
                 return cur.fetchone()[0]
 

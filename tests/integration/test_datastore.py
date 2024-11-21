@@ -88,22 +88,22 @@ def test_create_message_status_record():
     assert datastore.create_message_status_record(data) == data["idempotency_key"]
 
 
-def test_create_message_status_record_with_invalid_state():
-    data = message_status_data({"state": "invalid"})
+def test_create_message_status_record_with_invalid_status():
+    data = message_status_data({"status": "invalid"})
     datastore.create_message_status_record(data)
 
     assert datastore.create_message_status_record(data) is False
 
 
-def test_create_message_status_record_with_invalid_payload():
-    data = message_status_data({"payload": "invalid"})
+def test_create_message_status_record_with_invalid_details():
+    data = message_status_data({"details": "invalid"})
     datastore.create_message_status_record(data)
 
     assert datastore.create_message_status_record(data) is False
 
 
 def test_create_message_status_record_with_malicious_values():
-    data = message_status_data({"recipient_id": "DROP TABLE message_statuses;"})
+    data = message_status_data({"nhs_number": "DROP TABLE message_statuses;"})
     datastore.create_message_status_record(data)
 
     assert datastore.create_message_status_record(data) is False
