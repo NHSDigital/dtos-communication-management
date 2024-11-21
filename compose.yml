@@ -31,14 +31,22 @@ services:
 
   db:
     image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     restart: always
     ports:
       - 5432:5432
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - ./pgdata:/var/lib/postgresql/pgdata
+      - ./database/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
     profiles:
       - test
 
@@ -74,12 +82,18 @@ services:
     network_mode: host
     build:
       context: ./src/functions/message_status/
+      additional_contexts:
+        root_dir: .
       dockerfile: Dockerfile
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7073
       - APPLICATION_ID=${APPLICATION_ID}
       - OAUTH2_API_KEY=${OAUTH2_API_KEY}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
 
   notify:
     container_name: notify
@@ -117,6 +131,26 @@ services:
       - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
     volumes:
       - ./log/functions/process-pilot-data:/tmp/Functions/Host
+
+  integration-tests:
+    container_name: integration-tests
+    network_mode: host
+    build:
+      context: ./tests/integration/
+      additional_contexts:
+        root_dir: .
+        shared_dir: ./src/shared/
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
+    profiles:
+      - test
+    depends_on:
+      db:
+        condition: service_healthy
 
 networks:
   frontend:

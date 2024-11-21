@@ -2,14 +2,7 @@
 # FROM mcr.microsoft.com/azure-functions/python:4-python3.11-appservice
 FROM mcr.microsoft.com/azure-functions/python:4-python3.11
 
-ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
-    AzureFunctionsJobHost__Logging__Console__IsEnabled=true \
-    AzureWebJobsFeatureFlags=EnableWorkerIndexing \
-    AzureWebJobsStorage=UseDevelopmentStorage=true \
-    FUNCTIONS_WORKER_RUNTIME=python \
-    APPLICATION_ID=${APPLICATION_ID} \
-    OAUTH2_API_KEY=${OAUTH2_API_KEY} \
-    DATABASE_HOST=${DATABASE_HOST} \
+ENV DATABASE_HOST=${DATABASE_HOST} \
     DATABASE_USER=${DATABASE_USER} \
     DATABASE_PASSWORD=${DATABASE_PASSWORD} \
     DATABASE_NAME=${DATABASE_NAME}
@@ -19,6 +12,7 @@ COPY --from=root_dir Pipfile /
 COPY --from=root_dir Pipfile.lock /
 RUN pip install pipenv
 RUN pipenv install --system
+RUN pipenv install --dev --system
 
-COPY . /home/site/wwwroot
-COPY --from=root_dir src/shared/ /home/site/wwwroot
+COPY --from=shared_dir . /src/shared
+COPY . /tests/integration
