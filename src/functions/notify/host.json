@@ -7,10 +7,10 @@
   "logging": {
     "fileLoggingMode": "always",
     "logLevel": {
-      "default": "Information",
+      "default": "Warning",
       "Host.Results": "Error",
-      "Function": "Trace",
-      "Host.Aggregator": "Trace"
+      "Function": "Information",
+      "Host.Aggregator": "Error"
     }
   }
 }
