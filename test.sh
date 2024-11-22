@@ -128,8 +128,9 @@ run_all_test_suites() {
     tests_dir="tests/"
     end_to_end_tests_dir="$tests_dir/end_to_end"
     integration_tests_dir="$tests_dir/integration/"
+    pact_tests_dir="$tests_dir/pacts/"
 
-    pytest --ignore=$end_to_end_tests_dir --ignore=$integration_tests_dir $tests_dir || {
+    pytest -cov=src -vv --ignore=$end_to_end_tests_dir --ignore=$integration_tests_dir $tests_dir --ignore=$pact_tests_dir || {
         echo "Tests failed in $tests_dir"
         exit 1
     }

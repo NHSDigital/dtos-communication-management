@@ -6,6 +6,7 @@ import requests_mock
 
 @pytest.fixture
 def setup(monkeypatch):
+    """Set up environment variables and mock UUID for consistent testing."""
     monkeypatch.setattr(
         "uuid.uuid4",
         lambda: "00000000-0000-0000-0000-000000000000",
@@ -20,7 +21,8 @@ def setup(monkeypatch):
     )
 
 
-def test_process_data(setup):
+def test_process_data_valid_csv(setup):
+    """Test processing valid CSV data."""
     response_text = json.dumps({"data": "OK"})
     csv_data = [
         "0000000000,2001-02-03,2022-02-03,10:00,London",
@@ -50,6 +52,7 @@ def test_process_data(setup):
             },
         ],
     }
+
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
             "http://example.com/api/notify/message/send",
@@ -62,7 +65,8 @@ def test_process_data(setup):
         assert adapter.last_request.json() == expected_request_body
 
 
-def test_process_data_with_missing_csv_data(setup):
+def test_process_data_missing_csv_data(setup):
+    """Test handling CSV data with missing fields."""
     response_text = json.dumps({"data": "OK"})
     csv_data = [
         "0000000000,yyyy-mm-dd",
@@ -82,9 +86,10 @@ def test_process_data_with_missing_csv_data(setup):
         assert adapter.last_request is None
 
 
-def test_process_data_with_invalid_csv_data(setup):
+def test_process_data_invalid_csv_data(setup):
+    """Test handling completely invalid CSV data."""
     response_text = json.dumps({"data": "OK"})
-    invalid_data = "\n"
+    invalid_data = "\n"  # Simulates a completely invalid CSV file
 
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
