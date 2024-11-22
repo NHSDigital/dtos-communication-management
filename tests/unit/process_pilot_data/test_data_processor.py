@@ -89,7 +89,7 @@ def test_process_data_missing_csv_data(setup):
 def test_process_data_invalid_csv_data(setup):
     """Test handling completely invalid CSV data."""
     response_text = json.dumps({"data": "OK"})
-    invalid_data = "\n"  # Simulates a completely invalid CSV file
+    invalid_data = "\n"
 
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
