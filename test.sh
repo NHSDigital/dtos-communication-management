@@ -129,21 +129,28 @@ run_all_test_suites() {
     end_to_end_tests_dir="$tests_dir/end_to_end"
     integration_tests_dir="$tests_dir/integration/"
     pact_tests_dir="$tests_dir/pacts/"
+    unit_tests_dir="$tests_dir/unit/"
 
-    pytest -cov=src -vv --ignore=$end_to_end_tests_dir --ignore=$integration_tests_dir $tests_dir || {
-        echo "Tests failed in $tests_dir"
+    ./test-unit.sh
+    if [ $? -ne 0 ]; then
+        echo "Unit tests failed in $unit_tests_dir"
         exit 1
-    }
-    # ./test-integration.sh
-    # if [ $? -ne 0 ]; then
-    #     echo "Integration tests failed in $integration_tests_dir"
-    #     exit 1
-    # fi
-    # ./test-end-to-end.sh
-    # if [ $? -ne 0 ]; then
-    #     echo "End to end tests failed in $end_to_end_tests_dir"
-    #     exit 1
-    # fi
+    fi
+    ./test-pacts.sh
+    if [ $? -ne 0 ]; then
+        echo "Pact tests failed in $pact_tests_dir"
+        exit 1
+    fi
+    ./test-integration.sh
+    if [ $? -ne 0 ]; then
+        echo "Integration tests failed in $integration_tests_dir"
+        exit 1
+    fi
+    ./test-end-to-end.sh
+    if [ $? -ne 0 ]; then
+        echo "End to end tests failed in $end_to_end_tests_dir"
+        exit 1
+    fi
 }
 
 # Actually run the things
