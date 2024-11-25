@@ -57,9 +57,16 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
       - name: "Run contract test"
         run: |
-          make test-contract
+          ./test-pacts.sh
+
       - name: "Save result"
         run: |
           echo "Nothing to save"
