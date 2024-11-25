@@ -128,11 +128,17 @@ run_all_test_suites() {
     tests_dir="tests/"
     end_to_end_tests_dir="$tests_dir/end_to_end"
     integration_tests_dir="$tests_dir/integration/"
+    pact_tests_dir="$tests_dir/pacts/"
     unit_tests_dir="$tests_dir/unit/"
 
     ./test-unit.sh
     if [ $? -ne 0 ]; then
         echo "Unit tests failed in $unit_tests_dir"
+        exit 1
+    fi
+    ./test-pacts.sh
+    if [ $? -ne 0 ]; then
+        echo "Pact tests failed in $pact_tests_dir"
         exit 1
     fi
     ./test-integration.sh
