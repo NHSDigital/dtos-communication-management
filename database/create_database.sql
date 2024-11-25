@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS batch_messages (
     details JSONB,
     message_reference UUID NOT NULL,
     nhs_number TEXT NOT NULL,
-    recipient_id TEXT NOT NULL,
+    recipient_id UUID NOT NULL,
     status batch_message_status DEFAULT 'not_sent',
     PRIMARY KEY (batch_id, message_reference)
 );
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS batch_messages (
 CREATE TABLE IF NOT EXISTS message_statuses (
     created_at TIMESTAMP DEFAULT NOW(),
     details JSONB,
-    idempotency_key UUID PRIMARY KEY,
+    idempotency_key TEXT PRIMARY KEY,
     message_id TEXT DEFAULT 'UNKNOWN',
     message_reference UUID NOT NULL,
     status message_status DEFAULT 'created'
