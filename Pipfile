@@ -53,6 +53,7 @@ starlette = "==0.41.2"
 typer = "==0.12.5"
 uvicorn = "==0.32.0"
 yarl = "==1.17.1"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.11"
