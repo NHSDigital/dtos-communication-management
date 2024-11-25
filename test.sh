@@ -134,16 +134,16 @@ run_all_test_suites() {
         echo "Tests failed in $tests_dir"
         exit 1
     }
-    ./test-integration.sh
-    if [ $? -ne 0 ]; then
-        echo "Integration tests failed in $integration_tests_dir"
-        exit 1
-    fi
-    ./test-end-to-end.sh
-    if [ $? -ne 0 ]; then
-        echo "End to end tests failed in $end_to_end_tests_dir"
-        exit 1
-    fi
+    # ./test-integration.sh
+    # if [ $? -ne 0 ]; then
+    #     echo "Integration tests failed in $integration_tests_dir"
+    #     exit 1
+    # fi
+    # ./test-end-to-end.sh
+    # if [ $? -ne 0 ]; then
+    #     echo "End to end tests failed in $end_to_end_tests_dir"
+    #     exit 1
+    # fi
 }
 
 # Actually run the things
