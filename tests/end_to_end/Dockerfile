@@ -15,3 +15,4 @@ RUN pipenv install --system
 RUN pipenv install --dev --system
 
 COPY . /tests/end_to_end
+RUN rm -f /tests/end_to_end/log/functions/*/*.log

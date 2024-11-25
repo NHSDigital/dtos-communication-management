@@ -112,6 +112,10 @@ services:
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7072
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
       - NOTIFY_API_URL=${NOTIFY_API_URL}
       - OAUTH2_API_KEY=${OAUTH2_API_KEY}
       - OAUTH2_API_KID=${OAUTH2_API_KID}
