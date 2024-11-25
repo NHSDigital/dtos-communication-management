@@ -10,7 +10,7 @@ def request_body():
             {
                 "attributes": {
                     "messageId": "123",
-                    "messageReference": "456",
+                    "messageReference": "eb4c7f1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
                     "messageStatus": "sent"
                 },
                 "meta": {
@@ -20,7 +20,7 @@ def request_body():
             {
                 "attributes": {
                     "messageId": "234",
-                    "messageReference": "567",
+                    "messageReference": "0c3b3b1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
                     "messageStatus": "sent"
                 },
                 "meta": {
@@ -41,14 +41,14 @@ def test_save_message_statuses(mocker, request_body):
         "details": json.dumps(request_body),
         "idempotency_key": "789",
         "message_id": "123",
-        "message_reference": "456",
+        "message_reference": "eb4c7f1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
         "status": "sent"
     })
     mock_datastore.create_message_status_record.assert_any_call({
         "details": json.dumps(request_body),
         "idempotency_key": "890",
         "message_id": "234",
-        "message_reference": "567",
+        "message_reference": "0c3b3b1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
         "status": "sent"
     })
 
@@ -60,14 +60,14 @@ def test_message_status_params(request_body):
             "details": json.dumps(request_body),
             "idempotency_key": "789",
             "message_id": "123",
-            "message_reference": "456",
+            "message_reference": "eb4c7f1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
             "status": "sent"
         },
         {
             "details": json.dumps(request_body),
             "idempotency_key": "890",
             "message_id": "234",
-            "message_reference": "567",
+            "message_reference": "0c3b3b1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
             "status": "sent"
         }
     ]
@@ -82,7 +82,7 @@ def test_message_status_params_with_missing_field():
             {
                 "attributes": {
                     "messageId": "123",
-                    "messageReference": "456",
+                    "messageReference": "eb4c7f1e-7f3d-4b62-8b0d-1b1f5b3b6b6d",
                     "messageStatus": "sent"
                 },
                 "meta": {}
