@@ -2,7 +2,7 @@ import pytest
 import format_date
 
 def test_to_date_of_birth():
-    """Test date of birth formatting."""
+    """Test date of birth formatting to YYYY-MM-DD."""
     valid_test_cases = [
         ("25M01M1985", "1985-01-25"),
         ("01M02M2000", "2000-02-01"),
@@ -24,4 +24,30 @@ def test_to_date_of_birth():
 
     for input_date in invalid_test_cases:
         result = format_date.to_date_of_birth(input_date)
+        assert result is None, f"Expected None, but got {result} for invalid input {input_date}"
+
+
+def test_to_human_readable_date():
+    """Test human-readable date formatting to DD/MM/YYYY."""
+    valid_test_cases = [
+        ("25M01M1985", "25/01/1985"),
+        ("01M02M2000", "01/02/2000"),
+        ("15M03M1999", "15/03/1999"),
+        ("30M12M2022", "30/12/2022"),
+        ("25/01/1985", "25/01/1985"), # Already in correct format - should return as is
+    ]
+
+    invalid_test_cases = [
+        "32M01M1985",  # Invalid day
+        "15M13M1999",  # Invalid month
+        "01M00M2000",  # Invalid month
+        "",
+    ]
+
+    for input_date, expected_output in valid_test_cases:
+        result = format_date.to_human_readable_date(input_date)
+        assert result == expected_output, f"Expected {expected_output}, but got {result} for input {input_date}"
+
+    for input_date in invalid_test_cases:
+        result = format_date.to_human_readable_date(input_date)
         assert result is None, f"Expected None, but got {result} for invalid input {input_date}"
