@@ -91,3 +91,7 @@ data "azurerm_key_vault_key" "private_key" {
   name         = "PRIVATE-KEY"
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
+
+data "azuread_group" "commgt_devs" {
+  display_name = "DToS-commgt-DevTesters-dev"
+}
