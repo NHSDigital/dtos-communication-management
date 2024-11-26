@@ -44,7 +44,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./test-setup.sh
           python -m venv venv
           source venv/bin/activate
           python -m pip install --upgrade pip
@@ -70,17 +69,29 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
       - name: "Run unit test suite"
         run: |
           ./test-unit.sh
   test-pacts:
-    name: "Pact tests"
+    name: "Contract tests"
     needs: set-up-dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
       - name: "Run unit test suite"
         run: |
           ./test-pacts.sh
@@ -92,6 +103,12 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
       - name: "Run unit test suite"
         run: |
           ./test-integration.sh
