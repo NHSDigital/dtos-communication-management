@@ -3,6 +3,7 @@ import dotenv
 import glob
 import logging
 import os
+import psycopg2
 import pytest
 import time
 
@@ -10,7 +11,7 @@ ENV_FILE = os.getenv("ENV_FILE", ".env.test")
 
 
 @pytest.fixture()
-def setup():
+def setup(mocker):
     dotenv.load_dotenv(dotenv_path=ENV_FILE)
 
 
@@ -63,6 +64,45 @@ def poll_logs_for_message(container_name, message, cycles=40):
     return False
 
 
+def assert_batch_messages_database_records_created():
+    connection = psycopg2.connect(
+        dbname=os.environ["DATABASE_NAME"],
+        user=os.environ["DATABASE_USER"],
+        host=os.environ["DATABASE_HOST"],
+        password=os.environ["DATABASE_PASSWORD"]
+    )
+    with connection as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT message_reference, nhs_number, status FROM batch_messages ORDER BY created_at")
+            records = cur.fetchall()
+
+            assert len(records) == 4
+
+            assert records[0] == (
+                "73ffd0b7-2b7e-20b9-a144-dd30c0231e56",
+                "9990548609",
+                "not_sent",
+            )
+
+            assert records[1] == (
+                "73ffd0b7-2b7e-20b9-a144-dd30c0231e56",
+                "9990548609",
+                "sent",
+            )
+
+            assert records[2] == (
+                "3b2edf6a-aa27-0029-1b90-e1b9b120a5a8",
+                "9435732992",
+                "not_sent",
+            )
+
+            assert records[3] == (
+                "3b2edf6a-aa27-0029-1b90-e1b9b120a5a8",
+                "9435732992",
+                "sent",
+            )
+
+
 def test_end_to_end(setup):
     assert upload_file_to_blob_storage(), "File upload unsuccessful"
 
@@ -81,5 +121,7 @@ def test_end_to_end(setup):
     assert poll_logs_for_message(
             "notify", "Executed 'Functions.Notify' (Succeeded,"), (
             "Notify function did not succeed")
+
+    assert_batch_messages_database_records_created()
 
     logging.info("End to end test successful")

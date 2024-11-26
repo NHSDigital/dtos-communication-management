@@ -67,6 +67,10 @@ services:
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USER=${DATABASE_USER}
     profiles:
       - test-end-to-end
     depends_on:
@@ -74,6 +78,8 @@ services:
         condition: service_completed_successfully
       azurite:
         condition: service_started
+      db:
+        condition: service_healthy
       notify:
         condition: service_started
       process-pilot-data:
