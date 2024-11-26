@@ -44,10 +44,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          ./test-setup.sh
           python -m venv venv
           source venv/bin/activate
           python -m pip install --upgrade pip
-          ./test-setup.sh
 
   test-lint:
     name: "Linting"
