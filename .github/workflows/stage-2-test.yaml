@@ -23,10 +23,6 @@ on:
         description: "Python version, set by the CI/CD pipeline workflow"
         required: true
         type: string
-      terraform_version:
-        description: "Terraform version, set by the CI/CD pipeline workflow"
-        required: true
-        type: string
       version:
         description: "Version of the software, set by the CI/CD pipeline workflow"
         required: true
@@ -35,7 +31,6 @@ on:
 env:
   PYTHON_VERSION: ${{ inputs.python_version }}
   NODEJS_VERSION: ${{ inputs.nodejs_version }}
-  TERRAFORM_VERSION: ${{ inputs.terraform_version }}
 
 jobs:
   set-up-dependencies:
@@ -51,12 +46,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODEJS_VERSION }}
-
-      - name: "Install Terraform"
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          sudo apt-get update && sudo apt-get install terraform=${{ env.TERRAFORM_VERSION }}
 
       - name: "Install Python Dependencies"
         run: |
