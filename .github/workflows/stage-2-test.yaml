@@ -92,7 +92,7 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
-      - name: "Run unit test suite"
+      - name: "Run contract test suite"
         run: |
           ./test-pacts.sh
   test-integration:
@@ -109,7 +109,7 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
-      - name: "Run unit test suite"
+      - name: "Run integration test suite"
         run: |
           ./test-integration.sh
   test-end-to-end:
@@ -120,7 +120,7 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      - name: "Run unit test suite"
+      - name: "Run e2e test suite"
         run: |
           ./test-end-to-end.sh
   test-coverage:
