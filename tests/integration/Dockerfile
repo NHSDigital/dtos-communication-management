@@ -5,7 +5,8 @@ FROM mcr.microsoft.com/azure-functions/python:4-python3.11
 ENV DATABASE_HOST=${DATABASE_HOST} \
     DATABASE_USER=${DATABASE_USER} \
     DATABASE_PASSWORD=${DATABASE_PASSWORD} \
-    DATABASE_NAME=${DATABASE_NAME}
+    DATABASE_NAME=${DATABASE_NAME} \
+    NOTIFY_API_URL=${NOTIFY_API_URL}
 
 
 COPY --from=root_dir Pipfile /
@@ -14,5 +15,6 @@ RUN pip install pipenv
 RUN pipenv install --system
 RUN pipenv install --dev --system
 
+COPY --from=root_dir /src/functions/notify/ /src/functions/notify/
 COPY --from=shared_dir . /src/shared
 COPY . /tests/integration
