@@ -1,19 +1,9 @@
 import datastore
 import dotenv
 import json
-import logging
-import pytest
 import uuid
 
 dotenv.load_dotenv(".env.test")
-
-
-@pytest.fixture(autouse=True, scope="function")
-def truncate_table():
-    with datastore.connection().cursor() as cur:
-        cur.execute("TRUNCATE TABLE batch_messages")
-        cur.execute("TRUNCATE TABLE message_statuses")
-    datastore.connection().commit()
 
 
 def batch_message_data(merge_data={}):
@@ -44,6 +34,19 @@ def test_create_batch_message_record():
 
     actual = datastore.create_batch_message_record(data)
     assert (data["batch_id"], data["message_reference"]) == actual
+
+    with datastore.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT batch_id, details, message_reference, nhs_number, status FROM batch_messages")
+            record = cur.fetchone()
+
+            assert record == (
+                    data["batch_id"],
+                    {'test': 'data'},
+                    data["message_reference"],
+                    data["nhs_number"],
+                    data["status"],
+            )
 
 
 def test_create_batch_message_record_with_duplicate_primary_key():
