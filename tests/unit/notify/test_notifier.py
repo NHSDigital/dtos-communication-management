@@ -3,9 +3,9 @@ import logging
 import notifier
 import pytest
 import requests_mock
-import uuid
 import routing_plans
-from unittest.mock import ANY
+import uuid
+import uuid_generator
 
 
 @pytest.fixture
@@ -69,7 +69,6 @@ def error_response_text():
 def test_send_messages_success(mocker):
     """Test sending multiple messages successfully."""
     mocker.patch("access_token.get_token", return_value="an_access_token")
-    mocker.patch("datastore.create_batch_message_record")
     send_message_mock = mocker.patch("notifier.send_message", return_value="OK")
 
     data = {
@@ -79,7 +78,7 @@ def test_send_messages_success(mocker):
             {"nhs_number": "0000000001"},
         ],
     }
-    expected_batch_id = notifier.reference_uuid(json.dumps(data))
+    expected_batch_id = uuid_generator.reference_uuid(json.dumps(data))
 
     response = notifier.send_messages(data)
 
@@ -102,12 +101,12 @@ def test_send_messages_success(mocker):
 
 def test_send_message_success(mocker, setup, message_data, response_text):
     """Test sending a single message successfully."""
-    mocker.patch("datastore.create_batch_message_record")
+    mock_recorder = mocker.patch("batch_message_recorder.save_status")
     access_token = "access_token"
     routing_plan = "breast-screening-pilot"
     routing_plan_id = routing_plans.get_id(routing_plan)
     message_data["routing_plan"] = routing_plan
-    batch_id = notifier.reference_uuid(json.dumps(message_data))
+    batch_id = uuid_generator.reference_uuid(json.dumps(message_data))
 
     expected_request_body = notifier.message_body(routing_plan_id, message_data)
 
@@ -120,15 +119,20 @@ def test_send_message_success(mocker, setup, message_data, response_text):
         assert adapter.called
         assert adapter.call_count == 1
         assert adapter.last_request.json() == expected_request_body
+        mock_recorder.assert_any_call("not_sent", batch_id, message_data)
+        modified_message_data = message_data.copy()
+        modified_message_data["message_id"] = "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
+        modified_message_data["details"] = response_text
+        mock_recorder.assert_any_call("sent", batch_id, modified_message_data)
 
 
 def test_send_message_logs_error(mocker, setup, error_response_text, message_data):
     """Test logging and handling of error responses during message sending."""
-    mocker.patch("datastore.create_batch_message_record")
+    mock_recorder = mocker.patch("batch_message_recorder.save_status")
     access_token = "access_token"
     routing_plan = "breast-screening-pilot"
     routing_plan_id = routing_plans.get_id(routing_plan)
-    batch_id = notifier.reference_uuid(json.dumps(message_data))
+    batch_id = uuid_generator.reference_uuid(json.dumps(message_data))
 
     error_logging_spy = mocker.spy(logging, "error")
 
@@ -140,6 +144,10 @@ def test_send_message_logs_error(mocker, setup, error_response_text, message_dat
 
         assert result == error_response_text
         error_logging_spy.assert_called_once_with(error_response_text)
+        mock_recorder.assert_any_call("not_sent", batch_id, message_data)
+        modified_message_data = message_data.copy()
+        modified_message_data["details"] = error_response_text
+        mock_recorder.assert_any_call("failed", batch_id, modified_message_data)
 
 
 def test_message_body():
@@ -162,7 +170,7 @@ def test_message_body():
         "data": {
             "type": "Message",
             "attributes": {
-                "messageReference": notifier.message_reference(data),
+                "messageReference": uuid_generator.message_reference(data),
                 "routingPlanId": routing_plan_id,
                 "recipient": {
                     "nhsNumber": "0000000000",
