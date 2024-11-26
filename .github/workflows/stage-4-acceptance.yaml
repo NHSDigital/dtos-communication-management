@@ -125,8 +125,6 @@ jobs:
     needs:
       [
         test-accessibility,
-        test-contract,
-        test-integration,
         test-load,
         test-security,
         test-ui-performance,
