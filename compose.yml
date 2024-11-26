@@ -156,6 +156,7 @@ services:
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_USER=${DATABASE_USER}
+      - NOTIFY_API_URL=${NOTIFY_API_URL}
     profiles:
       - test-integration
     depends_on:

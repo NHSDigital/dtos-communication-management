@@ -41,8 +41,10 @@ def create_batch_message_record(batch_message_data: dict) -> bool | list[str, st
         with connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(INSERT_BATCH_MESSAGE, batch_message_data)
-
                 return cur.fetchone()
+
+        conn.commit()
+        conn.close()
     except psycopg2.Error as e:
         logging.error("Error creating batch message record")
         logging.error(f"{type(e).__name__} : {e}")
@@ -57,6 +59,7 @@ def create_message_status_record(message_status_data: dict) -> bool | str:
 
                 return cur.fetchone()[0]
 
+        conn.commit()
         conn.close()
     except psycopg2.Error as e:
         logging.error("Error creating message status record")
