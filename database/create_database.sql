@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS batch_messages (
     nhs_number TEXT NOT NULL,
     recipient_id UUID NOT NULL,
     status batch_message_status DEFAULT 'not_sent',
-    PRIMARY KEY (batch_id, message_reference)
+    PRIMARY KEY (batch_id, message_reference, status)
 );
 
 CREATE TABLE IF NOT EXISTS message_statuses (
