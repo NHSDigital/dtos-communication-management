@@ -1,6 +1,6 @@
 from datetime import datetime
 
-crystal_report_extract_format = "%dM%mM%Y"
+CRYSTAL_REPORT_EXTRACT_FORMAT = "%dM%mM%Y"
 
 def _to_format(date_str: str, desired_format: str) -> str | None:
     try:
@@ -11,7 +11,7 @@ def _to_format(date_str: str, desired_format: str) -> str | None:
         pass
 
     try:
-        return datetime.strptime(date_str, crystal_report_extract_format).strftime(desired_format)
+        return datetime.strptime(date_str, CRYSTAL_REPORT_EXTRACT_FORMAT).strftime(desired_format)
     except ValueError:
         return None
 
@@ -21,5 +21,4 @@ def to_date_of_birth(date_str: str) -> str | None:
 
 
 def to_human_readable_date(date_str: str) -> str | None:
-    return _to_format(date_str, "%d/%m/%Y")
-
+    return _to_format(date_str, "%A %d %B %Y")

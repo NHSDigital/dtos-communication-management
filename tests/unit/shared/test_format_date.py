@@ -30,11 +30,11 @@ def test_to_date_of_birth():
 def test_to_human_readable_date():
     """Test human-readable date formatting to DD/MM/YYYY."""
     valid_test_cases = [
-        ("25M01M1985", "25/01/1985"),
-        ("01M02M2000", "01/02/2000"),
-        ("15M03M1999", "15/03/1999"),
-        ("30M12M2022", "30/12/2022"),
-        ("25/01/1985", "25/01/1985"), # Already in correct format - should return as is
+        ("25M01M1985", "Friday 25 January 1985"),
+        ("01M02M2000", "Tuesday 01 February 2000"),
+        ("15M03M1999", "Monday 15 March 1999"),
+        ("30M12M2022", "Friday 30 December 2022"),
+        ("Monday 15 March 1999", "Monday 15 March 1999"), # Already in correct format - should return as is
     ]
 
     invalid_test_cases = [
