@@ -1,31 +1,30 @@
 module "postgresql_flexible_db" {
-  for_each = var.postgressql != {} ? var.regions : {}
+  for_each = var.postgresql != {} ? var.regions : {}
 
-  source = "../../../dtos-devops-templates/infrastructure/modules/postgressql-flexible"
+  source = "../../../dtos-devops-templates/infrastructure/modules/postgresql-flexible"
 
   # Azure SQL Server
   name                = module.regions_config[each.key].names.postgres-sql-server
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
-  backup_retention_days           = var.postgressql.backup_retention_days
-  geo_redundant_backup_enabled    = var.postgressql.geo_redundant_backup_enabled
+  backup_retention_days           = var.postgresql.backup_retention_days
+  geo_redundant_backup_enabled    = var.postgresql.geo_redundant_backup_enabled
   postgresql_admin_object_id      = data.azuread_group.postgres_sql_admin_group.object_id
-  postgresql_admin_principal_name = var.postgressql.postgres_sql_admin_group
+  postgresql_admin_principal_name = var.postgresql.postgres_sql_admin_group
   postgresql_admin_principal_type = "Group"
-  public_network_access_enabled   = var.postgressql.public_network_access_enabled
+  public_network_access_enabled   = var.postgresql.public_network_access_enabled
 
-  sku_name     = var.postgressql.dbs.commgt.sku_name
-  storage_mb   = var.postgressql.dbs.commgt.storage_mb
-  storage_tier = var.postgressql.dbs.commgt.storage_tier
+  sku_name     = var.postgresql.dbs.commgt.sku_name
+  storage_mb   = var.postgresql.dbs.commgt.storage_mb
+  storage_tier = var.postgresql.dbs.commgt.storage_tier
 
-  server_version = var.postgressql.server_version
+  server_version = var.postgresql.server_version
   tenant_id      = data.azurerm_client_config.current.tenant_id
-  zone           = var.postgressql.zone
+  zone           = var.postgresql.zone
 
   # postgresql_configurations
   postgresql_configurations = {}
-
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
@@ -49,6 +48,5 @@ module "postgresql_flexible_db" {
 }
 
 data "azuread_group" "postgres_sql_admin_group" {
-  #display_name = "GRZ-Digital-Screening-DToS-Contributors"
-  display_name = var.postgressql.postgres_sql_admin_group
+  display_name = var.postgresql.postgres_sql_admin_group
 }

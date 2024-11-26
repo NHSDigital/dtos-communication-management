@@ -213,9 +213,9 @@ storage_accounts = {
   }
 }
 
-postgressql = {
+postgresql = {
 
-  postgres_sql_admin_group      = "postgressql_commgt_dev_uks_admin"
+  postgres_sql_admin_group      = "postgresql_commgt_dev_uks_admin"
   backup_retention_days         = 30
   geo_redundant_backup_enabled  = false
   public_network_access_enabled = false

@@ -226,7 +226,7 @@ variable "network_security_group_rules" {
 }
 
 
-variable "postgressql" {
+variable "postgresql" {
   description = "Configuration for the Azure Postgres server instance and a default database "
   type = object({
 
