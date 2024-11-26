@@ -85,16 +85,16 @@ locals {
             local.app_settings_common,
             config.env_vars_static,
 
-            # Dynamic env vars which cannot be stored in tfvars file
-            function == "message-status" ? {
-              APPLICATION_ID = data.azurerm_key_vault_secret.application_id[region].versionless_id
-              OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
-            } : {},
-            function == "notify" ? {
-              OAUTH2_API_KID = data.azurerm_key_vault_secret.oauth2_api_kid[region].versionless_id
-              OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
-              PRIVATE_KEY    = data.azurerm_key_vault_key.private_key[region].versionless_id
-            } : {},
+            # # Dynamic env vars which cannot be stored in tfvars file
+            # function == "message-status" ? {
+            #   APPLICATION_ID = data.azurerm_key_vault_secret.application_id[region].versionless_id
+            #   OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
+            # } : {},
+            # function == "notify" ? {
+            #   OAUTH2_API_KID = data.azurerm_key_vault_secret.oauth2_api_kid[region].versionless_id
+            #   OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
+            #   PRIVATE_KEY    = data.azurerm_key_vault_key.private_key[region].versionless_id
+            # } : {},
 
             # Dynamic references to other Function App URLs
             {

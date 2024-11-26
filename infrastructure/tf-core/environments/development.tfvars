@@ -212,3 +212,25 @@ storage_accounts = {
     }
   }
 }
+
+postgressql = {
+
+  postgres_sql_admin_group      = "postgressql_commgt_dev_uks_admin"
+  backup_retention_days         = 30
+  geo_redundant_backup_enabled  = false
+  public_network_access_enabled = false
+  server_version                = 16
+  zone                          = 1
+
+  # serins database
+  dbs = {
+    commgt = {
+      storage_tier = "P10"
+      storage_mb   = 32768
+      sku_name     = "GP_Standard_D4s_v3"
+    }
+  }
+
+  # fw_rules = {}
+
+}
