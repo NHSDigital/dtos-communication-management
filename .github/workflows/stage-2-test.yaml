@@ -120,7 +120,7 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      - name: "Run e2e test suite"
+      - name: "Run end to end test suite"
         run: |
           ./test-end-to-end.sh
   test-coverage:
