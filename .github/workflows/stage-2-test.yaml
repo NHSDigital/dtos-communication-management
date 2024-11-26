@@ -1,4 +1,4 @@
-name: "Test Stage"
+name: "Test stage"
 
 on:
   workflow_call:
@@ -23,133 +23,119 @@ on:
         description: "Python version, set by the CI/CD pipeline workflow"
         required: true
         type: string
+      terraform_version:
+        description: "Terraform version, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
       version:
         description: "Version of the software, set by the CI/CD pipeline workflow"
         required: true
         type: string
 
-env:
-  PYTHON_VERSION: ${{ inputs.python_version }}
-  NODEJS_VERSION: ${{ inputs.nodejs_version }}
-
 jobs:
   set-up-dependencies:
-    name: "Set Up Dependencies"
+    name: "Set up dependencies"
     runs-on: ubuntu-latest
     steps:
       - name: "Install Python"
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: "3.11"
 
-      - name: "Install Node.js"
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODEJS_VERSION }}
-
-      - name: "Install Python Dependencies"
+      - name: Install dependencies
         run: |
+          ./test-setup.sh
           python -m venv venv
           source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: "Run Setup Script"
-        run: ./test-setup.sh
+          python -m pip install --upgrade pip
 
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
-
-      - name: "Run Linting"
-        run: make test-lint
-
+      - name: "Run linting"
+        run: |
+          make test-lint
+      - name: "Save the linting result"
+        run: |
+          echo "Nothing to save"
   test-unit:
-    name: "Unit Tests"
+    name: "Unit tests"
     needs: set-up-dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
-
-      - name: "Run Unit Test Suite"
-        run: ./test-unit.sh
-
+      - name: "Run unit test suite"
+        run: |
+          ./test-unit.sh
   test-pacts:
-    name: "Pact Tests"
+    name: "Pact tests"
     needs: set-up-dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
-
-      - name: "Run Pact Test Suite"
-        run: ./test-pacts.sh
-
+      - name: "Run unit test suite"
+        run: |
+          ./test-pacts.sh
   test-integration:
-    name: "Integration Tests"
+    name: "Integration tests"
     needs: set-up-dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
-
-      - name: "Run Integration Test Suite"
-        run: ./test-integration.sh
-
+      - name: "Run unit test suite"
+        run: |
+          ./test-integration.sh
   test-end-to-end:
-    name: "End-to-End Tests"
+    name: "End-to-end tests"
     needs: set-up-dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
-
-      - name: "Run End-to-End Test Suite"
-        run: ./test-end-to-end.sh
-
+      - name: "Run unit test suite"
+        run: |
+          ./test-end-to-end.sh
   test-coverage:
-    name: "Test Coverage"
-    needs: test-unit
+    name: "Test coverage"
+    needs: [test-unit]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
-
-      - name: "Run Test Coverage Check"
-        run: ./test-coverage.sh
-
-      - name: "Upload Coverage Reports"
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-reports
-          path: ./coverage-reports/
-
+      - name: "Run test coverage check"
+        run: |
+          ./test-coverage.sh
+      - name: "Save the coverage check result"
+        run: |
+          echo "Nothing to save"
   perform-static-analysis:
-    name: "Static Analysis"
-    needs: test-unit
+    name: "Perform static analysis"
+    needs: [test-unit]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+    timeout-minutes: 5
     steps:
-      - name: "Checkout Code"
+      - name: "Checkout code"
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Full history for better analysis context
-
-      - name: "Perform Static Analysis"
+          fetch-depth: 0 # Full history is needed to improving relevancy of reporting
+      - name: "Perform static analysis"
         uses: ./.github/actions/perform-static-analysis
         with:
           sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
           sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
           sonar_token: "${{ secrets.SONAR_TOKEN }}"
-
-      - name: "Upload Analysis Reports"
-        uses: actions/upload-artifact@v3
-        with:
-          name: static-analysis-reports
-          path: ./static-analysis-reports/
