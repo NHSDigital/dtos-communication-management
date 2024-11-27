@@ -2,6 +2,7 @@ import csv
 import dateutil.parser
 import logging
 import os
+import pilot_bso_details
 import requests
 import uuid
 
@@ -12,8 +13,10 @@ HEADERS = {
 }
 
 
-def process_data(raw_data) -> str:
-    data = valid_csv_data(raw_data)
+def process_data(filename, raw_data) -> str:
+    bso_code = pilot_bso_details.code_from_filename(filename)
+    data = valid_csv_data(bso_code, raw_data)
+
     if not data:
         logging.error("No valid data found")
         return
@@ -27,21 +30,22 @@ def process_data(raw_data) -> str:
     return response.text
 
 
-def post_body(data) -> dict:
+def post_body(data: dict) -> dict:
     return {
         "routing_plan": "breast-screening-pilot",
         "recipients": data,
     }
 
 
-def valid_csv_data(raw_data) -> list:
+def valid_csv_data(bso_code: str, raw_data: dict) -> list:
+    contact_telephone_number = pilot_bso_details.contact_telephone_number(bso_code)
     data = []
     try:
         reader = csv.DictReader(raw_data, FIELDNAMES)
         for row in reader:
             if valid_row(row):
                 row["correlation_id"] = str(uuid.uuid4())
-                row["contact_telephone_number"] = contact_telephone_number()
+                row["contact_telephone_number"] = contact_telephone_number
                 data.append(row)
     except csv.Error:
         logging.error("Invalid CSV data")
@@ -77,7 +81,3 @@ def valid_date_or_time(val: str) -> bool:
 
 def notify_function_url() -> str:
     return os.getenv("NOTIFY_FUNCTION_URL")
-
-
-def contact_telephone_number() -> str:
-    return os.getenv("CONTACT_TELEPHONE_NUMBER")
