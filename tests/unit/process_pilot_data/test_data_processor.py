@@ -15,10 +15,6 @@ def setup(monkeypatch):
         "NOTIFY_FUNCTION_URL",
         "http://example.com/api/notify/message/send",
     )
-    monkeypatch.setenv(
-        "CONTACT_TELEPHONE_NUMBER",
-        "01234567890",
-    )
 
 
 def test_process_data_valid_csv(setup):
