@@ -7,7 +7,7 @@ def to_human_readable_twelve_hours(raw_time: str) -> str | None:
     """
     try:
         if raw_time is None:
-            logging.error("Input is None.")
+            logging.error("Attempted to convert time format, but input is None.")
             return None
 
         raw_time = raw_time.strip()
