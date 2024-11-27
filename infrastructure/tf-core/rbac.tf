@@ -10,5 +10,4 @@ locals {
     "Storage Blob Data Owner",
     "Storage Queue Data Contributor"
   ]
-
 }

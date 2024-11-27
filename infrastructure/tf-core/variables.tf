@@ -225,6 +225,36 @@ variable "network_security_group_rules" {
   })))
 }
 
+
+variable "postgresql" {
+  description = "Configuration for the Azure Postgres server instance and a default database "
+  type = object({
+
+    postgres_sql_admin_group      = optional(string, "1")
+    backup_retention_days         = optional(number)
+    geo_redundant_backup_enabled  = optional(bool)
+    public_network_access_enabled = optional(bool)
+    server_version                = optional(string, "16")
+    zone                          = optional(string, "1")
+
+    # Database
+    dbs = optional(map(object({
+      db_name_suffix = optional(string, "commgt")
+      sku_name       = optional(string, "S0")
+      storage_mb     = optional(number, 32768)
+      storage_tier   = optional(string, "P4")
+
+    })), {})
+
+    # FW Rules
+    fw_rules = optional(map(object({
+      fw_rule_name = string
+      start_ip     = string
+      end_ip       = string
+    })), {})
+  })
+}
+
 /*
   application_rule_collection = [
     {

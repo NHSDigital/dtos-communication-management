@@ -92,6 +92,6 @@ data "azurerm_key_vault_key" "private_key" {
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
 
-data "azuread_group" "commgt_devs" {
-  display_name = "DToS-commgt-DevTesters-dev"
+data "azuread_group" "postgres_sql_admin_group" {
+  display_name = var.postgresql.postgres_sql_admin_group
 }
