@@ -1,7 +1,6 @@
 import unittest
 from datetime import datetime
 
-# Assuming format_time.to_human_readable_twelve_hours is in the same module or imported from your module
 import format_time
 
 class TestFormatTime(unittest.TestCase):
