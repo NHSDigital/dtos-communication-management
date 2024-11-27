@@ -8,7 +8,6 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
     BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME} \
-    CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER} \
     NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
 
 COPY --from=root_dir Pipfile /

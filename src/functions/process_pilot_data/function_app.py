@@ -18,5 +18,6 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 def process_data(csvblob: func.InputStream) -> str:
     logging.info("Triggering data processor from blob update")
     raw_data = csvblob.read().decode("utf-8").splitlines()
-    result = data_processor.process_data(raw_data)
+    filename = os.path.splitext(os.path.basename(csvblob.name))[0]
+    result = data_processor.process_data(filename, raw_data)
     logging.info(f"Data processor result: {result}")

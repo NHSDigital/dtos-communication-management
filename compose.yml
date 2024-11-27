@@ -143,7 +143,6 @@ services:
       - ASPNETCORE_URLS=http://*:7071
       - FUNCTIONS_WORKER_RUNTIME=python
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
-      - CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER}
       - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
     volumes:
       - ./log/functions/process-pilot-data:/tmp/Functions/Host
