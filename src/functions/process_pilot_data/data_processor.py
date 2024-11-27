@@ -5,6 +5,7 @@ import os
 import pilot_bso_details
 import requests
 import uuid
+import format_time
 
 FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
 HEADERS = {
@@ -44,6 +45,7 @@ def valid_csv_data(bso_code: str, raw_data: dict) -> list:
         reader = csv.DictReader(raw_data, FIELDNAMES)
         for row in reader:
             if valid_row(row):
+                row["appointment_time"] = format_time.to_human_readable_twelve_hours(row["appointment_time"])
                 row["correlation_id"] = str(uuid.uuid4())
                 row["contact_telephone_number"] = contact_telephone_number
                 data.append(row)
