@@ -64,38 +64,34 @@ data "azurerm_application_insights" "ai" {
   resource_group_name = var.function_apps.app_insights_rg_name
 }
 
-# data "azurerm_key_vault_secret" "application_id" {
-#   for_each = var.regions
+data "azurerm_key_vault_secret" "application_id" {
+  for_each = var.regions
 
-#   name         = "APPLICATION-ID"
-#   key_vault_id = module.key_vault[each.key].key_vault_id
-# }
-
-# data "azurerm_key_vault_secret" "oauth2_api_kid" {
-#   for_each = var.regions
-
-#   name         = "OAUTH2-API-KID"
-#   key_vault_id = module.key_vault[each.key].key_vault_id
-# }
-
-# data "azurerm_key_vault_secret" "oauth2_api_key" {
-#   for_each = var.regions
-
-#   name         = "OAUTH2-API-KEY"
-#   key_vault_id = module.key_vault[each.key].key_vault_id
-# }
-
-# data "azurerm_key_vault_key" "private_key" {
-#   for_each = var.regions
-
-#   name         = "PRIVATE-KEY"
-#   key_vault_id = module.key_vault[each.key].key_vault_id
-# }
-
-data "azuread_group" "commgt_devs" {
-  display_name = "DToS-commgt-DevTesters-dev"
+  name         = "APPLICATION-ID"
+  key_vault_id = module.key_vault[each.key].key_vault_id
 }
 
-data "azuread_group" "commgt_devs" {
-  display_name = "DToS-commgt-DevTesters-dev"
+data "azurerm_key_vault_secret" "oauth2_api_kid" {
+  for_each = var.regions
+
+  name         = "OAUTH2-API-KID"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azurerm_key_vault_secret" "oauth2_api_key" {
+  for_each = var.regions
+
+  name         = "OAUTH2-API-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azurerm_key_vault_key" "private_key" {
+  for_each = var.regions
+
+  name         = "PRIVATE-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azuread_group" "postgres_sql_admin_group" {
+  display_name = var.postgresql.postgres_sql_admin_group
 }

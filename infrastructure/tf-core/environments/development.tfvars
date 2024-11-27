@@ -222,7 +222,7 @@ postgresql = {
   server_version                = 16
   zone                          = 1
 
-  # serins database
+  # commgt database
   dbs = {
     commgt = {
       storage_tier = "P10"

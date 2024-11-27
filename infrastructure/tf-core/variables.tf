@@ -246,15 +246,6 @@ variable "postgresql" {
 
     })), {})
 
-    # sql_uai_name                         = optional(string)
-    # sql_admin_group_name                 = optional(string)
-    # ad_auth_only                         = optional(bool)
-    # auditing_policy_retention_in_days    = optional(number)
-    # security_alert_policy_retention_days = optional(number)
-
-    # Server Instance
-
-
     # FW Rules
     fw_rules = optional(map(object({
       fw_rule_name = string

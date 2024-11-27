@@ -3,7 +3,7 @@ module "postgresql_flexible_db" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/postgresql-flexible"
 
-  # Azure SQL Server
+  # postgresql Server
   name                = module.regions_config[each.key].names.postgres-sql-server
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
@@ -40,13 +40,9 @@ module "postgresql_flexible_db" {
       collation   = "en_US.utf8"
       charset     = "UTF8"
       max_size_gb = 10
-      name        = "example_database_1"
+      name        = "communication_management"
     }
   }
 
   tags = var.tags
-}
-
-data "azuread_group" "postgres_sql_admin_group" {
-  display_name = var.postgresql.postgres_sql_admin_group
 }
