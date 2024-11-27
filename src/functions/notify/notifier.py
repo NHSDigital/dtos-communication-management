@@ -1,15 +1,17 @@
 import access_token
-import hashlib
+import batch_message_recorder
+import json
 import logging
 import os
 import requests
 import routing_plans
-import uuid
+import uuid_generator
 
 
 def send_messages(data: dict) -> str:
     responses: list = []
     routing_plan_id: str = None
+    batch_id = uuid_generator.reference_uuid(json.dumps(data))
 
     token: str = access_token.get_token()
 
@@ -21,22 +23,34 @@ def send_messages(data: dict) -> str:
             if "routing_plan" in message_data:
                 routing_plan_id = routing_plans.get_id(message_data.pop("routing_plan"))
 
-            response: str = send_message(token, routing_plan_id, message_data)
+            response: str = send_message(token, routing_plan_id, message_data, batch_id)
             responses.append(response)
 
     return "\n".join(responses)
 
 
-def send_message(token, routing_plan_id, message_data) -> str:
+def send_message(token, routing_plan_id, message_data, batch_id) -> str:
     body: str = message_body(routing_plan_id, message_data)
     correlation_id: str = message_data["correlation_id"]
+
+    batch_message_recorder.save_status(
+        batch_message_recorder.NOT_SENT, batch_id, message_data)
+
     response = requests.post(url(), json=body, headers=headers(token, correlation_id))
 
     logging.info(f"Response from Notify API {url()}: {response.status_code}")
+    batch_message_data = message_data.copy()
+
     if response.status_code == 201:
         logging.info(response.text)
+        batch_message_data["message_id"] = response.json()["data"]["id"]
+        status = batch_message_recorder.SENT
     else:
         logging.error(response.text)
+        status = batch_message_recorder.FAILED
+
+    batch_message_data["details"] = response.text
+    batch_message_recorder.save_status(status, batch_id, batch_message_data)
 
     return response.text
 
@@ -66,7 +80,7 @@ def message_body(routing_plan_id, message_data) -> dict:
         "data": {
             "type": "Message",
             "attributes": {
-                "messageReference": message_reference(message_data),
+                "messageReference": uuid_generator.message_reference(message_data),
                 "routingPlanId": routing_plan_id,
                 "recipient": {
                     "nhsNumber": nhs_number,
@@ -82,18 +96,3 @@ def message_body(routing_plan_id, message_data) -> dict:
             },
         }
     }
-
-
-def message_reference(message_data: dict) -> str:
-    str_val: str = ",".join([
-        message_data["nhs_number"],
-        message_data["date_of_birth"],
-        message_data["appointment_date"],
-        message_data["appointment_time"],
-    ])
-    return reference_uuid(str_val)
-
-
-def reference_uuid(val) -> str:
-    str_val = str(val)
-    return str(uuid.UUID(hashlib.md5(str_val.encode()).hexdigest()))

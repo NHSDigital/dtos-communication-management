@@ -15,13 +15,14 @@
         "headers": {
           "content-type": "application/vnd.api+json",
           "accept": "application/vnd.api+json",
-          "x-correlation-id": "e3e3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"
+          "x-correlation-id": "e3e3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+          "authorization": "Bearer an_access_token"
         },
         "body": {
           "data": {
             "type": "Message",
             "attributes": {
-              "messageReference": "c35c6ecd-98b1-b6da-5687-8d2997dc17a8",
+              "messageReference": "ddf434fb-1786-fbf1-2fab-a2f3658e7a43",
               "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
               "recipient": {
                 "nhsNumber": "9990548609",
@@ -33,9 +34,6 @@
                 "appointment_time": "14:30",
                 "tracking_id": "9990548609",
                 "contact_telephone_number": "01234567890"
-              },
-              "originator": {
-                "odsCode": "X26"
               }
             }
           }
@@ -100,4 +98,3 @@
     }
   }
 }
-
