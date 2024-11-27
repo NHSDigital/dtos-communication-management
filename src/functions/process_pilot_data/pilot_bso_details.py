@@ -1,5 +1,4 @@
 SERVICES = {
-    # TODO: Use the correct keys here
     "KMK": {
         "name": "Milton Keynes Breast Care Unit",
         "telephone": "01908 995883",

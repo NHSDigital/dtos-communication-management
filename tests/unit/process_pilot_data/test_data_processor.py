@@ -54,7 +54,6 @@ def test_process_data_valid_csv(setup):
             "http://example.com/api/notify/message/send",
             text=response_text,
         )
-        # TODO: Use a valid BSO code in the file name here
         data_processor.process_data("HWA NHS App Pilot 002 SPRPT", csv_data)
 
         assert adapter.called
