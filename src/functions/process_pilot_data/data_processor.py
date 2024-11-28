@@ -7,6 +7,7 @@ import requests
 import uuid
 import format_time
 import format_date
+import re
 
 FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
 HEADERS = {
@@ -74,13 +75,18 @@ def valid_nhs_number(nhs_number: str) -> bool:
 
 
 def valid_date_or_time(val: str) -> bool:
-    if not val:
+    if not val or not val.strip():
         return False
-    try:
-        dateutil.parser.parse(val)
+
+    # Regex for date format: 01M01M1970
+    date_pattern = r"^\d{2}M\d{2}M\d{4}$"
+    # Regex for time format: 00:00:00
+    time_pattern = r"^\d{2}:\d{2}:\d{2}$"
+
+    if re.match(date_pattern, val) or re.match(time_pattern, val):
         return True
-    except ValueError:
-        return False
+
+    return False
 
 
 def notify_function_url() -> str:
