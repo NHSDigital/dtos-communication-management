@@ -9,7 +9,16 @@ import format_time
 import format_date
 import re
 
-FIELDNAMES = ("stage", "nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
+FIELDNAMES = (
+    "stage",
+    "nhs_number",
+    "fullName", # Intentionally left as camelCase to match the template data
+    "date_of_birth",
+    "office_code",
+    "appointment_date",
+    "appointment_time",
+    "appointment_location"
+)
 HEADERS = {
     "Content-type": "application/json",
     "Accept": "application/json",
@@ -48,6 +57,8 @@ def valid_csv_data(bso_code: str, raw_data: dict) -> list:
         for row in reader:
             # Ignore the `stage` field
             row.pop("stage", None)
+            # Ignore the `office_code` field
+            row.pop("office_code", None)
             if valid_row(row):
                 row["appointment_time"] = format_time.to_human_readable_twelve_hours(row["appointment_time"])
                 row["correlation_id"] = str(uuid.uuid4())
@@ -67,7 +78,8 @@ def valid_row(row) -> bool:
         valid_date_or_time(row["date_of_birth"]) and
         valid_date_or_time(row["appointment_date"]) and
         valid_date_or_time(row["appointment_time"]) and
-        row["appointment_location"]
+        row["appointment_location"] and
+        row["full_name"]
     )
 
 
