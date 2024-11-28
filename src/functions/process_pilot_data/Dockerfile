@@ -16,3 +16,4 @@ RUN pip install pipenv
 RUN pipenv install --system
 
 COPY . /home/site/wwwroot
+COPY --from=root_dir src/shared/ /home/site/wwwroot
