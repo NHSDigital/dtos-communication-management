@@ -30,7 +30,6 @@ def test_process_data_valid_csv(setup):
         "recipients": [
             {
                 "nhs_number": "0000000000",
-                "fullName": "BLAKE, KYLIE, MRS",
                 "date_of_birth": "2001-02-03",
                 "appointment_date": "Thursday 03 February 2022",
                 "appointment_time": "10:00am",
@@ -40,7 +39,6 @@ def test_process_data_valid_csv(setup):
             },
             {
                 "nhs_number": "1111111111",
-                "fullName": "BLAKE, KAREN, MRS",
                 "date_of_birth": "2002-04-04",
                 "appointment_date": "Thursday 04 April 2024",
                 "appointment_time": "11:00am",

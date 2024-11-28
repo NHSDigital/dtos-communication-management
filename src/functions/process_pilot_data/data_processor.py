@@ -10,11 +10,11 @@ import format_date
 import re
 
 FIELDNAMES = (
-    "stage",
+    "stage", # Not sent to Notify
     "nhs_number",
-    "fullName", # Intentionally left as camelCase to match the template data
+    "full_name", # Not sent to Notify
     "date_of_birth",
-    "office_code",
+    "office_code", # Not sent to Notify
     "appointment_date",
     "appointment_time",
     "appointment_location"
@@ -59,7 +59,16 @@ def valid_csv_data(bso_code: str, raw_data: dict) -> list:
             row.pop("stage", None)
             # Ignore the `office_code` field
             row.pop("office_code", None)
+            # Ignore the `full_name` field
+            row.pop("full_name", None)
             if valid_row(row):
+                row_to_add = {
+                    "nhs_number": row["nhs_number"],
+                    "date_of_birth": row["date_of_birth"],
+                    "appointment_date": row["appointment_date"],
+                    "appointment_time": row["appointment_time"],
+                    "appointment_location": row["appointment_location"],
+                }
                 row["appointment_time"] = format_time.to_human_readable_twelve_hours(row["appointment_time"])
                 row["correlation_id"] = str(uuid.uuid4())
                 row["contact_telephone_number"] = contact_telephone_number
@@ -78,8 +87,7 @@ def valid_row(row) -> bool:
         valid_date_or_time(row["date_of_birth"]) and
         valid_date_or_time(row["appointment_date"]) and
         valid_date_or_time(row["appointment_time"]) and
-        row["appointment_location"] and
-        row["fullName"]
+        row["appointment_location"]
     )
 
 
