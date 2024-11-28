@@ -17,7 +17,7 @@ SERVICES = {
 # Expectd file name: XXX NHS App Pilot 002 SPRPT
 # Where XXX is the code
 def code_from_filename(filename: str) -> str:
-    return filename.split(" ")[0]
+    return filename.split(" ")[0].upper()
 
 
 def contact_telephone_number(code: str) -> str:
