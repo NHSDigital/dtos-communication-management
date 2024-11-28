@@ -24,8 +24,8 @@ def upload_file_to_blob_storage():
         pilot_data_client = blob_service_client.get_container_client(blob_container_name)
         blob_client = pilot_data_client.get_blob_client("HWA NHS App Pilot 002 SPRPT.csv")
         csv_data = "\n".join([
-            '9990548609,1971-09-07,01M12M2024,10:15:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Treatment Centre, Mytton Oak Road, Shrewsbury, SY3 8XQ"',
-            '9435732992,1980-02-04,2025-01-03,11:2:005,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
+            '9990548609,1971-09-07,2024-12-01,10:15,"The Royal Shrewsbury Hospital, Breast Screening Office, Treatment Centre, Mytton Oak Road, Shrewsbury, SY3 8XQ"',
+            '9435732992,1980-02-04,2025-01-03,11:25,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
         ]) + "\n"
         content_settings = azure.storage.blob.ContentSettings(content_type='text/csv')
         blob_client.upload_blob(csv_data, blob_type="BlockBlob", content_settings=content_settings, overwrite=True)
@@ -84,8 +84,8 @@ def assert_batch_messages_database_records_created():
             assert nhs_number == "9990548609"
             assert status == "not_sent"
             assert details["date_of_birth"] == "1971-09-07"
-            assert details["appointment_date"] == "Sunday 01 December 2024"
-            assert details["appointment_time"] == "10:15am"
+            assert details["appointment_date"] == "2024-12-01"
+            assert details["appointment_time"] == "10:15"
             assert details["appointment_location"] == "The Royal Shrewsbury Hospital, Breast Screening Office, Treatment Centre, Mytton Oak Road, Shrewsbury, SY3 8XQ"
             assert details["contact_telephone_number"] == "020 3758 2024"
 
@@ -100,8 +100,8 @@ def assert_batch_messages_database_records_created():
             assert nhs_number == "9435732992"
             assert status == "not_sent"
             assert details["date_of_birth"] == "1980-02-04"
-            assert details["appointment_date"] == "Friday 03 January 2025"
-            assert details["appointment_time"] == "11:25am"
+            assert details["appointment_date"] == "2025-01-03"
+            assert details["appointment_time"] == "11:25"
             assert details["appointment_location"] == "The Epping Breast Screening Unit, St Margaret's Hospital, The Plain, Epping, Essex, CM16 6TN"
             assert details["contact_telephone_number"] == "020 3758 2024"
 
