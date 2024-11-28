@@ -22,7 +22,7 @@ def test_process_data_valid_csv(setup):
     response_text = json.dumps({"data": "OK"})
     csv_data = [
         '0000000000,2001-02-03,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
-        '1111111111,2002-04-04,2024-04-04,11:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
+        '1111111111,2002-04-04,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
     ]
 
     expected_request_body = {
