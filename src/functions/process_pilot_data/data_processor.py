@@ -79,7 +79,7 @@ def valid_row(row) -> bool:
         valid_date_or_time(row["appointment_date"]) and
         valid_date_or_time(row["appointment_time"]) and
         row["appointment_location"] and
-        row["full_name"]
+        row["fullName"]
     )
 
 
