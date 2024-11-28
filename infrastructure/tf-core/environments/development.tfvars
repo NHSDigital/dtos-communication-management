@@ -153,37 +153,33 @@ function_apps = {
       name_suffix            = "message-status"
       function_endpoint_name = "MessageStatus"
       app_service_plan_key   = "Default"
-      #key_vault_url          = "KeyVaultURL"
-      app_urls        = []
-      env_vars_static = {}
+      key_vault_url          = "KEY_VAULT_URL"
+      app_urls               = []
+      env_vars_static = {
+        BLOB_CONTAINER_NAME = "pilot-data"
+      }
     }
 
     notify = {
-      name_suffix            = "notify"
-      function_endpoint_name = "Notify"
-      app_service_plan_key   = "Default"
-      #key_vault_url          = "KeyVaultURL"
-      app_urls = []
+      name_suffix                  = "notify"
+      function_endpoint_name       = "Notify"
+      app_service_plan_key         = "Default"
+      key_vault_url                = "KEY_VAULT_URL"
+      storage_account_env_var_name = "AzureWebStorageJobs__accountName"
+      app_urls                     = []
       env_vars_static = {
-        BLOB_CONTAINER_NAME      = "pilot-data",
-        NOTIFY_API_URL           = "https://int.api.service.nhs.uk",
-        CONTACT_TELEPHONE_NUMBER = "0123456789",
-        OAUTH2_TOKEN_URL         = "https://int.api.service.nhs.uk/oauth2/token"
+        NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
+        OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
       }
     }
 
     process-pilot-data = {
       name_suffix            = "process-pilot-data"
       function_endpoint_name = "ProcessPilotData"
+      key_vault_url          = "KEY_VAULT_URL"
       app_service_plan_key   = "Default"
-
-      app_urls = [
-        {
-          env_var_name     = "NOTIFY_FUNCTION_URL"
-          function_app_key = "notify"
-        }
-      ]
-      env_vars_static = {}
+      app_urls               = []
+      env_vars_static        = {}
     }
 
   }
@@ -214,7 +210,6 @@ storage_accounts = {
 }
 
 postgresql = {
-
   postgres_sql_admin_group      = "postgresql_commgt_dev_uks_admin"
   backup_retention_days         = 30
   geo_redundant_backup_enabled  = false
