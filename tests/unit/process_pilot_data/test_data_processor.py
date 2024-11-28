@@ -40,7 +40,7 @@ def test_process_data_valid_csv(setup):
             {
                 "nhs_number": "1111111111",
                 "date_of_birth": "2002-04-04",
-                "appointment_date": "Friday 04 April 2024",
+                "appointment_date": "Thursday 04 April 2024",
                 "appointment_time": "11:00am",
                 "appointment_location": "The Epping Breast Screening Unit, St Margaret's Hospital, The Plain, Epping, Essex, CM16 6TN",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
