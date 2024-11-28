@@ -1,10 +1,14 @@
-# Base image
+# Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
 # Install required tools
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
+
+ENV HOST=${HOST} \
+    DBNAME=${DBNAME} \
+    USER=${USER}
 
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash

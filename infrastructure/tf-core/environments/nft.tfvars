@@ -173,6 +173,19 @@ function_apps = {
       }
     }
 
+    postgresql-connection-test = {
+      name_suffix            = "postgresql-connection-test"
+      function_endpoint_name = "Postgresql-connection-test"
+      app_service_plan_key   = "Default"
+      app_urls               = []
+      env_vars_static = {
+        DBNAME = "communication_management",
+        PORT   = 5432,
+        HOST   = "postgres-commgt-int.postgres.database.azure.com",
+        USER   = "postgresql_commgt_int_uks_admin"
+      }
+    }
+
     process-pilot-data = {
       name_suffix            = "process-pilot-data"
       function_endpoint_name = "ProcessPilotData"
@@ -222,7 +235,7 @@ postgresql = {
     commgt = {
       storage_tier = "P10"
       storage_mb   = 32768
-      sku_name     = "GP_Standard_D4s_v3"
+      sku_name     = "GP_Standard_D2s_v3"
     }
   }
 

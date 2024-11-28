@@ -1,33 +1,36 @@
 import os
 import psycopg2
+import requests
+from azure.identity import DefaultAzureCredential
 
-def get_access_token():
-    """Fetches the access token using the Azure CLI."""
-    try:
-        import subprocess
-        token = subprocess.check_output(
-            ["az", "account", "get-access-token", "--resource-type", "oss-rdbms", "-o", "tsv", "--query", "accessToken"],
-            text=True
-        ).strip()
-        return token
-    except Exception as e:
-        print(f"Error fetching token: {e}")
-        return None
 
 def connect_to_db():
     """Connects to the PostgreSQL database using environment variables."""
     # Fetch environment variables
-    db_host = os.getenv("host")
-    db_port = os.getenv("port")
-    db_name = os.getenv("dbname")
-    db_user = os.getenv("user")
+    print("Fetching variables.")
+    db_host = os.getenv("HOST")
+    db_port = os.getenv("PORT")
+    db_port = 5432
+    db_name = os.getenv("DBNAME")
+    db_user = os.getenv("USER")
+
+    credential = DefaultAzureCredential()
+    token = credential.get_token("https://ossrdbms-aad.database.windows.net")
+    access_token = token.token
+    print(f"access_token: {access_token}!")
+
+    print("Fetching variables.")
+    print(f"db_host: {db_host}!")
+    print(f"db_name: {db_name}!")
+    print(f"db_user: {db_user}!")
 
     if not all([db_host, db_port, db_name, db_user]):
         print("Error: Missing one or more required environment variables (host, port, dbname, user).")
         return
 
     # Fetch access token for authentication
-    token = get_access_token()
+    token = access_token
+    print(f"token: {token}!")
     if not token:
         print("Failed to retrieve access token. Exiting.")
         return

@@ -107,6 +107,20 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_USER=${DATABASE_USER}
 
+  postgresql-connection-test:
+    container_name: postgresql-connection-test
+    network_mode: host
+    build:
+      context: ./src/functions/postgresql_connection_test/
+      additional_contexts:
+        root_dir: .
+      dockerfile: Dockerfile
+    environment:
+      - DBNAME=communication_management
+      - PORT=5432
+      - HOST=postgres-commgt-dev-nft.postgres.database.azure.com
+      - USER=postgresql_commgt_nft_uks_admin
+
   notify:
     container_name: notify
     network_mode: host
