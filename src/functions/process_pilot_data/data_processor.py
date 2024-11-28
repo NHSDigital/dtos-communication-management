@@ -9,7 +9,7 @@ import format_time
 import format_date
 import re
 
-FIELDNAMES = ("nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
+FIELDNAMES = ("stage", "nhs_number", "date_of_birth", "appointment_date", "appointment_time", "appointment_location")
 HEADERS = {
     "Content-type": "application/json",
     "Accept": "application/json",
@@ -46,6 +46,8 @@ def valid_csv_data(bso_code: str, raw_data: dict) -> list:
     try:
         reader = csv.DictReader(raw_data, FIELDNAMES)
         for row in reader:
+            # Ignore the `stage` field
+            row.pop("stage", None)
             if valid_row(row):
                 row["appointment_time"] = format_time.to_human_readable_twelve_hours(row["appointment_time"])
                 row["correlation_id"] = str(uuid.uuid4())
