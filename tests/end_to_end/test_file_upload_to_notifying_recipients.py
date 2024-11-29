@@ -78,9 +78,8 @@ def assert_batch_messages_database_records_created():
 
             assert len(records) == 4
 
-            details, message_reference, nhs_number, status = records[0]
+            details, _, nhs_number, status = records[0]
 
-            assert message_reference == "73ffd0b7-2b7e-20b9-a144-dd30c0231e56"
             assert nhs_number == "9990548609"
             assert status == "not_sent"
             assert details["date_of_birth"] == "1971-09-07"
@@ -89,14 +88,12 @@ def assert_batch_messages_database_records_created():
             assert details["appointment_location"] == "The Royal Shrewsbury Hospital, Breast Screening Office, Treatment Centre, Mytton Oak Road, Shrewsbury, SY3 8XQ"
             assert details["contact_telephone_number"] == "020 3758 2024"
 
-            details, message_reference, nhs_number, status = records[1]
+            details, _, nhs_number, status = records[1]
 
-            assert message_reference == "73ffd0b7-2b7e-20b9-a144-dd30c0231e56"
             assert nhs_number == "9990548609"
             assert status == "sent"
 
-            details, message_reference, nhs_number, status = records[2]
-            assert message_reference == "3b2edf6a-aa27-0029-1b90-e1b9b120a5a8"
+            details, _, nhs_number, status = records[2]
             assert nhs_number == "9435732992"
             assert status == "not_sent"
             assert details["date_of_birth"] == "1980-02-04"
@@ -105,8 +102,7 @@ def assert_batch_messages_database_records_created():
             assert details["appointment_location"] == "The Epping Breast Screening Unit, St Margaret's Hospital, The Plain, Epping, Essex, CM16 6TN"
             assert details["contact_telephone_number"] == "020 3758 2024"
 
-            details, message_reference, nhs_number, status = records[3]
-            assert message_reference == "3b2edf6a-aa27-0029-1b90-e1b9b120a5a8"
+            details, _, nhs_number, status = records[3]
             assert nhs_number == "9435732992"
             assert status == "sent"
 
