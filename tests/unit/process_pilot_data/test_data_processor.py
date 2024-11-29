@@ -21,8 +21,8 @@ def test_process_data_valid_csv(setup):
     """Test processing valid CSV data."""
     response_text = json.dumps({"data": "OK"})
     csv_data = [
-        '0000000000,2001-02-03,2022-02-03,10:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
-        '1111111111,2002-04-04,2024-04-04,11:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
+        'UNUSED_STAGE_COLUMN,0000000000,"BLAKE, KYLIE, MRS",03M02M2001,EP700,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
+        'UNUSED_STAGE_COLUMN,1111111111,"BLAKE, KAREN, MRS",04M04M2002,EP700,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
     ]
 
     expected_request_body = {
@@ -31,8 +31,8 @@ def test_process_data_valid_csv(setup):
             {
                 "nhs_number": "0000000000",
                 "date_of_birth": "2001-02-03",
-                "appointment_date": "2022-02-03",
-                "appointment_time": "10:00",
+                "appointment_date": "Thursday 03 February 2022",
+                "appointment_time": "10:00am",
                 "appointment_location": "The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
                 "contact_telephone_number": "020 3758 2024",
@@ -40,8 +40,8 @@ def test_process_data_valid_csv(setup):
             {
                 "nhs_number": "1111111111",
                 "date_of_birth": "2002-04-04",
-                "appointment_date": "2024-04-04",
-                "appointment_time": "11:00",
+                "appointment_date": "Thursday 04 April 2024",
+                "appointment_time": "11:00am",
                 "appointment_location": "The Epping Breast Screening Unit, St Margaret's Hospital, The Plain, Epping, Essex, CM16 6TN",
                 "correlation_id": "00000000-0000-0000-0000-000000000000",
                 "contact_telephone_number": "020 3758 2024",
