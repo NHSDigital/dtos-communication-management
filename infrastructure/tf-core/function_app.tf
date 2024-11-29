@@ -87,29 +87,39 @@ locals {
 
             # Dynamic env vars which cannot be stored in tfvars file
             function == "message-status" ? {
-              APPLICATION_ID = data.azurerm_key_vault_secret.application_id[region].versionless_id
-              OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
+              APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[region].versionless_id})"
+              OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id})"
             } : {},
             function == "notify" ? {
-              OAUTH2_API_KID = data.azurerm_key_vault_secret.oauth2_api_kid[region].versionless_id
-              OAUTH2_API_KEY = data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id
-              PRIVATE_KEY    = data.azurerm_key_vault_key.private_key[region].versionless_id
+              OAUTH2_API_KID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_kid[region].versionless_id})"
+              OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id})"
+              PRIVATE_KEY    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_key.private_key[region].versionless_id})"
             } : {},
-
-            # Dynamic references to other Function App URLs
-            {
-              for obj in config.app_urls : obj.env_var_name => format(
-                "https://%s-%s.azurewebsites.net/api/%s",
+            function == "process-pilot-data" ? {
+              NOTIFY_FUNCTION_URL = format(
+                "https://%s-%s.azurewebsites.net/api/%s/message/send",
                 module.regions_config[region].names["function-app"],
-                var.function_apps.fa_config[obj.function_app_key].name_suffix,
-                var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
+                var.function_apps.fa_config["notify"].name_suffix,
+                lower(var.function_apps.fa_config["notify"].function_endpoint_name)
               )
-            },
+            } : {},
 
             # Dynamic reference to Key Vault
             length(config.key_vault_url) > 0 ? {
               (config.key_vault_url) = module.key_vault[region].key_vault_url
-            } : {}
+            } : {},
+
+            # Storage
+            length(config.storage_account_env_var_name) > 0 ? merge(
+              {
+                (config.storage_account_env_var_name) = module.storage["fnapp-${region}"].storage_account_name
+              },
+              var.features.private_endpoints_enabled ? {
+                "${config.storage_account_env_var_name}__blobServiceUri"  = "https://${module.storage["fnapp-${region}"].storage_account_name}.blob.core.windows.net"
+                "${config.storage_account_env_var_name}__queueServiceUri" = "https://${module.storage["fnapp-${region}"].storage_account_name}.queue.core.windows.net"
+              } : {}
+            ) : {},
+
           )
 
           # These RBAC assignments are for the Function Apps only
