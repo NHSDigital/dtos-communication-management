@@ -228,7 +228,7 @@ postgresql = {
     commgt = {
       storage_tier = "P10"
       storage_mb   = 32768
-      sku_name     = "GP_Standard_D4s_v3"
+      sku_name     = "GP_Standard_D2s_v3"
     }
   }
 
