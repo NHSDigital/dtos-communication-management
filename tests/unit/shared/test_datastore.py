@@ -1,5 +1,6 @@
 import datastore
 import pytest
+import time
 
 
 @pytest.fixture
@@ -67,3 +68,24 @@ def test_create_message_status_record_with_error(mock_cursor):
 
     mock_cursor.execute.assert_called_with(datastore.INSERT_MESSAGE_STATUS, message_status_data)
     mock_cursor.fetchone.assert_not_called()
+
+
+def test_fetch_database_password_before_expiry(monkeypatch):
+    """Test the fetching of the database password from the environment."""
+    monkeypatch.setenv("DATABASE_PASSWORD_EXPIRES", str(time.time() - 3600))
+    monkeypatch.setenv("DATABASE_PASSWORD", "test_password")
+
+    assert datastore.fetch_database_password() == "test_password"
+
+
+def test_fetch_database_password_after_expiry(monkeypatch, mocker):
+    """Test the fetching of the database password from the environment."""
+    monkeypatch.setenv("DATABASE_PASSWORD_EXPIRES", str(time.time() + 3600))
+    monkeypatch.setenv("DATABASE_PASSWORD", "old_password")
+    mock_token = mocker.MagicMock()
+    mock_token.token = "new_password"
+    mock_credential = mocker.MagicMock()
+    mock_credential.get_token.return_value = mock_token
+    mocker.patch("datastore.DefaultAzureCredential", return_value=mock_credential)
+
+    assert datastore.fetch_database_password() == "new_password"
