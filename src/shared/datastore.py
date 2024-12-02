@@ -1,3 +1,4 @@
+import dotenv
 import logging
 import os
 import psycopg2
@@ -72,6 +73,20 @@ def create_message_status_record(message_status_data: dict) -> bool | str:
         return False
 
 
+def initialise_database():
+    schema_file = f"{root_path()}/database/create_database.sql"
+    try:
+        with connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(open(schema_file, "r").read())
+
+        conn.commit()
+        conn.close()
+    except psycopg2.Error as e:
+        logging.error("Error creating database schema")
+        logging.error(f"{type(e).__name__} : {e}")
+
+
 def connection():
     return psycopg2.connect(
         dbname=os.environ["DATABASE_NAME"],
@@ -82,8 +97,27 @@ def connection():
 
 
 def fetch_database_password():
+    dotenv.load_dotenv()
+
     if float(os.getenv("DATABASE_PASSWORD_EXPIRES", "0")) > time.time():
-        os.environ["DATABASE_PASSWORD"] = DefaultAzureCredential().get_token(AZURE_AAD_URL).token
-        os.environ["DATABASE_PASSWORD_EXPIRES"] = str(time.time() + TOKEN_EXPIRY)
+        save_credentials(
+            DefaultAzureCredential().get_token(AZURE_AAD_URL).token,
+            time.time() + TOKEN_EXPIRY,
+        )
 
     return os.getenv("DATABASE_PASSWORD")
+
+
+def save_credentials(token: str, expires: float):
+    os.environ["DATABASE_PASSWORD"] = token
+    os.environ["DATABASE_PASSWORD_EXPIRES"] = str(expires)
+
+    with open(f"{root_path()}/.env", "w") as f:
+        f.write((
+            f"DATABASE_PASSWORD={token}\n" +
+            f"DATABASE_PASSWORD_EXPIRES={expires}\n"
+        ))
+
+
+def root_path():
+    return os.path.dirname(__file__) + "/../.."
