@@ -155,18 +155,14 @@ function_apps = {
       app_service_plan_key   = "Default"
       key_vault_url          = "KEY_VAULT_URL"
       app_urls               = []
-      env_vars_static = {
-        BLOB_CONTAINER_NAME = "pilot-data"
-      }
     }
 
     notify = {
-      name_suffix                  = "notify"
-      function_endpoint_name       = "Notify"
-      app_service_plan_key         = "Default"
-      key_vault_url                = "KEY_VAULT_URL"
-      storage_account_env_var_name = "AzureWebStorageJobs__accountName"
-      app_urls                     = []
+      name_suffix            = "notify"
+      function_endpoint_name = "Notify"
+      app_service_plan_key   = "Default"
+      key_vault_url          = "KEY_VAULT_URL"
+      app_urls               = []
       env_vars_static = {
         NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
         OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
@@ -174,14 +170,16 @@ function_apps = {
     }
 
     process-pilot-data = {
-      name_suffix            = "process-pilot-data"
-      function_endpoint_name = "ProcessPilotData"
-      key_vault_url          = "KEY_VAULT_URL"
-      app_service_plan_key   = "Default"
-      app_urls               = []
-      env_vars_static        = {}
+      name_suffix                  = "process-pilot-data"
+      function_endpoint_name       = "ProcessPilotData"
+      key_vault_url                = "KEY_VAULT_URL"
+      storage_account_env_var_name = "AzureWebStorageJobs__accountName"
+      app_service_plan_key         = "Default"
+      app_urls                     = []
+      env_vars_static = {
+        BLOB_CONTAINER_NAME = "pilot-data"
+      }
     }
-
   }
 }
 
