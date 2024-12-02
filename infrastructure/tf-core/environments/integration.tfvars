@@ -155,9 +155,6 @@ function_apps = {
       app_service_plan_key   = "Default"
       key_vault_url          = "KEY_VAULT_URL"
       app_urls               = []
-      env_vars_static = {
-        BLOB_CONTAINER_NAME = "pilot-data"
-      }
     }
 
     notify = {
@@ -179,9 +176,10 @@ function_apps = {
       key_vault_url          = "KEY_VAULT_URL"
       app_service_plan_key   = "Default"
       app_urls               = []
-      env_vars_static        = {}
+      env_vars_static = {
+        BLOB_CONTAINER_NAME = "pilot-data"
+      }
     }
-
   }
 }
 
