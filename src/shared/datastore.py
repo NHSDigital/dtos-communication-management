@@ -1,7 +1,12 @@
 import logging
 import os
 import psycopg2
+import time
 
+from azure.identity import DefaultAzureCredential
+
+AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net"
+TOKEN_EXPIRY = 86400
 
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
@@ -72,5 +77,13 @@ def connection():
         dbname=os.environ["DATABASE_NAME"],
         user=os.environ["DATABASE_USER"],
         host=os.environ["DATABASE_HOST"],
-        password=os.environ["DATABASE_PASSWORD"]
+        password=fetch_database_password(),
     )
+
+
+def fetch_database_password():
+    if float(os.getenv("DATABASE_PASSWORD_EXPIRES", "0")) > time.time():
+        os.environ["DATABASE_PASSWORD"] = DefaultAzureCredential().get_token(AZURE_AAD_URL).token
+        os.environ["DATABASE_PASSWORD_EXPIRES"] = str(time.time() + TOKEN_EXPIRY)
+
+    return os.getenv("DATABASE_PASSWORD")
