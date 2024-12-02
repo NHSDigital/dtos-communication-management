@@ -3,8 +3,15 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'communication_managem
 
 \c communication_management
 
-CREATE TYPE batch_message_status AS ENUM ('not_sent', 'sent', 'failed');
-CREATE TYPE message_status AS ENUM ('created', 'pending_enrichment', 'enriched', 'sending', 'delivered', 'failed');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'batch_message_status') THEN
+      CREATE TYPE batch_message_status AS ENUM ('not_sent', 'sent', 'failed');
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'message_status') THEN
+      CREATE TYPE message_status AS ENUM ('created', 'pending_enrichment', 'enriched', 'sending', 'delivered', 'failed');
+    END IF;
+END$$;
 
 CREATE TABLE IF NOT EXISTS batch_messages (
     batch_id UUID NOT NULL,
