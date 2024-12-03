@@ -1,0 +1,72 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+parameters:
+  - name: sourceRegistry
+    displayName: Source Registry
+    type: string
+    default: acrukshubdevcommgt
+
+  - name: selectImageTag
+    displayName: Select Image Tag
+    type: string
+    values:
+      - development
+      - nft
+    default: development
+
+  - name: destRegistry
+    displayName: Destination Registry
+    type: string
+    default: acrukshubdevcommgt
+
+  - name: addImageTag
+    displayName: Additional Image Tag
+    type: string
+    values:
+      - integration
+      - nft
+    default: integration
+
+variables:
+  - group: DEV_hub_backend_remote_state
+
+stages:
+- stage: re_tag_stage
+  displayName: ACR re-tag
+  jobs:
+  - job: re_tag
+    pool:
+      vmImage: ubuntu-latest
+    displayName: Update Docker images with new tag
+    steps:
+    - task: AzureCLI@2
+      name: tag_integration
+      displayName: Update Docker images with new tag
+      inputs:
+        azureSubscription: sc-communication-management-dev
+        addSpnToEnvironment: true
+        failOnStandardError: true
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az acr login -n ${{ parameters.sourceRegistry }}
+
+          # Fetch the list of repositories
+          echo "Fetching repositories from ${{ parameters.sourceRegistry }}..."
+          repositories=$(az acr repository list --name ${{ parameters.sourceRegistry }} --output json)
+
+          # Loop through the image names:
+          for repository in $(echo $repositories | jq -r '.[]')
+          do
+            # Get all images tagged with the source tag:
+            echo "##[debug] Pulling $repository:${{ parameters.selectImageTag }}..."
+
+            az acr import --name ${{ parameters.sourceRegistry }} \
+            --source ${{ parameters.sourceRegistry }}.azurecr.io/$repository:${{ parameters.selectImageTag }} \
+            --image $repository:${{ parameters.addImageTag }} \
+            --force
+          done
