@@ -24,6 +24,8 @@ jobs:
       terraform_version: ${{ steps.variables.outputs.terraform_version }}
       version: ${{ steps.variables.outputs.version }}
       does_pull_request_exist: ${{ steps.pr_exists.outputs.does_pull_request_exist }}
+      # temporary measure - to publish images directly to Integration environment
+      environment_tag: integration
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4

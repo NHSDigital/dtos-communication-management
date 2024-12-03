@@ -85,7 +85,7 @@ locals {
             local.app_settings_common,
             config.env_vars_static,
 
-            # Dynamic env vars which cannot be stored in tfvars file
+            Dynamic env vars which cannot be stored in tfvars file
             function == "message-status" ? {
               APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[region].versionless_id})"
               OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id})"
@@ -119,6 +119,13 @@ locals {
                 "${config.storage_account_env_var_name}__queueServiceUri" = "https://${module.storage["fnapp-${region}"].storage_account_name}.queue.core.windows.net"
               } : {}
             ) : {},
+
+            # Database
+            config.database_required ? {
+              DATABASE_NAME = "communication_management"
+              DATABASE_HOST = "${module.regions_config[region].names.postgres-sql-server}.postgres.database.azure.com"
+              DATABASE_USER = var.postgresql.postgres_sql_admin_group
+            } : {}
 
           )
 

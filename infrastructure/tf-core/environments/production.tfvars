@@ -1,5 +1,5 @@
 application = "commgt"
-environment = "PRE"
+environment = "PRD"
 
 features = {
   acr_enabled                          = false
@@ -17,7 +17,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.6.0.0/16"
+    address_space     = "10.8.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -50,8 +50,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CommgtToAudit"
-        source_addresses      = ["10.6.0.0/16"]
-        destination_addresses = ["10.7.0.0/16"]
+        source_addresses      = ["10.8.0.0/16"]
+        destination_addresses = ["10.9.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -60,8 +60,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCommgt"
-        source_addresses      = ["10.7.0.0/16"]
-        destination_addresses = ["10.6.0.0/16"]
+        source_addresses      = ["10.9.0.0/16"]
+        destination_addresses = ["10.8.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -69,7 +69,7 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CommgtToAudit"
-        address_prefix         = "10.7.0.0/16"
+        address_prefix         = "10.9.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -77,7 +77,7 @@ routes = {
     route_table_routes_from_audit = [
       {
         name                   = "AuditToCommgt"
-        address_prefix         = "10.6.0.0/16"
+        address_prefix         = "10.8.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -129,15 +129,15 @@ function_apps = {
   acr_name    = "acrukshubprodcommgt"
   acr_rg_name = "rg-hub-prod-uks-commgt"
 
-  app_insights_name    = "appi-pre-uks-commgt"
-  app_insights_rg_name = "rg-commgt-pre-uks-audit"
+  app_insights_name    = "appi-prd-uks-commgt"
+  app_insights_rg_name = "rg-commgt-prd-uks-audit"
 
   always_on = true
 
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "preprod"
+  docker_env_tag    = "production"
   docker_img_prefix = "communication-management"
 
   enable_appsrv_storage         = "false"
@@ -216,7 +216,7 @@ storage_accounts = {
 }
 
 postgresql = {
-  postgres_sql_admin_group      = "postgresql_commgt_pre_uks_admin"
+  postgres_sql_admin_group      = "postgresql_commgt_prd_uks_admin"
   backup_retention_days         = 30
   geo_redundant_backup_enabled  = false
   public_network_access_enabled = false
