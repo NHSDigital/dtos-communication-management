@@ -63,6 +63,7 @@ services:
       context: ./tests/end_to_end/
       additional_contexts:
         root_dir: .
+        shared_dir: ./src/shared/
       dockerfile: Dockerfile
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
