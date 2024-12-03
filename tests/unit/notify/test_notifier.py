@@ -181,7 +181,7 @@ def test_message_body():
                     "appointment_location": "Breast Screening Clinic, 123 High Street, London",
                     "appointment_time": "10:00",
                     "tracking_id": "0000000000",
-                    "contact_telephone_number": "012345678",
+                    "phoneNumber": "012345678",
                 },
             },
         }
