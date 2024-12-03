@@ -43,14 +43,14 @@ def create_http_request(payload):
 
 
 def test_main_logs_payload(mocker, payload):
-    """Test that the payload is logged when the main function is called."""
+    """Test that the request body is logged when the main function is called."""
     mock_log = mocker.patch("logging.info")
     request = create_http_request(payload)
 
     func_call = function_app.main.build().get_user_function()
     func_call(request)
 
-    mock_log.assert_called_once_with(payload)
+    mock_log.assert_called_once_with(json.dumps(payload))
 
 
 def test_main_verify_signature_success(mocker, payload):
@@ -58,6 +58,7 @@ def test_main_verify_signature_success(mocker, payload):
     mocker.patch("json.loads", return_value=payload)
     mocker.patch("request_verifier.verify_headers", return_value=True)
     mocker.patch("request_verifier.verify_signature", return_value=True)
+    mocker.patch("message_status_recorder.save_message_statuses")
 
     request = create_http_request(payload)
     func_call = function_app.main.build().get_user_function()
