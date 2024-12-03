@@ -1,4 +1,0 @@
-[[rules]]
-description = "Exclude idempotencyKey in test files"
-regex = '''idempotencyKey": ".*?"'''
-allowed-paths = [".*tests/.*"]
