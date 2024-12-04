@@ -5,7 +5,7 @@ import psycopg2
 import time
 
 
-AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net"
+AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net/.default"
 
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
@@ -86,6 +86,7 @@ def connection():
 
 def fetch_database_password():
     if "DATABASE_PASSWORD" in os.environ:
+        logging.info("Fetched database password from environment variable")
         return os.environ["DATABASE_PASSWORD"]
 
     start = time.time()
