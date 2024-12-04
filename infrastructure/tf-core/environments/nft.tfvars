@@ -157,8 +157,8 @@ function_apps = {
       app_urls               = []
       env_vars_static = {
         DATABASE_NAME = "communication_management",
-        DATABASE_HOST = "postgres-commgt-dev-uks.postgres.database.azure.com",
-        DATABASE_USER = "postgresql_commgt_dev_uks_admin"
+        DATABASE_HOST = "postgres-commgt-nft-uks.postgres.database.azure.com",
+        DATABASE_USER = "postgresql_commgt_nft_uks_admin"
       }
     }
 

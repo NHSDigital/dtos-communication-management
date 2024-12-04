@@ -157,7 +157,7 @@ function_apps = {
       app_urls               = []
       env_vars_static = {
         DATABASE_NAME = "communication_management",
-        DATABASE_HOST = "postgres-commgt-int.postgres.database.azure.com",
+        DATABASE_HOST = "postgres-commgt-int-uks.postgres.database.azure.com",
         DATABASE_USER = "postgresql_commgt_int_uks_admin"
       }
     }
@@ -170,8 +170,8 @@ function_apps = {
       app_urls               = []
       env_vars_static = {
         DATABASE_NAME    = "communication_management",
-        DATABASE_HOST    = "postgres-commgt-dev-uks.postgres.database.azure.com",
-        DATABASE_USER    = "postgresql_commgt_dev_uks_admin"
+        DATABASE_HOST    = "postgres-commgt-int-uks.postgres.database.azure.com",
+        DATABASE_USER    = "postgresql_commgt_int_uks_admin"
         NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
         OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
       }
