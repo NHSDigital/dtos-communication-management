@@ -9,9 +9,6 @@ import uuid_generator
 
 
 def send_messages(data: dict) -> str:
-    if os.getenv("EXAMPLE_KEYVAULT_SECRET"):
-        logging.info(f"Key Vault secret: {os.getenv('EXAMPLE_KEYVAULT_SECRET')}")
-
     responses: list = []
     routing_plan_id: str = None
     batch_id = uuid_generator.reference_uuid(json.dumps(data))
