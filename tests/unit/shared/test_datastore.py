@@ -70,22 +70,19 @@ def test_create_message_status_record_with_error(mock_cursor):
     mock_cursor.fetchone.assert_not_called()
 
 
-def test_fetch_database_password_before_expiry(monkeypatch):
+def test_fetch_database_password_from_env(monkeypatch):
     """Test the fetching of the database password from the environment."""
-    monkeypatch.setenv("DATABASE_PASSWORD_EXPIRES", str(time.time() - 3600))
     monkeypatch.setenv("DATABASE_PASSWORD", "test_password")
 
     assert datastore.fetch_database_password() == "test_password"
 
 
-def test_fetch_database_password_after_expiry(monkeypatch, mocker):
+def test_fetch_database_password_from_credential(monkeypatch, mocker):
     """Test the fetching of the database password from the environment."""
-    monkeypatch.setenv("DATABASE_PASSWORD_EXPIRES", str(time.time() + 3600))
-    monkeypatch.setenv("DATABASE_PASSWORD", "old_password")
     mock_token = mocker.MagicMock()
-    mock_token.token = "new_password"
+    mock_token.token = "token_password"
     mock_credential = mocker.MagicMock()
     mock_credential.get_token.return_value = mock_token
     mocker.patch("datastore.DefaultAzureCredential", return_value=mock_credential)
 
-    assert datastore.fetch_database_password() == "new_password"
+    assert datastore.fetch_database_password() == "token_password"
