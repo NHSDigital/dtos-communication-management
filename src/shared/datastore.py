@@ -85,9 +85,13 @@ def connection():
 
 
 def fetch_database_password():
+    if "DATABASE_PASSWORD" in os.environ:
+        return os.environ["DATABASE_PASSWORD"]
+
     start = time.time()
     credential = DefaultAzureCredential()
     token = credential.get_token(AZURE_AAD_URL).token
     end = time.time()
     logging.info(f"Fetched database password in {(end - start)}s")
+
     return token
