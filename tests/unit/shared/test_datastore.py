@@ -79,6 +79,7 @@ def test_fetch_database_password_from_env(monkeypatch):
 
 def test_fetch_database_password_from_credential(monkeypatch, mocker):
     """Test the fetching of the database password from the environment."""
+    monkeypatch.setenv("DATABASE_PASSWORD", "")
     mock_token = mocker.MagicMock()
     mock_token.token = "token_password"
     mock_credential = mocker.MagicMock()
