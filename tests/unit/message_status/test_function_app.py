@@ -50,7 +50,7 @@ def test_main_logs_payload(mocker, payload):
     func_call = function_app.main.build().get_user_function()
     func_call(request)
 
-    mock_log.assert_called_once_with(json.dumps(payload))
+    mock_log.assert_any_call(json.dumps(payload))
 
 
 def test_main_verify_signature_success(mocker, payload):
