@@ -85,7 +85,7 @@ def connection():
 
 
 def fetch_database_password():
-    if "DATABASE_PASSWORD" in os.environ:
+    if bool(os.getenv("DATABASE_PASSWORD")):
         logging.info("Fetched database password from environment variable")
         return os.environ["DATABASE_PASSWORD"]
 
