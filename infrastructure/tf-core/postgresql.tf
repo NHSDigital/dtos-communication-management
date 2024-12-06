@@ -44,5 +44,10 @@ module "postgresql_flexible_db" {
     }
   }
 
+  depends_on = [
+    module.peering_spoke_hub,
+    module.peering_hub_spoke
+  ]
+
   tags = var.tags
 }
