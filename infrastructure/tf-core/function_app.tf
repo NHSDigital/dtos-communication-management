@@ -85,7 +85,7 @@ locals {
             local.app_settings_common,
             config.env_vars_static,
 
-            Dynamic env vars which cannot be stored in tfvars file
+            # Dynamic env vars which cannot be stored in tfvars file
             function == "message-status" ? {
               APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[region].versionless_id})"
               OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id})"

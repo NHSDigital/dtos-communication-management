@@ -195,6 +195,10 @@ key_vault = {
   sku_name          = "standard"
 }
 
+diagnostic_settings = {
+  metric_enabled = false
+}
+
 storage_accounts = {
   fnapp = {
     name_suffix                   = "fnappstor"

@@ -65,6 +65,13 @@ variable "application_full_name" {
   default     = "DToS"
 }
 
+variable "diagnostic_settings" {
+  description = "Configuration for the diagnostic settings"
+  type = object({
+    metric_enabled = optional(bool, false)
+  })
+}
+
 variable "environment" {
   description = "Environment code for deployments"
   type        = string
@@ -188,7 +195,7 @@ variable "function_apps" {
         container_name = string
       })), [])
       database_required = optional(bool, false)
-      key_vault_url    = optional(string, "")
+      key_vault_url     = optional(string, "")
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
