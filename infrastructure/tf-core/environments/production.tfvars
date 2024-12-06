@@ -1,5 +1,5 @@
 application = "commgt"
-environment = "NFT"
+environment = "PRD"
 
 features = {
   acr_enabled                          = false
@@ -17,7 +17,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.109.0.0/16"
+    address_space     = "10.8.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -50,8 +50,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CommgtToAudit"
-        source_addresses      = ["10.109.0.0/16"]
-        destination_addresses = ["10.110.0.0/16"]
+        source_addresses      = ["10.8.0.0/16"]
+        destination_addresses = ["10.9.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -60,8 +60,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCommgt"
-        source_addresses      = ["10.110.0.0/16"]
-        destination_addresses = ["10.109.0.0/16"]
+        source_addresses      = ["10.9.0.0/16"]
+        destination_addresses = ["10.8.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -69,7 +69,7 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CommgtToAudit"
-        address_prefix         = "10.110.0.0/16"
+        address_prefix         = "10.9.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -77,7 +77,7 @@ routes = {
     route_table_routes_from_audit = [
       {
         name                   = "AuditToCommgt"
-        address_prefix         = "10.109.0.0/16"
+        address_prefix         = "10.8.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -126,18 +126,18 @@ app_service_plan = {
 
 function_apps = {
   acr_mi_name = "dtos-communication-management-acr-push"
-  acr_name    = "acrukshubdevcommgt"
-  acr_rg_name = "rg-hub-dev-uks-commgt"
+  acr_name    = "acrukshubprodcommgt"
+  acr_rg_name = "rg-hub-prod-uks-commgt"
 
-  app_insights_name    = "appi-nft-uks-commgt"
-  app_insights_rg_name = "rg-commgt-nft-uks-audit"
+  app_insights_name    = "appi-prd-uks-commgt"
+  app_insights_rg_name = "rg-commgt-prd-uks-audit"
 
   always_on = true
 
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "nft"
+  docker_env_tag    = "production"
   docker_img_prefix = "communication-management"
 
   enable_appsrv_storage         = "false"
@@ -167,8 +167,8 @@ function_apps = {
       database_required      = true
       app_urls               = []
       env_vars_static = {
-        NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
-        OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
+        NOTIFY_API_URL   = "https://api.service.nhs.uk"
+        OAUTH2_TOKEN_URL = "https://api.service.nhs.uk/oauth2/token"
       }
     }
 
@@ -186,7 +186,12 @@ function_apps = {
   }
 }
 
-function_app_slots = []
+function_app_slots = [
+  {
+    function_app_slots_name   = "staging"
+    function_app_slot_enabled = true
+  }
+]
 
 key_vault = {
   disk_encryption   = true
@@ -196,7 +201,7 @@ key_vault = {
 }
 
 diagnostic_settings = {
-  metric_enabled = false
+  metric_enabled = true
 }
 
 storage_accounts = {
@@ -215,7 +220,7 @@ storage_accounts = {
 }
 
 postgresql = {
-  postgres_sql_admin_group      = "postgresql_commgt_nft_uks_admin"
+  postgres_sql_admin_group      = "postgresql_commgt_prd_uks_admin"
   backup_retention_days         = 30
   geo_redundant_backup_enabled  = false
   public_network_access_enabled = false

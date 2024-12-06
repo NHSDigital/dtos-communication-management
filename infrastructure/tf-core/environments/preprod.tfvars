@@ -154,12 +154,9 @@ function_apps = {
       function_endpoint_name = "MessageStatus"
       app_service_plan_key   = "Default"
       key_vault_url          = "KEY_VAULT_URL"
+      database_required      = true
       app_urls               = []
-      env_vars_static = {
-        DATABASE_NAME = "communication_management",
-        DATABASE_HOST = "postgres-commgt-dev-uks.postgres.database.azure.com",
-        DATABASE_USER = "postgresql_commgt_dev_uks_admin"
-      }
+      env_vars_static        = {}
     }
 
     notify = {
@@ -167,13 +164,11 @@ function_apps = {
       function_endpoint_name = "Notify"
       app_service_plan_key   = "Default"
       key_vault_url          = "KEY_VAULT_URL"
+      database_required      = true
       app_urls               = []
       env_vars_static = {
-        DATABASE_NAME    = "communication_management",
-        DATABASE_HOST    = "postgres-commgt-dev-uks.postgres.database.azure.com",
-        DATABASE_USER    = "postgresql_commgt_dev_uks_admin"
-        NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
-        OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
+        NOTIFY_API_URL   = "https://api.service.nhs.uk"
+        OAUTH2_TOKEN_URL = "https://api.service.nhs.uk/oauth2/token"
       }
     }
 
@@ -191,13 +186,22 @@ function_apps = {
   }
 }
 
-function_app_slots = []
+function_app_slots = [
+  {
+    function_app_slots_name   = "staging"
+    function_app_slot_enabled = true
+  }
+]
 
 key_vault = {
   disk_encryption   = true
   soft_del_ret_days = 7
   purge_prot        = false
   sku_name          = "standard"
+}
+
+diagnostic_settings = {
+  metric_enabled = true
 }
 
 storage_accounts = {

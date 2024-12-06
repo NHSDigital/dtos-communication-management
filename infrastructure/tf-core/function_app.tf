@@ -120,6 +120,13 @@ locals {
               } : {}
             ) : {},
 
+            # Database
+            config.database_required ? {
+              DATABASE_NAME = "communication_management"
+              DATABASE_HOST = "${module.regions_config[region].names.postgres-sql-server}.postgres.database.azure.com"
+              DATABASE_USER = var.postgresql.postgres_sql_admin_group
+            } : {}
+
           )
 
           # These RBAC assignments are for the Function Apps only
