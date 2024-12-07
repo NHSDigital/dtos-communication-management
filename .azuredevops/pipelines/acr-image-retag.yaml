@@ -6,8 +6,11 @@ pr: none
 
 parameters:
   - name: sourceRegistry
-    displayName: Source Registry
+    displayName: Source Container Registry
     type: string
+    values:
+      - acrukshubdevcommgt
+      - acrukshubprodcommgt
     default: acrukshubdevcommgt
 
   - name: selectImageTag
@@ -16,19 +19,27 @@ parameters:
     values:
       - development
       - nft
+      - integration
+      - preprod
     default: development
 
   - name: destRegistry
-    displayName: Destination Registry
-    type: string
-    default: acrukshubdevcommgt
-
-  - name: addImageTag
-    displayName: Additional Image Tag
+    displayName: Destination Container Registry
     type: string
     values:
-      - integration
+      - acrukshubdevcommgt
+      - acrukshubprodcommgt
+    default: acrukshubprodcommgt
+
+  - name: addImageTag
+    displayName: Target Image Tag
+    type: string
+    values:
+      - development
       - nft
+      - integration
+      - preprod
+      - production
     default: integration
 
 variables:
@@ -40,33 +51,45 @@ stages:
   jobs:
   - job: re_tag
     pool:
-      vmImage: ubuntu-latest
-    displayName: Update Docker images with new tag
+      # vmImage: ubuntu-latest
+      name: private-pool-prod-uks
+    displayName: Update/copy Docker images with new tag
     steps:
     - task: AzureCLI@2
       name: tag_integration
-      displayName: Update Docker images with new tag
+      displayName: Publish ${{ parameters.selectImageTag }} images to ${{ parameters.addImageTag }}
       inputs:
-        azureSubscription: sc-communication-management-dev
+        azureSubscription: sc-communication-management-prod
         addSpnToEnvironment: true
-        failOnStandardError: true
+        failOnStandardError: false
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          az acr login -n ${{ parameters.sourceRegistry }}
-
-          # Fetch the list of repositories
-          echo "Fetching repositories from ${{ parameters.sourceRegistry }}..."
-          repositories=$(az acr repository list --name ${{ parameters.sourceRegistry }} --output json)
-
-          # Loop through the image names:
-          for repository in $(echo $repositories | jq -r '.[]')
-          do
-            # Get all images tagged with the source tag:
-            echo "##[debug] Pulling $repository:${{ parameters.selectImageTag }}..."
-
-            az acr import --name ${{ parameters.sourceRegistry }} \
-            --source ${{ parameters.sourceRegistry }}.azurecr.io/$repository:${{ parameters.selectImageTag }} \
-            --image $repository:${{ parameters.addImageTag }} \
-            --force
+          # Prerequisite: A DNS A record for the chosen Dev ACR must exist in the Prod privatelink.azurecr.io zone, resolving to the public IP for that ACR
+          set -eo pipefail
+          echo "##[debug] Authenticating with container registry ${{ parameters.sourceRegistry }}..."
+          az acr login --name ${{ parameters.sourceRegistry }}
+          # az acr check-health --name ${{ parameters.sourceRegistry }} --yes
+          if [[ "${{ parameters.sourceRegistry }}" == ${{ parameters.destRegistry }} ]]; then
+            src_reg_prefix="${{ parameters.sourceRegistry }}.azurecr.io/" # omitted when the source registry is in a different subscription
+          else
+            [[ "${{ parameters.sourceRegistry }}" =~ dev ]] && cmdopt_sub="--subscription ${TF_VAR_HUB_SUBSCRIPTION_ID}"
+            source_registry_id=$(az acr show --name ${{ parameters.sourceRegistry }} ${cmdopt_sub} --query id --output tsv)
+            cmdopt_reg="--registry ${source_registry_id}" # needed when the source registry is in a different subscription
+            echo "##[debug] Authenticating with container registry ${{ parameters.destRegistry }}..."
+            az acr login --name ${{ parameters.destRegistry }}
+            # az acr check-health --name ${{ parameters.destRegistry }} --yes
+          fi
+          [[ "${{ parameters.destRegistry }}" =~ dev ]] && az account set -s ${TF_VAR_HUB_SUBSCRIPTION_ID}
+          for repo in $(az acr repository list --name ${{ parameters.sourceRegistry }} --output tsv); do
+            echo "##[debug] Importing ${repo}:${{ parameters.selectImageTag }}..."
+            az acr import --name ${{ parameters.destRegistry }} --source ${src_reg_prefix}${repo}:${{ parameters.selectImageTag }} --image ${repo}:${{ parameters.addImageTag }} ${cmdopt_reg} --force
+            if [[ "${{ parameters.sourceRegistry }}" != ${{ parameters.destRegistry }} ]]; then
+              image_sha=$(az acr manifest show-metadata --registry ${{ parameters.sourceRegistry }} --name ${repo}:${{ parameters.selectImageTag }} --query digest --output tsv --only-show-errors)
+              for tag in $(az acr manifest list-metadata --registry ${{ parameters.sourceRegistry }} --name ${repo} --query "[?digest=='${image_sha}'].tags[]" --output tsv --only-show-errors | grep -E '^(pr[0-9]+|[a-f0-9]{7})$'); do
+                echo "##[debug] Adding tag ${repo}:${tag}..."
+                az acr import --name ${{ parameters.destRegistry }} --source ${{ parameters.destRegistry }}.azurecr.io/${repo}:${{ parameters.addImageTag }} --image ${repo}:${tag} --force
+              done
+            fi
+            echo
           done
