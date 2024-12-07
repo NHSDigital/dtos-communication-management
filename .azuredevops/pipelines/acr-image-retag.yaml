@@ -94,6 +94,6 @@ stages:
                 echo "##[debug] Adding tag ${repo}:${tag}..."
                 az acr import --name ${DEST_REGISTRY} --source ${DEST_REGISTRY}.azurecr.io/${repo}:${ADD_IMAGE_TAG} --image ${repo}:${tag} --force
               done
+              echo
             fi
-            echo
           done
