@@ -89,8 +89,10 @@ stages:
             echo "##[debug] Importing ${repo}:${SELECT_IMAGE_TAG}..."
             az acr import --name ${DEST_REGISTRY} --source ${src_reg_prefix}${repo}:${SELECT_IMAGE_TAG} --image ${repo}:${ADD_IMAGE_TAG} ${cmdopt_reg} --force
             if [[ "${SRC_REGISTRY}" != ${DEST_REGISTRY} ]]; then
-              image_sha=$(az acr manifest show-metadata --registry ${SRC_REGISTRY} --name ${repo}:${SELECT_IMAGE_TAG} --query digest --output tsv --only-show-errors)
-              for tag in $(az acr manifest list-metadata --registry ${SRC_REGISTRY} --name ${repo} --query "[?digest=='${image_sha}'].tags[]" --output tsv --only-show-errors | grep -E '^(pr[0-9]+|[a-f0-9]{7})$'); do
+              # image_sha=$(az acr manifest show-metadata --registry ${SRC_REGISTRY} --name ${repo}:${SELECT_IMAGE_TAG} --query digest --output tsv --only-show-errors)
+              image_sha=$(az acr repository show --name ${SRC_REGISTRY} --image ${repo}:${SELECT_IMAGE_TAG} --query digest --output tsv)
+              #for tag in $(az acr manifest list-metadata --registry ${SRC_REGISTRY} --name ${repo} --query "[?digest=='${image_sha}'].tags[]" --output tsv --only-show-errors | grep -E '^(pr[0-9]+|[a-f0-9]{7})$'); do
+              for tag in $(az acr repository show --name ${SRC_REGISTRY} --image ${repo}@${image_sha} --query "tags" --output tsv | grep -E '^(pr[0-9]+|[a-f0-9]{7})$'); do
                 echo "##[debug] Adding tag ${repo}:${tag}..."
                 az acr import --name ${DEST_REGISTRY} --source ${DEST_REGISTRY}.azurecr.io/${repo}:${ADD_IMAGE_TAG} --image ${repo}:${tag} --force
               done
