@@ -19,7 +19,6 @@ def test_main_calls_notifier_with_correct_data(mocker):
         method="POST",
         body=json.dumps(input_data).encode("utf-8"),
         url="/api/notify/message/send",
-        route_params={"notification_type": "message"},
     )
 
     func_call = function_app.main.build().get_user_function()
