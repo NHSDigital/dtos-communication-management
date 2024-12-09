@@ -16,6 +16,7 @@ RUN pip install pipenv
 RUN pipenv install --system
 RUN pipenv install --dev --system
 
+COPY --from=root_dir /database/schema.sql /database/schema.sql
 COPY --from=root_dir /src/functions/message_status/ /src/functions/message_status/
 COPY --from=root_dir /src/functions/notify/ /src/functions/notify/
 COPY --from=shared_dir . /src/shared
