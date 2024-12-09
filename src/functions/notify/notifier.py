@@ -91,7 +91,7 @@ def message_body(routing_plan_id, message_data) -> dict:
                     "appointment_location": appointment_location,
                     "appointment_time": appointment_time,
                     "tracking_id": nhs_number,
-                    "phoneNumber": contact_telephone_number, # This field is camelCase currently due to a discrepancy in the Breast Screening Pilot template
+                    "contact_telephone_number": contact_telephone_number,
                 },
             },
         }
