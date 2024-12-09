@@ -45,9 +45,10 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=${DATABASE_USER}
       - POSTGRES_DB=${DATABASE_NAME}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - SSLMODE=${DATABASE_SSLMODE}
     volumes:
       - ./pgdata:/var/lib/postgresql/pgdata
       - ./database/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
@@ -71,6 +72,7 @@ services:
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
       - DATABASE_USER=${DATABASE_USER}
     profiles:
       - test-end-to-end
@@ -106,6 +108,7 @@ services:
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
       - DATABASE_USER=${DATABASE_USER}
 
   notify:
@@ -122,6 +125,7 @@ services:
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
       - DATABASE_USER=${DATABASE_USER}
       - NOTIFY_API_URL=${NOTIFY_API_URL}
       - OAUTH2_API_KEY=${OAUTH2_API_KEY}
@@ -161,6 +165,7 @@ services:
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
       - DATABASE_USER=${DATABASE_USER}
       - NOTIFY_API_URL=${NOTIFY_API_URL}
     profiles:
