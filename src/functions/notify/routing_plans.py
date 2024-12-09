@@ -14,4 +14,4 @@ ROUTING_PLANS = {
 }
 
 def get_id(key: str) -> str | None:
-    return ROUTING_PLANS.get(key)[os.getenv("ENV") or "sandbox"]
+    return ROUTING_PLANS.get(key)[os.getenv("ENVIRONMENT") or "sandbox"]
