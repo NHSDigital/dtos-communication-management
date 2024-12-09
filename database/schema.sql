@@ -1,7 +1,5 @@
 SELECT 'CREATE DATABASE communication_management'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'communication_management')\gexec
-
-\c communication_management
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'communication_management');
 
 DO $$
 BEGIN

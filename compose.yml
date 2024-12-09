@@ -51,7 +51,6 @@ services:
       - SSLMODE=${DATABASE_SSLMODE}
     volumes:
       - ./pgdata:/var/lib/postgresql/pgdata
-      - ./database/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
     profiles:
       - test-end-to-end
       - test-integration

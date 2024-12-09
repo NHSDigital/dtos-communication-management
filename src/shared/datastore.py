@@ -7,6 +7,10 @@ import time
 
 AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net"
 
+BATCH_MESSAGES_EXISTS = """
+    SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'batch_messages')
+"""
+
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
         batch_id,
@@ -39,6 +43,7 @@ INSERT_MESSAGE_STATUS = """
         %(status)s
     ) RETURNING idempotency_key"""
 
+SCHEMA_FILE_PATH = f"{os.path.dirname(__file__)}/../../database/schema.sql"
 
 def create_batch_message_record(batch_message_data: dict) -> bool | list[str, str]:
     try:
@@ -82,6 +87,9 @@ def connection():
     )
     end = time.time()
     logging.info(f"Connected to database in {(end - start)}s")
+
+    check_and_initialise_schema(conn)
+
     return conn
 
 
@@ -98,3 +106,17 @@ def fetch_database_password():
     logging.info(f"Fetched database password in {(end - start)}s")
 
     return token
+
+
+def check_and_initialise_schema(conn: psycopg2.extensions.connection):
+    if bool(os.getenv("SCHEMA_INITIALISED")):
+        return
+
+    with conn.cursor() as cur:
+        cur.execute(BATCH_MESSAGES_EXISTS)
+        if not bool(cur.fetchone()[0]):
+            logging.info("Initialising schema")
+            cur.execute(open(SCHEMA_FILE_PATH, "r").read())
+
+    conn.commit()
+    os.environ["SCHEMA_INITIALISED"] = "true"
