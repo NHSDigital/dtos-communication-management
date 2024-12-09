@@ -5,7 +5,7 @@ import psycopg2
 import time
 
 
-AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net/.default"
+AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net"
 
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
