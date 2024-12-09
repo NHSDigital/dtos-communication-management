@@ -22,3 +22,4 @@ RUN pipenv install --system
 
 COPY . /home/site/wwwroot
 COPY --from=root_dir src/shared/ /home/site/wwwroot
+COPY --from=root_dir /database/schema.sql /home/site/wwwroot/database/schema.sql
