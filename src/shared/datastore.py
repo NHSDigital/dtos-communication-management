@@ -43,7 +43,7 @@ INSERT_MESSAGE_STATUS = """
         %(status)s
     ) RETURNING idempotency_key"""
 
-SCHEMA_FILE_PATH = f"{os.path.dirname(__file__)}/../../database/schema.sql"
+SCHEMA_FILE_PATH = f"{os.path.dirname(__file__)}/database/schema.sql"
 
 def create_batch_message_record(batch_message_data: dict) -> bool | list[str, str]:
     try:

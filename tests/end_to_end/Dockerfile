@@ -16,8 +16,8 @@ RUN pipenv install --system
 RUN pipenv install --dev --system
 
 COPY . /tests/end_to_end
-COPY --from=root_dir /database/schema.sql /database/schema.sql
 COPY --from=root_dir /src/functions/message_status/ /src/functions/message_status/
 COPY --from=shared_dir . /src/shared
+COPY --from=root_dir /database/schema.sql /src/shared/database/schema.sql
 
 RUN rm -f /tests/end_to_end/log/functions/*/*.log
