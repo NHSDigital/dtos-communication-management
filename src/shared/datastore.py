@@ -78,6 +78,7 @@ def connection():
         user=os.environ["DATABASE_USER"],
         host=os.environ["DATABASE_HOST"],
         password=fetch_database_password(),
+        sslmode=os.getenv("DATABASE_SSLMODE", "require"),
     )
     end = time.time()
     logging.info(f"Connected to database in {(end - start)}s")
