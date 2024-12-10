@@ -125,7 +125,7 @@ jobs:
           ./test-end-to-end.sh
   test-coverage:
     name: "Test coverage"
-    needs: [test-unit]
+    needs: [set-up-dependencies]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
