@@ -22,7 +22,7 @@ data "terraform_remote_state" "audit" {
   }
 }
 
-# Note the following two Networking data look-ups only work becasue the names for the
+# Note the following two Networking data look-ups only work because the names for the
 # resources are effectively the same in both subscriptions (with additional name suffix for Audit RG)
 data "azurerm_virtual_network" "vnet_audit" {
   for_each = var.regions
@@ -89,6 +89,13 @@ data "azurerm_key_vault_key" "private_key" {
   for_each = var.regions
 
   name         = "PRIVATE-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
+data "azurerm_key_vault_secret" "database_password" {
+  for_each = var.regions
+
+  name         = "DATABASE-PASSWORD"
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
 
