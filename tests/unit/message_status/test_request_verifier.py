@@ -8,7 +8,7 @@ import pytest
 def setup(monkeypatch):
     """Set up environment variables for tests."""
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
-    monkeypatch.setenv('OAUTH2_API_KEY', 'api_key')
+    monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
 
 
 def test_verify_signature_invalid(setup):

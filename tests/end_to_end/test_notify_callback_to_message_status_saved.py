@@ -79,7 +79,7 @@ def assert_message_status_record_created():
 def test_notify_callback_to_message_status_saved(monkeypatch, callback_request_body):
     """Test that a callback request creates database records."""
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
-    monkeypatch.setenv('OAUTH2_API_KEY', 'api_key')
+    monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
     req_body = json.dumps(callback_request_body)
     signature = hmac.new(
         bytes('application_id.api_key', 'ASCII'),
