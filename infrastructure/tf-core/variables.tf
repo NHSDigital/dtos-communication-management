@@ -186,10 +186,9 @@ variable "function_apps" {
       slot_enabled = optional(bool, false)
     })))
     fa_config = map(object({
-      name_suffix                  = string
-      function_endpoint_name       = string
-      app_service_plan_key         = string
-      storage_account_env_var_name = optional(string, "")
+      name_suffix            = string
+      function_endpoint_name = string
+      app_service_plan_key   = string
       storage_containers = optional(list(object({
         env_var_name   = string
         container_name = string
