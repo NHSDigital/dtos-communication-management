@@ -10,6 +10,10 @@ features = {
   public_network_access_enabled        = false
 }
 
+private_dns_zones = {
+  is_app_insights_private_dns_zone_enabled = true
+}
+
 tags = {
   Project = "Communication-Management"
 }

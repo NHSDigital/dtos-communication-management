@@ -281,6 +281,12 @@ variable "postgresql" {
     },
 */
 
+variable "private_dns_zones" {
+  description = "Configuration for private DNS zones"
+  type = object({
+    is_app_insights_private_dns_zone_enabled = optional(bool, false)
+  })
+}
 
 variable "routes" {
   description = "Routes configuration for different regions"
