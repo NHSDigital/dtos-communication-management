@@ -96,6 +96,7 @@ locals {
               PRIVATE_KEY    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_key.private_key[region].versionless_id})"
             } : {},
             function == "process-pilot-data" ? {
+              AzureWebJobsStorage__accountName = module.storage["fnapp-${region}"].storage_account_name
               NOTIFY_FUNCTION_URL = format(
                 "https://%s-%s.azurewebsites.net/api/%s/message/send",
                 module.regions_config[region].names["function-app"],
@@ -108,17 +109,6 @@ locals {
             length(config.key_vault_url) > 0 ? {
               (config.key_vault_url) = module.key_vault[region].key_vault_url
             } : {},
-
-            # Storage
-            length(config.storage_account_env_var_name) > 0 ? merge(
-              {
-                (config.storage_account_env_var_name) = module.storage["fnapp-${region}"].storage_account_name
-              },
-              var.features.private_endpoints_enabled ? {
-                "${config.storage_account_env_var_name}__blobServiceUri"  = "https://${module.storage["fnapp-${region}"].storage_account_name}.blob.core.windows.net"
-                "${config.storage_account_env_var_name}__queueServiceUri" = "https://${module.storage["fnapp-${region}"].storage_account_name}.queue.core.windows.net"
-              } : {}
-            ) : {},
 
             # Database
             config.database_required ? {

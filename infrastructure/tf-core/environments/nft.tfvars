@@ -174,12 +174,11 @@ function_apps = {
     }
 
     process-pilot-data = {
-      name_suffix                  = "process-pilot-data"
-      function_endpoint_name       = "ProcessPilotData"
-      key_vault_url                = "KEY_VAULT_URL"
-      storage_account_env_var_name = "AzureWebStorageJobs__accountName"
-      app_service_plan_key         = "Default"
-      app_urls                     = []
+      name_suffix            = "process-pilot-data"
+      function_endpoint_name = "ProcessPilotData"
+      key_vault_url          = "KEY_VAULT_URL"
+      app_service_plan_key   = "Default"
+      app_urls               = []
       env_vars_static = {
         BLOB_CONTAINER_NAME = "pilot-data"
       }
