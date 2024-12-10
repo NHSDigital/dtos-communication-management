@@ -103,7 +103,7 @@ services:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7073
       - APPLICATION_ID=${APPLICATION_ID}
-      - OAUTH2_API_KEY=${OAUTH2_API_KEY}
+      - NOTIFY_API_KEY=${NOTIFY_API_KEY}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}

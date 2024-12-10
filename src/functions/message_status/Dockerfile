@@ -8,7 +8,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
     APPLICATION_ID=${APPLICATION_ID} \
-    OAUTH2_API_KEY=${OAUTH2_API_KEY} \
+    NOTIFY_API_KEY=${NOTIFY_API_KEY} \
     DATABASE_HOST=${DATABASE_HOST} \
     DATABASE_USER=${DATABASE_USER} \
     DATABASE_PASSWORD=${DATABASE_PASSWORD} \
