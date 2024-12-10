@@ -156,9 +156,7 @@ function_apps = {
       key_vault_url          = "KEY_VAULT_URL"
       database_required      = true
       app_urls               = []
-      env_vars_static        = {
-        DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=https://<your-keyvault-name>.vault.azure.net/secrets/DATABASE-PASSWORD)"
-      }
+      env_vars_static        = {}
     }
 
     notify = {
@@ -172,7 +170,6 @@ function_apps = {
         NOTIFY_API_URL    = "https://int.api.service.nhs.uk"
         OAUTH2_TOKEN_URL  = "https://int.api.service.nhs.uk/oauth2/token"
         ENVIRONMENT       = "INTEGRATION"
-        DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=https://<your-keyvault-name>.vault.azure.net/secrets/DATABASE-PASSWORD)"
       }
     }
 
