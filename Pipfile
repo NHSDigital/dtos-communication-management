@@ -32,7 +32,6 @@ typing-extensions = "==4.12.2"
 urllib3 = "==2.2.3"
 exceptiongroup = "*"
 psycopg2-binary = "*"
-azure-identity = "*"
 
 [dev-packages]
 anyio = "==4.6.2.post1"

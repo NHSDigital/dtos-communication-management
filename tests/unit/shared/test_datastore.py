@@ -1,11 +1,14 @@
 import datastore
 import pytest
-import time
 
 
 @pytest.fixture
-def mock_cursor(mocker):
-    mock_connection = mocker.patch("datastore.connection")
+def mock_connection(mocker):
+    return mocker.patch("datastore.connection")
+
+
+@pytest.fixture
+def mock_cursor(mocker, mock_connection):
     return mock_connection().__enter__().cursor().__enter__()
 
 
@@ -70,20 +73,19 @@ def test_create_message_status_record_with_error(mock_cursor):
     mock_cursor.fetchone.assert_not_called()
 
 
-def test_fetch_database_password_from_env(monkeypatch):
-    """Test the fetching of the database password from the environment."""
-    monkeypatch.setenv("DATABASE_PASSWORD", "test_password")
+def test_schema_is_initialised_once(monkeypatch, mock_connection):
+    """Test that the schema is initialised."""
+    schema_file_path = f"{datastore.os.path.dirname(__file__)}/../../../database/schema.sql"
+    monkeypatch.setenv("SCHEMA_INITIALISED", "")
+    monkeypatch.setattr("datastore.SCHEMA_FILE_PATH", schema_file_path)
+    mock_connection().cursor().__enter__().fetchone.return_value = (None, None)
 
-    assert datastore.fetch_database_password() == "test_password"
+    schema_file_contents = open(schema_file_path).read()
 
+    datastore.check_and_initialise_schema(mock_connection())
+    datastore.check_and_initialise_schema(mock_connection())
 
-def test_fetch_database_password_from_credential(monkeypatch, mocker):
-    """Test the fetching of the database password from the environment."""
-    monkeypatch.setenv("DATABASE_PASSWORD", "")
-    mock_token = mocker.MagicMock()
-    mock_token.token = "token_password"
-    mock_credential = mocker.MagicMock()
-    mock_credential.get_token.return_value = mock_token
-    mocker.patch("datastore.DefaultAzureCredential", return_value=mock_credential)
-
-    assert datastore.fetch_database_password() == "token_password"
+    assert mock_connection().cursor().__enter__().execute.call_count == 2
+    mock_connection().cursor().__enter__().execute.assert_any_call(datastore.BATCH_MESSAGES_EXISTS)
+    mock_connection().cursor().__enter__().fetchone.assert_called_once()
+    mock_connection().cursor().__enter__().execute.assert_any_call(schema_file_contents)

@@ -1,11 +1,7 @@
-from azure.identity import DefaultAzureCredential
 import logging
 import os
 import psycopg2
 import time
-
-
-AZURE_AAD_URL = "https://ossrdbms-aad.database.windows.net"
 
 BATCH_MESSAGES_EXISTS = """
     SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'batch_messages')
@@ -82,7 +78,7 @@ def connection():
         dbname=os.environ["DATABASE_NAME"],
         user=os.environ["DATABASE_USER"],
         host=os.environ["DATABASE_HOST"],
-        password=fetch_database_password(),
+        password=os.environ["DATABASE_PASSWORD"],
         sslmode=os.getenv("DATABASE_SSLMODE", "require"),
     )
     end = time.time()
@@ -91,21 +87,6 @@ def connection():
     check_and_initialise_schema(conn)
 
     return conn
-
-
-def fetch_database_password():
-    logging.info("Fetching database password")
-    if bool(os.getenv("DATABASE_PASSWORD")):
-        logging.info("Fetched database password from environment variable")
-        return os.environ["DATABASE_PASSWORD"]
-
-    start = time.time()
-    credential = DefaultAzureCredential()
-    token = credential.get_token(AZURE_AAD_URL).token
-    end = time.time()
-    logging.info(f"Fetched database password in {(end - start)}s")
-
-    return token
 
 
 def check_and_initialise_schema(conn: psycopg2.extensions.connection):
