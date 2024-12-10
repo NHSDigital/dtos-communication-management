@@ -122,9 +122,9 @@ locals {
 
             # Database
             config.database_required ? {
-              DATABASE_NAME = "communication_management"
-              DATABASE_HOST = "${module.regions_config[region].names.postgres-sql-server}.postgres.database.azure.com"
-              DATABASE_USER = var.postgresql.postgres_sql_admin_group
+              DATABASE_NAME     = "communication_management"
+              DATABASE_HOST     = "${module.regions_config[region].names.postgres-sql-server}.postgres.database.azure.com"
+              DATABASE_USER     = var.postgresql.postgres_sql_admin_group
               DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.database_password[region].versionless_id})"
             } : {}
 
