@@ -223,8 +223,6 @@ postgresql = {
   server_version                = 16
   zone                          = 1
 
-  admin_password_key_vault_secret = "DATABASE-PASSWORD"
-
   # commgt database
   dbs = {
     commgt = {
