@@ -61,6 +61,7 @@ jobs:
       - name: "Save the linting result"
         run: |
           echo "Nothing to save"
+
   test-unit:
     name: "Unit tests"
     needs: set-up-dependencies
@@ -78,6 +79,13 @@ jobs:
       - name: "Run unit test suite"
         run: |
           ./test-unit.sh
+
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-unit
+          path: .coverage
+
   test-pacts:
     name: "Contract tests"
     needs: set-up-dependencies
@@ -95,6 +103,7 @@ jobs:
       - name: "Run contract test suite"
         run: |
           ./test-pacts.sh
+
   test-integration:
     name: "Integration tests"
     needs: set-up-dependencies
@@ -112,6 +121,13 @@ jobs:
       - name: "Run integration test suite"
         run: |
           ./test-integration.sh
+
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-integration
+          path: .coverage
+
   test-end-to-end:
     name: "End-to-end tests"
     needs: set-up-dependencies
@@ -120,9 +136,17 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+
       - name: "Run end to end test suite"
         run: |
           ./test-end-to-end.sh
+
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-e2e
+          path: .coverage
+
   test-coverage:
     name: "Test coverage"
     needs: [set-up-dependencies, test-unit, test-integration, test-end-to-end]
@@ -142,13 +166,35 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
-      - name: "Install coverage"
-        run: |
-          pip install coverage
+      - name: "Download unit test coverage artifact"
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-unit
+          path: coverage-data/unit
 
-      - name: "Run test coverage check"
+      - name: "Download integration test coverage artifact"
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-integration
+          path: coverage-data/integration
+
+      - name: "Download end-to-end test coverage artifact"
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-e2e
+          path: coverage-data/e2e
+
+      - name: "Combine coverage data"
         run: |
-          ./test-coverage.sh
+          cp coverage-data/unit/.coverage .coverage.unit
+          cp coverage-data/integration/.coverage .coverage.integration
+          cp coverage-data/e2e/.coverage .coverage.e2e
+          coverage combine .coverage.unit .coverage.integration .coverage.e2e
+
+      - name: "Generate coverage report"
+        run: |
+          coverage report
+
   perform-static-analysis:
     name: "Perform static analysis"
     needs: [test-unit]
