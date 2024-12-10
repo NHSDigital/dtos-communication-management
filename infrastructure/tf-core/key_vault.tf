@@ -13,7 +13,7 @@ module "key_vault" {
   sku_name                 = var.key_vault.sku_name
 
   enable_rbac_authorization = true
-  rbac_roles                = local.rbac_roles_key_vault
+  rbac_roles                = local.rbac_roles_key_vault_officer
 
   log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_keyvault_enabled_logs = local.monitor_diagnostic_setting_keyvault_enabled_logs

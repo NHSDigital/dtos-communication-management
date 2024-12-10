@@ -15,6 +15,12 @@ module "postgresql_flexible_db" {
   postgresql_admin_principal_type = "Group"
   public_network_access_enabled   = var.postgresql.public_network_access_enabled
 
+  # To be amended to use Managed Identity in Entra ID group after pilot
+  password_auth_enabled           = true
+  administrator_login             = "commgt_db_user"
+  key_vault_id                    = module.key_vault[each.key].key_vault_id
+  key_vault_admin_pwd_secret_name = "DATABASE-PASSWORD"
+
   sku_name     = var.postgresql.dbs.commgt.sku_name
   storage_mb   = var.postgresql.dbs.commgt.storage_mb
   storage_tier = var.postgresql.dbs.commgt.storage_tier
