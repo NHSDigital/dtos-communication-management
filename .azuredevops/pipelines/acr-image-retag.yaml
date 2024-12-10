@@ -4,10 +4,21 @@ name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
 
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: fa58dc978491f04e1efab73cbf8e2228a351bf81
+      endpoint: NHSDigital
+
 parameters:
   - name: sourceRegistry
-    displayName: Source Registry
+    displayName: Source Container Registry
     type: string
+    values:
+      - acrukshubdevcommgt
+      - acrukshubprodcommgt
     default: acrukshubdevcommgt
 
   - name: selectImageTag
@@ -16,19 +27,27 @@ parameters:
     values:
       - development
       - nft
+      - integration
+      - preprod
     default: development
 
   - name: destRegistry
-    displayName: Destination Registry
-    type: string
-    default: acrukshubdevcommgt
-
-  - name: addImageTag
-    displayName: Additional Image Tag
+    displayName: Destination Container Registry
     type: string
     values:
-      - integration
+      - acrukshubdevcommgt
+      - acrukshubprodcommgt
+    default: acrukshubprodcommgt
+
+  - name: addImageTag
+    displayName: Target Image Tag
+    type: string
+    values:
+      - development
       - nft
+      - integration
+      - preprod
+      - production
     default: integration
 
 variables:
@@ -40,33 +59,14 @@ stages:
   jobs:
   - job: re_tag
     pool:
-      vmImage: ubuntu-latest
-    displayName: Update Docker images with new tag
+      name: private-pool-prod-uks
+    displayName: Update/copy Docker images with new tag
+    variables:
+      SRC_REGISTRY: ${{ parameters.sourceRegistry }}
+      DEST_REGISTRY: ${{ parameters.destRegistry }}
+      SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
+      ADD_IMAGE_TAG: ${{ parameters.addImageTag }}
     steps:
-    - task: AzureCLI@2
-      name: tag_integration
-      displayName: Update Docker images with new tag
-      inputs:
-        azureSubscription: sc-communication-management-dev
-        addSpnToEnvironment: true
-        failOnStandardError: true
-        scriptType: bash
-        scriptLocation: inlineScript
-        inlineScript: |
-          az acr login -n ${{ parameters.sourceRegistry }}
-
-          # Fetch the list of repositories
-          echo "Fetching repositories from ${{ parameters.sourceRegistry }}..."
-          repositories=$(az acr repository list --name ${{ parameters.sourceRegistry }} --output json)
-
-          # Loop through the image names:
-          for repository in $(echo $repositories | jq -r '.[]')
-          do
-            # Get all images tagged with the source tag:
-            echo "##[debug] Pulling $repository:${{ parameters.selectImageTag }}..."
-
-            az acr import --name ${{ parameters.sourceRegistry }} \
-            --source ${{ parameters.sourceRegistry }}.azurecr.io/$repository:${{ parameters.selectImageTag }} \
-            --image $repository:${{ parameters.addImageTag }} \
-            --force
-          done
+      - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-communication-management-prod
