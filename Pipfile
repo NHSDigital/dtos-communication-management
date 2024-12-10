@@ -33,6 +33,7 @@ urllib3 = "==2.2.3"
 exceptiongroup = "*"
 psycopg2-binary = "*"
 azure-identity = "*"
+pytest-cov = "*"
 
 [dev-packages]
 anyio = "==4.6.2.post1"
