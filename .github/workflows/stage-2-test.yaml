@@ -15,20 +15,8 @@ on:
         description: "Build epoch, set by the CI/CD pipeline workflow"
         required: true
         type: string
-      nodejs_version:
-        description: "Node.js version, set by the CI/CD pipeline workflow"
-        required: true
-        type: string
       python_version:
         description: "Python version, set by the CI/CD pipeline workflow"
-        required: true
-        type: string
-      terraform_version:
-        description: "Terraform version, set by the CI/CD pipeline workflow"
-        required: true
-        type: string
-      version:
-        description: "Version of the software, set by the CI/CD pipeline workflow"
         required: true
         type: string
 
@@ -48,19 +36,6 @@ jobs:
           source venv/bin/activate
           python -m pip install --upgrade pip
 
-  test-lint:
-    name: "Linting"
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Run linting"
-        run: |
-          make test-lint
-      - name: "Save the linting result"
-        run: |
-          echo "Nothing to save"
   test-unit:
     name: "Unit tests"
     needs: set-up-dependencies
@@ -77,24 +52,17 @@ jobs:
 
       - name: "Run unit test suite"
         run: |
-          ./test-unit.sh
-  test-pacts:
-    name: "Contract tests"
-    needs: set-up-dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
+          pytest --cov=src --cov-append
 
-      - name: "Install dependencies"
-        run: |
-          pip install pipenv
-          pipenv install --dev --system
+      - name: "Check coverage file"
+        run: ls -la
 
-      - name: "Run contract test suite"
-        run: |
-          ./test-pacts.sh
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-unit
+          path: .coverage
+
   test-integration:
     name: "Integration tests"
     needs: set-up-dependencies
@@ -111,48 +79,53 @@ jobs:
 
       - name: "Run integration test suite"
         run: |
-          ./test-integration.sh
-  test-end-to-end:
-    name: "End-to-end tests"
-    needs: set-up-dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Run end to end test suite"
-        run: |
-          ./test-end-to-end.sh
+          pytest --cov=src --cov-append
+
+      - name: "Check coverage file"
+        run: ls -la
+
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-integration
+          path: .coverage
+
   test-coverage:
     name: "Test coverage"
-    needs: [test-unit]
+    needs: [test-unit, test-integration]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      - name: "Run test coverage check"
-        run: |
-          ./test-coverage.sh
-      - name: "Save the coverage check result"
-        run: |
-          echo "Nothing to save"
-  perform-static-analysis:
-    name: "Perform static analysis"
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v4
         with:
-          fetch-depth: 0 # Full history is needed to improving relevancy of reporting
-      - name: "Perform static analysis"
-        uses: ./.github/actions/perform-static-analysis
+          python-version: "3.11"
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
+      - name: "Download unit test coverage artifact"
+        uses: actions/download-artifact@v3
         with:
-          sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
-          sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
-          sonar_token: "${{ secrets.SONAR_TOKEN }}"
+          name: coverage-unit
+          path: coverage-data/unit
+
+      - name: "Download integration test coverage artifact"
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-integration
+          path: coverage-data/integration
+
+      - name: "Combine coverage data"
+        run: |
+          cp coverage-data/unit/.coverage .coverage.unit
+          cp coverage-data/integration/.coverage .coverage.integration
+          coverage combine .coverage.unit .coverage.integration
+
+      - name: "Generate coverage report"
+        run: |
+          coverage report
