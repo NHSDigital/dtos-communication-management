@@ -88,7 +88,7 @@ locals {
             # Dynamic env vars which cannot be stored in tfvars file
             function == "message-status" ? {
               APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[region].versionless_id})"
-              OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[region].versionless_id})"
+              NOTIFY_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.notify_api_key[region].versionless_id})"
             } : {},
             function == "notify" ? {
               OAUTH2_API_KID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_kid[region].versionless_id})"

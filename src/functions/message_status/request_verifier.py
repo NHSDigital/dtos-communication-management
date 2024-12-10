@@ -8,7 +8,7 @@ SIGNATURE_HEADER_NAME = 'x-hmac-sha256-signature'
 
 def verify_headers(headers: dict) -> bool:
     if (headers.get(API_KEY_HEADER_NAME) is None or
-            headers.get(API_KEY_HEADER_NAME) != os.getenv('OAUTH2_API_KEY')):
+            headers.get(API_KEY_HEADER_NAME) != os.getenv('NOTIFY_API_KEY')):
         return False
 
     if headers.get(SIGNATURE_HEADER_NAME) is None:
@@ -31,4 +31,4 @@ def verify_signature(headers: dict, body: str) -> bool:
 
 
 def signature_secret() -> str:
-    return f"{os.getenv('APPLICATION_ID')}.{os.getenv('OAUTH2_API_KEY')}"
+    return f"{os.getenv('APPLICATION_ID')}.{os.getenv('NOTIFY_API_KEY')}"
