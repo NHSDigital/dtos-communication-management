@@ -1,5 +1,4 @@
 import hashlib
-import time
 import uuid
 
 
@@ -11,6 +10,10 @@ def recipient_id(message_data: dict) -> str:
         message_data["nhs_number"],
     ])
     return reference_uuid(str_val)
+
+
+def uuid4_str() -> str:
+    return str(uuid.uuid4())
 
 
 def reference_uuid(val) -> str:
