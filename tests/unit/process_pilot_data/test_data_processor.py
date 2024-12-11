@@ -21,8 +21,8 @@ def test_process_data_valid_csv(setup):
     """Test processing valid CSV data."""
     response_text = json.dumps({"data": "OK"})
     csv_data = [
-        'UNUSED_STAGE_COLUMN,0000000000,"BLAKE, KYLIE, MRS",03M02M2001,EP700,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
-        'UNUSED_STAGE_COLUMN,1111111111,"BLAKE, KAREN, MRS",04M04M2002,EP700,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
+        'UNUSED_STAGE_COLUMN,0000000000,987654,"BLAKE, KYLIE, MRS",03M02M2001,EP700,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
+        'UNUSED_STAGE_COLUMN,1111111111,987654,"BLAKE, KAREN, MRS",04M04M2002,EP700,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
     ]
 
     expected_request_body = {
