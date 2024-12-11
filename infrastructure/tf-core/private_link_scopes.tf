@@ -2,10 +2,14 @@
 module "private_link_scoped_service_app_insights" {
   for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
+  providers = {
+    azurerm = azurerm.audit
+  }
+
   source = "../../../dtos-devops-templates/infrastructure/modules/private-link-scoped-service"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-app-insights"
-  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+  resource_group_name = data.terraform_remote_state.audit.outputs.audit_networking_rg_name[each.key]
 
   linked_resource_id = data.terraform_remote_state.audit.outputs.application_insights_id[local.primary_region]
   scope_name         = module.private_link_scope[each.key].scope_name
@@ -14,10 +18,14 @@ module "private_link_scoped_service_app_insights" {
 module "private_link_scoped_service_law" {
   for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
+  providers = {
+    azurerm = azurerm.audit
+  }
+
   source = "../../../dtos-devops-templates/infrastructure/modules/private-link-scoped-service"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-law"
-  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+  resource_group_name = data.terraform_remote_state.audit.outputs.audit_networking_rg_name[each.key]
 
   linked_resource_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   scope_name         = module.private_link_scope[each.key].scope_name
