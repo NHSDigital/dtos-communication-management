@@ -114,8 +114,9 @@ locals {
             config.database_required ? {
               DATABASE_NAME     = "communication_management"
               DATABASE_HOST     = "${module.regions_config[region].names.postgres-sql-server}.postgres.database.azure.com"
-              DATABASE_USER     = "postgresql_commgt_uks_admin"
-              DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.database_password[region].versionless_id})"
+              DATABASE_USER     = "commgt_db_user"
+              DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=${module.postgresql_flexible_db[region].db_admin_pwd_keyvault_secret})"
+              # DATABASE_USER     = var.postgresql.postgres_sql_admin_group
             } : {}
 
           )
@@ -125,7 +126,7 @@ locals {
 
             # Key Vault
             var.key_vault != {} ? [
-              for role in local.rbac_roles_key_vault : {
+              for role in local.rbac_roles_key_vault_user : {
                 role_definition_name = role
                 scope                = module.key_vault[region].key_vault_id
               }
