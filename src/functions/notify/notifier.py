@@ -30,11 +30,12 @@ def send_messages(data: dict) -> str:
 
 
 def send_message(token, routing_plan_id, message_data, batch_id) -> str:
-    body: str = message_body(routing_plan_id, message_data)
+    message_reference: str = uuid_generator.uuid4_str()
+    body: str = message_body(routing_plan_id, message_reference, message_data)
     correlation_id: str = message_data["correlation_id"]
 
     batch_message_recorder.save_status(
-        batch_message_recorder.NOT_SENT, batch_id, message_data)
+        batch_message_recorder.NOT_SENT, batch_id, message_reference, message_data)
 
     response = requests.post(url(), json=body, headers=headers(token, correlation_id))
 
@@ -50,7 +51,7 @@ def send_message(token, routing_plan_id, message_data, batch_id) -> str:
         status = batch_message_recorder.FAILED
 
     batch_message_data["details"] = response.text
-    batch_message_recorder.save_status(status, batch_id, batch_message_data)
+    batch_message_recorder.save_status(status, batch_id, message_reference, batch_message_data)
 
     return response.text
 
@@ -68,7 +69,7 @@ def url() -> str:
     return os.environ["NOTIFY_API_URL"] + "/comms/v1/messages"
 
 
-def message_body(routing_plan_id, message_data) -> dict:
+def message_body(routing_plan_id: str, message_reference: str, message_data: dict) -> dict:
     nhs_number: str = message_data["nhs_number"]
     date_of_birth: str = message_data["date_of_birth"]
     appointment_time: str = message_data["appointment_time"]
@@ -80,7 +81,7 @@ def message_body(routing_plan_id, message_data) -> dict:
         "data": {
             "type": "Message",
             "attributes": {
-                "messageReference": uuid_generator.message_reference(message_data),
+                "messageReference": message_reference,
                 "routingPlanId": routing_plan_id,
                 "recipient": {
                     "nhsNumber": nhs_number,
