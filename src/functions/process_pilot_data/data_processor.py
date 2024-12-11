@@ -55,26 +55,16 @@ def valid_csv_data(bso_code: str, raw_data: dict) -> list:
     try:
         reader = csv.DictReader(raw_data, FIELDNAMES)
         for row in reader:
-            # Ignore the `stage` field
-            row.pop("stage", None)
-            # Ignore the `office_code` field
-            row.pop("office_code", None)
-            # Ignore the `full_name` field
-            row.pop("full_name", None)
             if valid_row(row):
-                row_to_add = {
-                    "nhs_number": row["nhs_number"],
-                    "date_of_birth": row["date_of_birth"],
-                    "appointment_date": row["appointment_date"],
-                    "appointment_time": row["appointment_time"],
+                data.append({
+                    "appointment_date": format_date.to_human_readable_date(row["appointment_date"]),
                     "appointment_location": row["appointment_location"],
-                }
-                row["appointment_time"] = format_time.to_human_readable_twelve_hours(row["appointment_time"])
-                row["correlation_id"] = str(uuid.uuid4())
-                row["contact_telephone_number"] = contact_telephone_number
-                row["appointment_date"] = format_date.to_human_readable_date(row["appointment_date"])
-                data.append(row)
-                row["date_of_birth"] = format_date.to_date_of_birth(row["date_of_birth"])
+                    "appointment_time": format_time.to_human_readable_twelve_hours(row["appointment_time"]),
+                    "correlation_id": str(uuid.uuid4()),
+                    "contact_telephone_number": contact_telephone_number,
+                    "date_of_birth": format_date.to_date_of_birth(row["date_of_birth"]),
+                    "nhs_number": row["nhs_number"],
+                })
     except csv.Error:
         logging.error("Invalid CSV data")
         return []
