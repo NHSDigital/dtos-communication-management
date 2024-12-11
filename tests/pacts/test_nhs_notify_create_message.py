@@ -53,14 +53,18 @@ def headers():
 
 
 def message_body() -> dict:
-    return notifier.message_body("b838b13c-f98c-4def-93f0-515d4e4f4ee1", {
-        "nhs_number": "9990548609",
-        "date_of_birth": "1990-01-01",
-        "appointment_time": "14:30",
-        "appointment_date": "2023-11-17",
-        "appointment_location": "The Hospital",
-        "contact_telephone_number": "01234567890",
-    })
+    return notifier.message_body(
+        "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+        "da0b1495-c7cb-468c-9d81-07dee089d728",
+        {
+            "nhs_number": "9990548609",
+            "date_of_birth": "1990-01-01",
+            "appointment_time": "14:30",
+            "appointment_date": "2023-11-17",
+            "appointment_location": "The Hospital",
+            "contact_telephone_number": "01234567890",
+        }
+    )
 
 
 def test_create_message_pact(create_message_pact):
