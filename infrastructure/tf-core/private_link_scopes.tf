@@ -34,7 +34,7 @@ module "private_link_scope" {
   source = "../../../dtos-devops-templates/infrastructure/modules/private-link-scope"
 
   name                = module.regions_config[each.key].names.log-analytics-workspace
-  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+  resource_group_name = data.terraform_remote_state.audit.outputs.audit_networking_rg_name[each.key]
   location            = each.key
 
   ingestion_access_mode = "PrivateOnly"
