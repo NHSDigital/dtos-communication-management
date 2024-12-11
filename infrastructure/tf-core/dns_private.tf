@@ -5,7 +5,7 @@
 resource "azurerm_resource_group" "private_dns_rg" {
   for_each = var.regions
 
-  name     = "${module.config[each.key].names.resource-group}-private-dns-zones"
+  name     = "${module.regions_config[each.key].names.resource-group}-private-dns-zones"
   location = each.key
 }
 
