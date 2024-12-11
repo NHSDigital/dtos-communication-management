@@ -9,10 +9,12 @@ import uuid_generator
 dotenv.load_dotenv(".env.test")
 
 
-def test_notifier_saves_batch_message_records():
+def test_notifier_saves_batch_message_records(mocker):
     """Test database record is saved with correct data"""
     batch_id = str(uuid.uuid4())
     routing_plan_id = str(uuid.uuid4())
+    message_reference = "da0b1495-c7cb-468c-9d81-07dee089d728"
+    mocker.patch("uuid_generator.uuid4_str", return_value=message_reference)
     message_data = {
         "nhs_number": "0000000000",
         "date_of_birth": "1981-10-07",
@@ -42,7 +44,7 @@ def test_notifier_saves_batch_message_records():
             assert records[0] == (
                 batch_id,
                 message_data,
-                uuid_generator.message_reference(message_data),
+                message_reference,
                 message_data["nhs_number"],
                 "not_sent",
             )
@@ -50,7 +52,7 @@ def test_notifier_saves_batch_message_records():
             assert records[1] == (
                 batch_id,
                 response_json,
-                uuid_generator.message_reference(message_data),
+                message_reference,
                 message_data["nhs_number"],
                 "sent",
             )
