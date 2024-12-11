@@ -2,6 +2,13 @@
   Private DNS zones
 --------------------------------------------------------------------------------------------------*/
 
+resource "azurerm_resource_group" "private_dns_rg" {
+  for_each = var.regions
+
+  name     = "${module.config[each.key].names.resource-group}-private-dns-zones"
+  location = each.key
+}
+
 locals {
   private_dns_zones = {
     app_insights                = var.private_dns_zones.is_app_insights_private_dns_zone_enabled ? "privatelink.monitor.azure.com" : null
@@ -29,7 +36,7 @@ module "private_dns_zones" {
   source = "../../../dtos-devops-templates/infrastructure/modules/private-dns-zone"
 
   name                = each.value.name
-  resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region].name
+  resource_group_name = azurerm_resource_group.private_dns_rg[each.value.region].name
   vnet_id             = module.vnet[each.value.region].vnet.id
 
   tags = var.tags
