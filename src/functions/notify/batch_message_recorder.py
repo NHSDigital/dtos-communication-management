@@ -8,11 +8,11 @@ NOT_SENT = "not_sent"
 SENT = "sent"
 
 
-def save_status(status: str, batch_id: str, data: dict):
+def save_status(status: str, batch_id: str, message_reference: str, data: dict):
     batch_message_status_data = {
         "batch_id": batch_id,
         "details": data.get("details", json.dumps(data)),
-        "message_reference": uuid_generator.message_reference(data),
+        "message_reference": message_reference,
         "nhs_number": data.get("nhs_number"),
         "recipient_id": uuid_generator.recipient_id(data),
         "status": status,

@@ -102,13 +102,15 @@ def test_send_messages_success(mocker):
 def test_send_message_success(mocker, setup, message_data, response_text):
     """Test sending a single message successfully."""
     mock_recorder = mocker.patch("batch_message_recorder.save_status")
+    message_reference = "da0b1495-c7cb-468c-9d81-07dee089d728"
+    mocker.patch("uuid_generator.uuid4_str", return_value=message_reference)
     access_token = "access_token"
     routing_plan = "breast-screening-pilot"
     routing_plan_id = routing_plans.get_id(routing_plan)
     message_data["routing_plan"] = routing_plan
     batch_id = uuid_generator.reference_uuid(json.dumps(message_data))
 
-    expected_request_body = notifier.message_body(routing_plan_id, message_data)
+    expected_request_body = notifier.message_body(routing_plan_id, message_reference, message_data)
 
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
@@ -119,11 +121,11 @@ def test_send_message_success(mocker, setup, message_data, response_text):
         assert adapter.called
         assert adapter.call_count == 1
         assert adapter.last_request.json() == expected_request_body
-        mock_recorder.assert_any_call("not_sent", batch_id, message_data)
+        mock_recorder.assert_any_call("not_sent", batch_id, message_reference, message_data)
         modified_message_data = message_data.copy()
         modified_message_data["message_id"] = "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
         modified_message_data["details"] = response_text
-        mock_recorder.assert_any_call("sent", batch_id, modified_message_data)
+        mock_recorder.assert_any_call("sent", batch_id, message_reference, modified_message_data)
 
 
 def test_send_message_logs_error(mocker, setup, error_response_text, message_data):
@@ -133,6 +135,8 @@ def test_send_message_logs_error(mocker, setup, error_response_text, message_dat
     routing_plan = "breast-screening-pilot"
     routing_plan_id = routing_plans.get_id(routing_plan)
     batch_id = uuid_generator.reference_uuid(json.dumps(message_data))
+    message_reference = "da0b1495-c7cb-468c-9d81-07dee089d728"
+    mocker.patch("uuid_generator.uuid4_str", return_value=message_reference)
 
     error_logging_spy = mocker.spy(logging, "error")
 
@@ -144,15 +148,17 @@ def test_send_message_logs_error(mocker, setup, error_response_text, message_dat
 
         assert result == error_response_text
         error_logging_spy.assert_called_once_with(error_response_text)
-        mock_recorder.assert_any_call("not_sent", batch_id, message_data)
+        mock_recorder.assert_any_call("not_sent", batch_id, message_reference, message_data)
         modified_message_data = message_data.copy()
         modified_message_data["details"] = error_response_text
-        mock_recorder.assert_any_call("failed", batch_id, modified_message_data)
+        mock_recorder.assert_any_call("failed", batch_id, message_reference, modified_message_data)
 
 
-def test_message_body():
+def test_message_body(monkeypatch):
     """Test message body generation."""
     routing_plan_id = str(uuid.uuid4())
+    message_reference = "da0b1495-c7cb-468c-9d81-07dee089d728"
+    monkeypatch.setattr(uuid, "uuid4", lambda: uuid.UUID("00000000-0000-0000-0000-000000000000"))
 
     data = {
         "nhs_number": "0000000000",
@@ -164,13 +170,13 @@ def test_message_body():
         "contact_telephone_number": "012345678",
     }
 
-    actual = notifier.message_body(routing_plan_id, data)
+    actual = notifier.message_body(routing_plan_id, message_reference, data)
 
     expected = {
         "data": {
             "type": "Message",
             "attributes": {
-                "messageReference": uuid_generator.message_reference(data),
+                "messageReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
                 "routingPlanId": routing_plan_id,
                 "recipient": {
                     "nhsNumber": "0000000000",
