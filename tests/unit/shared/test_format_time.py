@@ -6,13 +6,13 @@ def test_valid_time_am():
     """
     Test that a valid morning time converts correctly.
     """
-    assert to_human_readable_twelve_hours("07:45:00") == "07:45am"
+    assert to_human_readable_twelve_hours("07:45:00") == "7:45am"
 
 def test_valid_time_pm():
     """
     Test that a valid afternoon/evening time converts correctly.
     """
-    assert to_human_readable_twelve_hours("19:30:00") == "07:30pm"
+    assert to_human_readable_twelve_hours("19:30:00") == "7:30pm"
 
 def test_midnight():
     """
