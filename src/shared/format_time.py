@@ -10,7 +10,7 @@ def to_human_readable_twelve_hours(raw_time: str) -> str | None:
             logging.error("Attempted to convert time format, but input is None.")
             return None
 
-        raw_time = raw_time.strip()
+        raw_time = raw_time.strip().lstrip("0")
 
         time_obj = datetime.strptime(raw_time, "%H:%M:%S")
         return time_obj.strftime("%I:%M%p").lower()
