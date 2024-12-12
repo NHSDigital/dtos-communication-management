@@ -17,8 +17,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("MessageStatus HTTP trigger function. Processing callback from NHS Notify service.")
     req_body: str = req.get_body().decode("utf-8")
 
-    logging.info(f"{request_verifier.API_KEY_HEADER_NAME}: {req.headers.get(request_verifier.API_KEY_HEADER_NAME)}")
-    logging.info(f"{request_verifier.SIGNATURE_HEADER_NAME}: {req.headers.get(request_verifier.SIGNATURE_HEADER_NAME)}")
     logging.info(req_body)
 
     if request_verifier.verify_headers(req.headers) is False:
