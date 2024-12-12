@@ -36,7 +36,7 @@ def process_data(filename, raw_data) -> str:
     response = requests.post(notify_function_url(), json=post_body(data), headers=HEADERS)
 
     if response:
-        logging.info(response.text)
+        logging.debug(response.text)
     else:
         logging.error(response.text)
 

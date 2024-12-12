@@ -44,7 +44,7 @@ def create_http_request(payload):
 
 def test_main_logs_payload(mocker, payload):
     """Test that the request body is logged when the main function is called."""
-    mock_log = mocker.patch("logging.info")
+    mock_log = mocker.patch("logging.debug")
     request = create_http_request(payload)
 
     func_call = function_app.main.build().get_user_function()
