@@ -99,6 +99,33 @@ def test_send_messages_success(mocker):
     )
 
 
+def test_send_messages_with_exception_raised_on_first_item(mocker):
+    """Test sending multiple messages with an exception raised on the first item."""
+    mocker.patch("access_token.get_token", return_value="an_access_token")
+    send_message_mock = mocker.patch("notifier.send_message", return_value="OK")
+
+    def side_effect(*args, **kwargs):
+        if args[2]['nhs_number'] == "0000000000":
+            raise Exception("Error sending message")
+
+        return mocker.DEFAULT
+
+    send_message_mock.side_effect = side_effect
+
+    data = {
+        "routing_plan": "breast-screening-pilot",
+        "recipients": [
+            {"nhs_number": "0000000000"},
+            {"nhs_number": "0000000001"},
+        ],
+    }
+
+    response = notifier.send_messages(data)
+
+    assert send_message_mock.call_count == 2
+    assert response == "OK"
+
+
 def test_send_message_success(mocker, setup, message_data, response_text):
     """Test sending a single message successfully."""
     mock_recorder = mocker.patch("batch_message_recorder.save_status")
