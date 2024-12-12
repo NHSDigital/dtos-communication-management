@@ -3,12 +3,12 @@ import uuid
 
 
 def recipient_id(message_data: dict) -> str:
-    str_val: str = ",".join([
+    str_val: str = ",".join(list(filter(None, (
         message_data["appointment_date"],
         message_data["appointment_time"],
         message_data["date_of_birth"],
         message_data["nhs_number"],
-    ])
+    ))))
     return reference_uuid(str_val)
 
 
