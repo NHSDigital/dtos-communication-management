@@ -20,11 +20,15 @@ def send_messages(data: dict) -> str:
 
     if "recipients" in data:
         for message_data in data["recipients"]:
-            if "routing_plan" in message_data:
-                routing_plan_id = routing_plans.get_id(message_data.pop("routing_plan"))
+            try:
+                if "routing_plan" in message_data:
+                    routing_plan_id = routing_plans.get_id(message_data.pop("routing_plan"))
 
-            response: str = send_message(token, routing_plan_id, message_data, batch_id)
-            responses.append(response)
+                response: str = send_message(token, routing_plan_id, message_data, batch_id)
+                responses.append(response)
+            except Exception as e:
+                logging.error(f"Error sending message: {e}")
+                logging.error(f"Message data: {message_data}")
 
     return "\n".join(responses)
 
