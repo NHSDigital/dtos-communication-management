@@ -82,7 +82,7 @@ def connection():
         sslmode=os.getenv("DATABASE_SSLMODE", "require"),
     )
     end = time.time()
-    logging.info(f"Connected to database in {(end - start)}s")
+    logging.debug(f"Connected to database in {(end - start)}s")
 
     check_and_initialise_schema(conn)
 

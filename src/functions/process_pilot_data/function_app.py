@@ -20,4 +20,4 @@ def process_data(csvblob: func.InputStream) -> str:
     raw_data = csvblob.read().decode("utf-8").splitlines()
     filename = os.path.splitext(os.path.basename(csvblob.name))[0]
     result = data_processor.process_data(filename, raw_data)
-    logging.info(f"Data processor result: {result}")
+    logging.debug(f"Data processor result: {result}")

@@ -17,7 +17,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("MessageStatus HTTP trigger function. Processing callback from NHS Notify service.")
     req_body: str = req.get_body().decode("utf-8")
 
-    logging.info(req_body)
+    logging.debug(req_body)
 
     if request_verifier.verify_headers(req.headers) is False:
         status_code = 401

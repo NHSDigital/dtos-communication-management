@@ -47,7 +47,7 @@ def send_message(token, routing_plan_id, message_data, batch_id) -> str:
     batch_message_data = message_data.copy()
 
     if response.status_code == 201:
-        logging.info(response.text)
+        logging.debug(response.text)
         batch_message_data["message_id"] = response.json()["data"]["id"]
         status = batch_message_recorder.SENT
     else:
