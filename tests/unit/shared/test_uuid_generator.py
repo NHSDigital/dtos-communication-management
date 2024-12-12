@@ -19,6 +19,17 @@ def test_recipient_id():
     assert uuid_generator.recipient_id(message_data) == "43b1d23b-42b5-9700-e677-1159c15d378f"
 
 
+def test_recipient_id_with_missing_values():
+    """Tests the predictable conversion of a dict containing missing values to a UUID."""
+    message_data = {
+        "appointment_date": "2025-02-01",
+        "appointment_time": "12:00",
+        "date_of_birth": "",
+        "nhs_number": "1234567890",
+    }
+    assert uuid_generator.recipient_id(message_data) == "603e1836-4231-248e-3804-527a05617def"
+
+
 def test_uuid4_str(monkeypatch):
     """Tests the generation of a UUID4 string."""
     monkeypatch.setattr(uuid, "uuid4", lambda: uuid.UUID("c1a8b6c8-9f6b-4e1e-9d3f-3e7f4b8c0a9d"))
