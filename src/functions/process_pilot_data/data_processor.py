@@ -10,7 +10,6 @@ import format_date
 import re
 
 FIELDNAMES = (
-    "stage", # Not sent to Notify
     "nhs_number",
     "sx_code", # Not sent to Notify
     "full_name", # Not sent to Notify
