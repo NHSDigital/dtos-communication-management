@@ -157,6 +157,7 @@ function_apps = {
       database_required      = true
       app_urls               = []
       env_vars_static        = {}
+      health_check_path      = "/api/message-status/health-check"
     }
 
     notify = {
