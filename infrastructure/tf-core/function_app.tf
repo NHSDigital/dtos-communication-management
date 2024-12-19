@@ -35,6 +35,9 @@ module "functionapp" {
   always_on    = var.function_apps.always_on
   worker_32bit = var.function_apps.worker_32bit
 
+  health_check_path                 = each.value.health_check_path
+  health_check_eviction_time_in_min = 4
+
   acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
   acr_login_server = data.azurerm_container_registry.acr.login_server
 
@@ -120,6 +123,8 @@ locals {
             } : {}
 
           )
+
+          health_check_path = config.health_check_path
 
           # These RBAC assignments are for the Function Apps only
           rbac_role_assignments = flatten([
