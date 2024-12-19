@@ -96,3 +96,14 @@ def test_main_verify_headers_missing(mocker, payload):
 
     assert response.status_code == 401
     assert response.get_body().decode("utf-8") == json.dumps({"status": "error"})
+
+
+def test_health_check():
+    """Test health check endpoint."""
+    request = func.HttpRequest(method="GET", url="/api/message-status/health-check", body=None)
+    func_call = function_app.health_check.build().get_user_function()
+
+    response = func_call(request)
+
+    assert response.status_code == 200
+    assert response.get_body().decode("utf-8") == json.dumps({"status": "healthy"})

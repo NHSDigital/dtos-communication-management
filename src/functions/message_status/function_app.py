@@ -35,3 +35,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         status_code=status_code,
         body=json.dumps(body).encode("utf-8")
     )
+
+
+@app.function_name(name="MessageStatusHealthCheck")
+@app.route(
+    route="message-status/health-check",
+    auth_level=func.AuthLevel.ANONYMOUS,
+    methods=[func.HttpMethod.GET],
+)
+def health_check(req: func.HttpRequest) -> func.HttpResponse:
+    return func.HttpResponse(
+        status_code=200,
+        body=json.dumps({"status": "healthy"}).encode("utf-8")
+    )
