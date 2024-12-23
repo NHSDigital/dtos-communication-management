@@ -21,25 +21,18 @@ def callback_request_body():
     return {
         "data": [
             {
-                "type": "MessageStatus",
+                "type": "ChannelStatus",
                 "attributes": {
                     "messageId": "2WL3qFTEFM0qMY8xjRbt1LIKCzM",
                     "messageReference": "1642109b-69eb-447f-8f97-ab70a74f5db4",
-                    "messageStatus": "sending",
-                    "messageStatusDescription": " ",
-                    "channels": [
-                        {
-                            "type": "email",
-                            "channelStatus": "delivered"
-                        }
-                    ],
+                    "cascadeType": "primary",
+                    "cascadeOrder": 1,
+                    "channel": "nhsapp",
+                    "channelStatus": "delivered",
+                    "channelStatusDescription": " ",
+                    "supplierStatus": "delivered",
                     "timestamp": "2023-11-17T14:27:51.413Z",
-                    "routingPlan": {
-                        "id": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-                        "name": "Plan Abc",
-                        "version": "ztoe2qRAM8M8vS0bqajhyEBcvXacrGPp",
-                        "createdDate": "2023-11-17T14:27:51.413Z"
-                    }
+                    "retryCount": 1
                 },
                 "links": {
                     "message": "https://api.service.nhs.uk/comms/v1/messages/2WL3qFTEFM0qMY8xjRbt1LIKCzM"
@@ -52,7 +45,7 @@ def callback_request_body():
     }
 
 
-def assert_message_status_record_created():
+def assert_channel_status_record_created():
     connection = psycopg2.connect(
         dbname=os.environ["DATABASE_NAME"],
         user=os.environ["DATABASE_USER"],
@@ -61,7 +54,7 @@ def assert_message_status_record_created():
     )
     with connection as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT details, message_id, status FROM message_statuses ORDER BY created_at")
+            cur.execute("SELECT details, message_id, status FROM channel_statuses ORDER BY created_at")
             records = cur.fetchall()
 
             assert len(records) == 1
@@ -70,13 +63,14 @@ def assert_message_status_record_created():
             attributes = details["attributes"]
 
             assert message_id == "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
-            assert status == "sending"
+            assert status == "delivered"
             assert attributes["messageReference"] == "1642109b-69eb-447f-8f97-ab70a74f5db4"
-            assert attributes["channels"][0]["type"] == "email"
-            assert attributes["channels"][0]["channelStatus"] == "delivered"
+            assert attributes["cascadeType"] == "primary"
+            assert attributes["channel"] == "nhsapp"
+            assert status == "delivered"
 
 
-def test_notify_callback_to_message_status_saved(monkeypatch, callback_request_body):
+def test_notify_callback_to_channel_status_saved(monkeypatch, callback_request_body):
     """Test that a callback request creates database records."""
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
     monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
@@ -101,4 +95,4 @@ def test_notify_callback_to_message_status_saved(monkeypatch, callback_request_b
 
     func_call = function_app.main.build().get_user_function()
     assert 200 == func_call(req).status_code
-    assert_message_status_record_created()
+    assert_channel_status_record_created()
