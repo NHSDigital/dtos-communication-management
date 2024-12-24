@@ -9,6 +9,12 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'message_status') THEN
       CREATE TYPE message_status AS ENUM ('created', 'pending_enrichment', 'enriched', 'sending', 'delivered', 'failed');
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'channel_status') THEN
+      CREATE TYPE channel_status AS ENUM (
+        'delivered', 'read', 'notification_attempted', 'unnotified', 'rejected', 'notified', 'received',
+        'permanent_failure', 'temporary_failure', 'technical_failure'
+      );
+    END IF;
 END$$;
 
 CREATE TABLE IF NOT EXISTS batch_messages (
@@ -29,4 +35,13 @@ CREATE TABLE IF NOT EXISTS message_statuses (
     message_id TEXT DEFAULT 'UNKNOWN',
     message_reference UUID NOT NULL,
     status message_status DEFAULT 'created'
+);
+
+CREATE TABLE IF NOT EXISTS channel_statuses (
+    created_at TIMESTAMP DEFAULT NOW(),
+    details JSONB,
+    idempotency_key TEXT PRIMARY KEY,
+    message_id TEXT DEFAULT 'UNKNOWN',
+    message_reference UUID NOT NULL,
+    status channel_status
 );

@@ -1,11 +1,10 @@
 import logging
 import os
 import psycopg2
+import schema_initialiser
 import time
+from typing import Tuple
 
-BATCH_MESSAGES_EXISTS = """
-    SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'batch_messages')
-"""
 
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
@@ -24,8 +23,9 @@ INSERT_BATCH_MESSAGE = """
         %(status)s
     ) RETURNING batch_id, message_reference"""
 
-INSERT_MESSAGE_STATUS = """
-    INSERT INTO message_statuses (
+
+INSERT_STATUS = """
+    INSERT INTO {status_table} (
         idempotency_key,
         message_id,
         message_reference,
@@ -39,40 +39,37 @@ INSERT_MESSAGE_STATUS = """
         %(status)s
     ) RETURNING idempotency_key"""
 
-SCHEMA_FILE_PATH = f"{os.path.dirname(__file__)}/database/schema.sql"
 
-def create_batch_message_record(batch_message_data: dict) -> bool | list[str, str]:
+def create_batch_message_record(batch_message_data: dict) -> Tuple[str, str] | None | bool:
     try:
         with connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(INSERT_BATCH_MESSAGE, batch_message_data)
                 return cur.fetchone()
 
-        conn.commit()
-        conn.close()
     except psycopg2.Error as e:
         logging.error("Error creating batch message record")
         logging.error(f"{type(e).__name__} : {e}")
         return False
 
 
-def create_message_status_record(message_status_data: dict) -> bool | str:
+def create_status_record(status_data: dict, is_channel_status=False) -> bool | str:
+    status_table = "channel_statuses" if is_channel_status else "message_statuses"
+    statement = INSERT_STATUS.format(status_table=status_table)
     try:
         with connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(INSERT_MESSAGE_STATUS, message_status_data)
+                cur.execute(statement, status_data)
 
                 return cur.fetchone()[0]
 
-        conn.commit()
-        conn.close()
     except psycopg2.Error as e:
         logging.error("Error creating message status record")
         logging.error(f"{type(e).__name__} : {e}")
         return False
 
 
-def connection():
+def connection() -> psycopg2.extensions.connection:
     start = time.time()
     conn = psycopg2.connect(
         dbname=os.environ["DATABASE_NAME"],
@@ -84,20 +81,6 @@ def connection():
     end = time.time()
     logging.debug(f"Connected to database in {(end - start)}s")
 
-    check_and_initialise_schema(conn)
+    schema_initialiser.check_and_initialise_schema(conn)
 
     return conn
-
-
-def check_and_initialise_schema(conn: psycopg2.extensions.connection):
-    if bool(os.getenv("SCHEMA_INITIALISED")):
-        return
-
-    with conn.cursor() as cur:
-        cur.execute(BATCH_MESSAGES_EXISTS)
-        if not bool(cur.fetchone()[0]):
-            logging.info("Initialising schema")
-            cur.execute(open(SCHEMA_FILE_PATH, "r").read())
-
-    conn.commit()
-    os.environ["SCHEMA_INITIALISED"] = "true"
