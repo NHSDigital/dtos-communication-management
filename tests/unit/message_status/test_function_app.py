@@ -58,7 +58,7 @@ def test_main_verify_signature_success(mocker, payload):
     mocker.patch("json.loads", return_value=payload)
     mocker.patch("request_verifier.verify_headers", return_value=True)
     mocker.patch("request_verifier.verify_signature", return_value=True)
-    mocker.patch("status_recorder.save_statuses")
+    mocker.patch("message_status_recorder.save_message_statuses")
 
     request = create_http_request(payload)
     func_call = function_app.main.build().get_user_function()

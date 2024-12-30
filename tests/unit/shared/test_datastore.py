@@ -8,7 +8,7 @@ def mock_connection(mocker):
 
 
 @pytest.fixture
-def mock_cursor(mock_connection):
+def mock_cursor(mocker, mock_connection):
     return mock_connection().__enter__().cursor().__enter__()
 
 
@@ -25,7 +25,7 @@ def batch_message_data(autouse=True):
 
 
 @pytest.fixture
-def status_data(autouse=True):
+def message_status_data(autouse=True):
     return {
         "idempotency_key": "0b3b3b3b-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
         "message_id": "0x0x0x0xabx0x0",
@@ -54,39 +54,11 @@ def test_create_batch_message_record_with_error(mock_cursor):
     mock_cursor.fetchone.assert_not_called()
 
 
-def test_create_channel_status_record(mock_cursor):
-    """Test the SQL execution of channel status record creation."""
-    datastore.create_status_record(status_data, True)
-
-    mock_cursor.execute.assert_called_with(
-        datastore.INSERT_STATUS.format(status_table="channel_statuses"),
-        status_data,
-    )
-    mock_cursor.fetchone.assert_called_once()
-
-
-def test_create_channel_status_record_with_error(mock_cursor):
-    """Test the SQL execution of channel status record creation with an error."""
-    mock_cursor.execute.side_effect = Exception("Test error")
-
-    with pytest.raises(Exception):
-        assert datastore.create_status_record(status_data, True) is False
-
-    mock_cursor.execute.assert_called_with(
-        datastore.INSERT_STATUS.format(status_table="channel_statuses"),
-        status_data,
-    )
-    mock_cursor.fetchone.assert_not_called()
-
-
 def test_create_message_status_record(mock_cursor):
     """Test the SQL execution of message status record creation."""
-    datastore.create_status_record(status_data)
+    datastore.create_message_status_record(message_status_data)
 
-    mock_cursor.execute.assert_called_with(
-        datastore.INSERT_STATUS.format(status_table="message_statuses"),
-        status_data,
-    )
+    mock_cursor.execute.assert_called_with(datastore.INSERT_MESSAGE_STATUS, message_status_data)
     mock_cursor.fetchone.assert_called_once()
 
 
@@ -95,10 +67,25 @@ def test_create_message_status_record_with_error(mock_cursor):
     mock_cursor.execute.side_effect = Exception("Test error")
 
     with pytest.raises(Exception):
-        assert datastore.create_status_record(status_data) is False
+        assert datastore.create_message_status_record(message_status_data) is False
 
-    mock_cursor.execute.assert_called_with(
-        datastore.INSERT_STATUS.format(status_table="message_statuses"),
-        status_data,
-    )
+    mock_cursor.execute.assert_called_with(datastore.INSERT_MESSAGE_STATUS, message_status_data)
     mock_cursor.fetchone.assert_not_called()
+
+
+def test_schema_is_initialised_once(monkeypatch, mock_connection):
+    """Test that the schema is initialised."""
+    schema_file_path = f"{datastore.os.path.dirname(__file__)}/../../../database/schema.sql"
+    monkeypatch.setenv("SCHEMA_INITIALISED", "")
+    monkeypatch.setattr("datastore.SCHEMA_FILE_PATH", schema_file_path)
+    mock_connection().cursor().__enter__().fetchone.return_value = (None, None)
+
+    schema_file_contents = open(schema_file_path).read()
+
+    datastore.check_and_initialise_schema(mock_connection())
+    datastore.check_and_initialise_schema(mock_connection())
+
+    assert mock_connection().cursor().__enter__().execute.call_count == 2
+    mock_connection().cursor().__enter__().execute.assert_any_call(datastore.BATCH_MESSAGES_EXISTS)
+    mock_connection().cursor().__enter__().fetchone.assert_called_once()
+    mock_connection().cursor().__enter__().execute.assert_any_call(schema_file_contents)

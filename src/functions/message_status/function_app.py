@@ -1,7 +1,7 @@
 import azure.functions as func
 import json
 import logging
-import status_recorder
+import message_status_recorder
 import request_verifier
 
 app = func.FunctionApp()
@@ -24,7 +24,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         body = {"status": "error"}
     elif request_verifier.verify_signature(req.headers, req_body):
         body_dict = json.loads(req_body)
-        status_recorder.save_statuses(body_dict)
+        message_status_recorder.save_message_statuses(body_dict)
         status_code = 200
         body = {"status": "success"}
     else:

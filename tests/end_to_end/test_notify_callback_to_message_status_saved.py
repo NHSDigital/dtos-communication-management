@@ -67,7 +67,7 @@ def assert_message_status_record_created():
             assert len(records) == 1
 
             details, message_id, status = records[0]
-            attributes = details["attributes"]
+            attributes = details["data"][0]["attributes"]
 
             assert message_id == "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
             assert status == "sending"
