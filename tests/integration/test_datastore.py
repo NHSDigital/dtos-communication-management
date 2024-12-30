@@ -18,7 +18,7 @@ def batch_message_data(merge_data={}):
     return original_data | merge_data
 
 
-def status_data(merge_data={}):
+def message_status_data(merge_data={}):
     original_data = {
         "idempotency_key": str(uuid.uuid4()),
         "message_id": str(uuid.uuid4()),
@@ -79,46 +79,34 @@ def test_create_batch_message_record_with_malicious_values():
 
 def test_create_message_status_record_idempotency_key_exists():
     duplicate_key = str(uuid.uuid4())
-    data = status_data({"idempotency_key": duplicate_key})
-    datastore.create_status_record(status_data({"idempotency_key": duplicate_key}))
+    data = message_status_data({"idempotency_key": duplicate_key})
+    datastore.create_message_status_record(message_status_data({"idempotency_key": duplicate_key}))
 
-    assert datastore.create_status_record(data) is False
+    assert datastore.create_message_status_record(data) is False
 
 
 def test_create_message_status_record():
-    data = status_data()
+    data = message_status_data()
 
-    assert datastore.create_status_record(data) == data["idempotency_key"]
+    assert datastore.create_message_status_record(data) == data["idempotency_key"]
 
 
 def test_create_message_status_record_with_invalid_status():
-    data = status_data({"status": "invalid"})
-    datastore.create_status_record(data)
+    data = message_status_data({"status": "invalid"})
+    datastore.create_message_status_record(data)
 
-    assert datastore.create_status_record(data) is False
+    assert datastore.create_message_status_record(data) is False
 
 
 def test_create_message_status_record_with_invalid_details():
-    data = status_data({"details": "invalid"})
-    datastore.create_status_record(data)
+    data = message_status_data({"details": "invalid"})
+    datastore.create_message_status_record(data)
 
-    assert datastore.create_status_record(data) is False
+    assert datastore.create_message_status_record(data) is False
 
 
 def test_create_message_status_record_with_malicious_values():
-    data = status_data({"nhs_number": "DROP TABLE message_statuses;"})
-    datastore.create_status_record(data)
+    data = message_status_data({"nhs_number": "DROP TABLE message_statuses;"})
+    datastore.create_message_status_record(data)
 
-    assert datastore.create_status_record(data) is False
-
-
-def test_create_channel_status_record():
-    data = status_data({"status": "read"})
-
-    assert datastore.create_status_record(data, True) == data["idempotency_key"]
-
-
-def test_create_channel_status_record_with_invalid_status():
-    data = status_data({"status": "invalid"})
-
-    assert datastore.create_status_record(data, True) is False
+    assert datastore.create_message_status_record(data) is False

@@ -20,14 +20,14 @@ def validate(status_params: dict) -> tuple[bool, str]:
     return True, SUCCESS_MESSAGE
 
 
-def validator_for_type(type) -> callable:
+def validator_for_type(type):
     if type == str:
         return valid_string
     if type == uuid.UUID:
         return valid_uuid
     if type == "json":
         return valid_json
-    return lambda: False
+    return None
 
 
 def valid_string(value):

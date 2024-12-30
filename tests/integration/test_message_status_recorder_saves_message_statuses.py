@@ -1,6 +1,6 @@
 import datastore
 import dotenv
-import status_recorder
+import message_status_recorder
 
 dotenv.load_dotenv(".env.test")
 
@@ -32,7 +32,7 @@ def test_message_status_recorder_saves_message_statuses():
         ]
     }
 
-    status_recorder.save_statuses(message_data)
+    message_status_recorder.save_message_statuses(message_data)
 
     with datastore.connection() as conn:
         with conn.cursor() as cur:
