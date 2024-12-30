@@ -1,6 +1,6 @@
 import hashlib
 import hmac
-import app.services.message_status.request_verifier as request_verifier
+import app.services.status.request_verifier as request_verifier
 import pytest
 
 

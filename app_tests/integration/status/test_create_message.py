@@ -1,6 +1,6 @@
 import json
 import pytest
-from app.services.message_status.main import create_message_status
+from app.services.status.main import create_status
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def test_main_logs_payload(mocker, payload):
     req_body = json.dumps(payload)
     headers = {}
 
-    _, status_code = create_message_status(req_body, headers)
+    _, status_code = create_status(req_body, headers)
 
     assert status_code == 401
     mock_log.assert_any_call(req_body)
@@ -47,14 +47,14 @@ def test_main_logs_payload(mocker, payload):
 
 def test_main_verify_signature_success(mocker, payload):
     """Test valid headers and signature."""
-    mock_verify_headers = mocker.patch("app.services.message_status.request_verifier.verify_headers", return_value=True)
-    mock_verify_signature = mocker.patch("app.services.message_status.request_verifier.verify_signature", return_value=True)
-    mock_save_statuses = mocker.patch("app.services.message_status.status_recorder.save_statuses")
+    mock_verify_headers = mocker.patch("app.services.status.request_verifier.verify_headers", return_value=True)
+    mock_verify_signature = mocker.patch("app.services.status.request_verifier.verify_signature", return_value=True)
+    mock_save_statuses = mocker.patch("app.services.status.status_recorder.save_statuses")
 
     req_body = json.dumps(payload)
     headers = {"Authorization": "valid-signature"}
 
-    response, status_code = create_message_status(req_body, headers)
+    response, status_code = create_status(req_body, headers)
 
     assert status_code == 200
     assert response == {"status": "success"}
@@ -63,13 +63,13 @@ def test_main_verify_signature_success(mocker, payload):
 
 def test_main_verify_signature_failure(mocker, payload):
     """Test valid headers but invalid signature."""
-    mock_verify_headers = mocker.patch("app.services.message_status.request_verifier.verify_headers", return_value=True)
-    mock_verify_signature = mocker.patch("app.services.message_status.request_verifier.verify_signature", return_value=False)
+    mock_verify_headers = mocker.patch("app.services.status.request_verifier.verify_headers", return_value=True)
+    mock_verify_signature = mocker.patch("app.services.status.request_verifier.verify_signature", return_value=False)
 
     req_body = json.dumps(payload)
     headers = {"Authorization": "invalid-signature"}
 
-    response, status_code = create_message_status(req_body, headers)
+    response, status_code = create_status(req_body, headers)
 
     assert status_code == 403
     assert response == {"status": "error"}
@@ -77,12 +77,12 @@ def test_main_verify_signature_failure(mocker, payload):
 
 def test_main_verify_headers_missing(mocker, payload):
     """Test missing headers."""
-    mock_verify_headers = mocker.patch("app.services.message_status.request_verifier.verify_headers", return_value=False)
+    mock_verify_headers = mocker.patch("app.services.status.request_verifier.verify_headers", return_value=False)
 
     req_body = json.dumps(payload)
     headers = {}
 
-    response, status_code = create_message_status(req_body, headers)
+    response, status_code = create_status(req_body, headers)
 
     assert status_code == 401
     assert response == {"status": "error"}

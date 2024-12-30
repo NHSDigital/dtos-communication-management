@@ -1,5 +1,5 @@
 import json
-import app.services.message_status.status_recorder as status_recorder
+import app.services.status.status_recorder as status_recorder
 import pytest
 
 
@@ -56,7 +56,7 @@ def channel_status_data():
 
 def test_save_message_statuses(mocker, message_status_data):
     """Test saving message statuses to datastore"""
-    mock_datastore = mocker.patch("app.services.message_status.status_recorder.datastore")
+    mock_datastore = mocker.patch("app.services.status.status_recorder.datastore")
 
     assert status_recorder.save_statuses(message_status_data) is None
 
@@ -114,7 +114,7 @@ def test_status_params_with_missing_field():
 
 def test_save_channel_statuses(mocker, channel_status_data):
     """Test saving channel statuses to datastore"""
-    mock_datastore = mocker.patch("app.services.message_status.status_recorder.datastore")
+    mock_datastore = mocker.patch("app.services.status.status_recorder.datastore")
 
     assert status_recorder.save_statuses(channel_status_data) is None
 

@@ -1,7 +1,7 @@
 import app.utils.datastore as datastore
 import json
 import logging
-import app.services.message_status.status_validator as status_validator
+import app.services.status.status_validator as status_validator
 
 
 def save_statuses(request_body: dict) -> None:

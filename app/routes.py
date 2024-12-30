@@ -1,15 +1,17 @@
 from flask import Blueprint, request, jsonify
-import app.services.message_status.main as message_status
+import app.services.status.main as status
 
 api = Blueprint("api", __name__)
 
+
+# TODO DTOSS-6531 - Rename to /status/create
 @api.route("/message-status/create", methods=["POST"])
-def create_message_status():
+def create_status():
     data = request.json
-    result = message_status.create_message_status(data)
+    result = status.create_status(data)
     return jsonify(result)
 
 @api.route("/message-status/health-check", methods=["GET"])
-def message_status_health_check():
-    result = message_status.health_check()
+def status_health_check():
+    result = status.health_check()
     return result

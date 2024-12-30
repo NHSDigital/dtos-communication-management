@@ -1,10 +1,10 @@
 import json
 import logging
-from app.services.message_status import status_recorder, request_verifier
+from app.services.status import status_recorder, request_verifier
 from flask import jsonify
 
-def create_message_status(req_body, headers):
-    logging.info("MessageStatus HTTP trigger function. Processing callback from NHS Notify service.")
+def create_status(req_body, headers):
+    logging.info("Status HTTP trigger function. Processing callback from NHS Notify service.")
     logging.debug(req_body)
 
     if not request_verifier.verify_headers(headers):

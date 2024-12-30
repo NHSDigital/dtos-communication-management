@@ -1,4 +1,4 @@
-import app.services.message_status.status_validator as status_validator
+import app.services.status.status_validator as status_validator
 import uuid
 
 
