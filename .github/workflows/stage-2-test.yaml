@@ -61,6 +61,23 @@ jobs:
       - name: "Save the linting result"
         run: |
           echo "Nothing to save"
+  test-flask:
+    name: "Test Flask application"
+    needs: set-up-dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
+      - name: "Run Flask test suite"
+        run: |
+          ./test-app.sh
   test-unit:
     name: "Unit tests"
     needs: set-up-dependencies
