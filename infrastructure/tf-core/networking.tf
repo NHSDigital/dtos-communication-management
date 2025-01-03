@@ -22,11 +22,20 @@ module "vnet" {
   location            = each.key
   vnet_address_space  = each.value.address_space
 
-  dns_servers = [data.terraform_remote_state.hub.outputs.private_dns_resolver_inbound_ips[each.key].private_dns_resolver_ip]
-
   log_analytics_workspace_id                   = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_vnet_enabled_logs = local.monitor_diagnostic_setting_vnet_enabled_logs
   monitor_diagnostic_setting_vnet_metrics      = local.monitor_diagnostic_setting_vnet_metrics
+
+  tags = var.tags
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "zone_vnet_link" {
+  for_each = data.terraform_remote_state.hub.outputs.private_dns_zones_map
+
+  name                  = module.vnet[each.value.region].vnet.name
+  resource_group_name   = azurerm_resource_group.rg_vnet[each.value.region].name
+  private_dns_zone_name = each.value.name
+  virtual_network_id    = module.vnet[each.value.region].vnet.id
 
   tags = var.tags
 }
