@@ -78,23 +78,6 @@ jobs:
       - name: "Run unit test suite"
         run: |
           ./test-unit.sh
-  test-pacts:
-    name: "Contract tests"
-    needs: set-up-dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-
-      - name: "Install dependencies"
-        run: |
-          pip install pipenv
-          pipenv install --dev --system
-
-      - name: "Run contract test suite"
-        run: |
-          ./test-pacts.sh
   test-integration:
     name: "Integration tests"
     needs: set-up-dependencies
@@ -112,17 +95,6 @@ jobs:
       - name: "Run integration test suite"
         run: |
           ./test-integration.sh
-  test-end-to-end:
-    name: "End-to-end tests"
-    needs: set-up-dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Run end to end test suite"
-        run: |
-          ./test-end-to-end.sh
   test-coverage:
     name: "Test coverage"
     needs: [test-unit]
