@@ -1,3 +1,4 @@
+import dotenv
 import logging
 import os
 import psycopg2
@@ -5,6 +6,7 @@ import app.utils.schema_initialiser as schema_initialiser
 import time
 from typing import Tuple
 
+dotenv.load_dotenv(".env.test")
 
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
