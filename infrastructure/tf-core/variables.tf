@@ -162,7 +162,7 @@ variable "app_service_plan" {
   })
 }
 
-variable "function_apps" {
+variable "function_app" {
   description = "Configuration for function apps"
   type = object({
     acr_mi_name                   = string
@@ -185,22 +185,23 @@ variable "function_apps" {
       name         = string
       slot_enabled = optional(bool, false)
     })))
-    fa_config = map(object({
-      name_suffix            = string
-      function_endpoint_name = string
-      app_service_plan_key   = string
-      storage_containers = optional(list(object({
-        env_var_name   = string
-        container_name = string
-      })), [])
-      database_required = optional(bool, false)
-      key_vault_url     = optional(string, "")
-      app_urls = optional(list(object({
-        env_var_name     = string
-        function_app_key = string
-      })), [])
-      env_vars_static = optional(map(string), {})
-    }))
+
+    name_suffix            = string
+    function_endpoint_name = string
+    app_service_plan_key   = string
+
+    storage_containers = optional(list(object({
+      env_var_name   = string
+      container_name = string
+    })), [])
+
+    key_vault_url = optional(string, "")
+
+    app_urls = optional(list(object({
+      env_var_name     = string
+      function_app_key = string
+    })), [])
+    env_vars_static = optional(map(string), {})
   })
 }
 
@@ -362,4 +363,9 @@ variable "function_app_slots" {
     function_app_slots_name   = optional(string, "staging")
     function_app_slot_enabled = optional(bool, false)
   }))
+}
+
+variable "app_service_plan_key" {
+  description = "The key for the app service plan"
+  type        = string
 }
