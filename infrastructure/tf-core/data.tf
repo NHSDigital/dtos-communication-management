@@ -46,22 +46,22 @@ data "azurerm_subnet" "subnet_audit_pep" {
 data "azurerm_container_registry" "acr" {
   provider = azurerm.hub
 
-  name                = var.function_apps.acr_name
-  resource_group_name = var.function_apps.acr_rg_name
+  name                = var.function_app.acr_name
+  resource_group_name = var.function_app.acr_rg_name
 }
 
 data "azurerm_user_assigned_identity" "acr_mi" {
   provider = azurerm.hub
 
-  name                = var.function_apps.acr_mi_name
-  resource_group_name = var.function_apps.acr_rg_name
+  name                = var.function_app.acr_mi_name
+  resource_group_name = var.function_app.acr_rg_name
 }
 
 data "azurerm_application_insights" "ai" {
   provider = azurerm.audit
 
-  name                = var.function_apps.app_insights_name
-  resource_group_name = var.function_apps.app_insights_rg_name
+  name                = var.function_app.app_insights_name
+  resource_group_name = var.function_app.app_insights_rg_name
 }
 
 data "azurerm_key_vault_secret" "application_id" {
