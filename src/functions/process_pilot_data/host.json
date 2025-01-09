@@ -3,6 +3,15 @@
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[4.*, 5.0.0)"
+  },
+  "logging": {
+    "fileLoggingMode": "always",
+    "logLevel": {
+      "default": "Warning",
+      "Host.Results": "Error",
+      "Function": "Information",
+      "Host.Aggregator": "Error"
+    }
   }
 }
 

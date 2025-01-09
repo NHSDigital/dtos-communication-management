@@ -8,10 +8,12 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureWebJobsStorage=UseDevelopmentStorage=true \
     FUNCTIONS_WORKER_RUNTIME=python \
     BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME} \
-    CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER} \
     NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
 
-COPY requirements.txt /
-RUN pip install -r /requirements.txt
+COPY --from=root_dir Pipfile /
+COPY --from=root_dir Pipfile.lock /
+RUN pip install pipenv
+RUN pipenv install --system
 
 COPY . /home/site/wwwroot
+COPY --from=root_dir src/shared/ /home/site/wwwroot

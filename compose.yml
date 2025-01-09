@@ -5,8 +5,17 @@ services:
   azurite:
     container_name: azurite
     image: mcr.microsoft.com/azure-storage/azurite
-    command: azurite --silent
-    network_mode: host
+    command: "azurite --loose --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001"
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
+    profiles:
+      - test-end-to-end
+      - test-integration
+      - dev
+    networks:
+      - frontend
 
   azurite-setup:
     container_name: azurite-setup
@@ -19,36 +28,154 @@ services:
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+    profiles:
+      - test-end-to-end
+      - test-integration
+      - dev
 
-  # Functions
-  process-pilot-data:
-    container_name: process-pilot-data
+  db:
+    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - SSLMODE=${DATABASE_SSLMODE}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/pgdata
+    profiles:
+      - test-end-to-end
+      - test-integration
+      - dev
+
+  end-to-end-tests:
+    container_name: end-to-end-tests
     network_mode: host
     build:
-      context: ./src/functions/process_pilot_data/
+      context: ./tests/end_to_end/
+      additional_contexts:
+        root_dir: .
+        shared_dir: ./src/shared/
+      dockerfile: Dockerfile
+    environment:
+      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
+      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
+      - DATABASE_USER=${DATABASE_USER}
+    profiles:
+      - test-end-to-end
+    depends_on:
+      azurite-setup:
+        condition: service_completed_successfully
+      azurite:
+        condition: service_started
+      db:
+        condition: service_healthy
+      notify:
+        condition: service_started
+      process-pilot-data:
+        condition: service_started
+    volumes:
+      - ./log/functions/notify:/tests/end_to_end/log/functions/notify
+      - ./log/functions/process-pilot-data:/tests/end_to_end/log/functions/process-pilot-data
+
+  # Functions
+  message-status:
+    container_name: message-status
+    network_mode: host
+    build:
+      context: ./src/functions/message_status/
+      additional_contexts:
+        root_dir: .
       dockerfile: Dockerfile
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
-      - ASPNETCORE_URLS=http://*:7071
-      - FUNCTIONS_WORKER_RUNTIME=python
-      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
-      - CONTACT_TELEPHONE_NUMBER=${CONTACT_TELEPHONE_NUMBER}
-      - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
-
-    depends_on:
-      - azurite
+      - ASPNETCORE_URLS=http://*:7073
+      - APPLICATION_ID=${APPLICATION_ID}
+      - NOTIFY_API_KEY=${NOTIFY_API_KEY}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
+      - DATABASE_USER=${DATABASE_USER}
 
   notify:
     container_name: notify
     network_mode: host
     build:
       context: ./src/functions/notify/
+      additional_contexts:
+        root_dir: .
       dockerfile: Dockerfile
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7072
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
+      - DATABASE_USER=${DATABASE_USER}
       - NOTIFY_API_URL=${NOTIFY_API_URL}
-      - NOTIFY_API_KEY=${NOTIFY_API_KEY}
-      - NOTIFY_API_KID=${NOTIFY_API_KID}
+      - OAUTH2_API_KEY=${OAUTH2_API_KEY}
+      - OAUTH2_API_KID=${OAUTH2_API_KID}
       - OAUTH2_TOKEN_URL=${OAUTH2_TOKEN_URL}
-      - PRIVATE_KEY_PATH=${PRIVATE_KEY_PATH}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+    volumes:
+      - ./log/functions/notify:/tmp/Functions/Host
+
+  process-pilot-data:
+    container_name: process-pilot-data
+    network_mode: host
+    build:
+      context: ./src/functions/process_pilot_data/
+      additional_contexts:
+        root_dir: .
+      dockerfile: Dockerfile
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ASPNETCORE_URLS=http://*:7071
+      - FUNCTIONS_WORKER_RUNTIME=python
+      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+      - NOTIFY_FUNCTION_URL=${NOTIFY_FUNCTION_URL}
+    volumes:
+      - ./log/functions/process-pilot-data:/tmp/Functions/Host
+
+  integration-tests:
+    container_name: integration-tests
+    network_mode: host
+    build:
+      context: ./tests/integration/
+      additional_contexts:
+        root_dir: .
+        shared_dir: ./src/shared/
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
+      - DATABASE_USER=${DATABASE_USER}
+      - NOTIFY_API_URL=${NOTIFY_API_URL}
+    profiles:
+      - test-integration
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  frontend:
+    # Specify driver options
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
