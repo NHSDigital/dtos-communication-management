@@ -22,11 +22,11 @@ services:
     profiles:
       - dev
 
-  notify:
-    container_name: notify
+  notifications-api:
+    container_name: notifications-api
     network_mode: host
     build:
-      context: ./src/notify
+      context: ./src/notifications-api
       dockerfile: Dockerfile
       additional_contexts:
         root_dir: .

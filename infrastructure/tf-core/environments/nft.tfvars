@@ -147,8 +147,8 @@ function_app = {
   storage_uses_managed_identity = null
   worker_32bit                  = false
 
-  name_suffix            = "communication-management"
-  function_endpoint_name = "CommunicationManagement"
+  name_suffix            = "notifications-api"
+  function_endpoint_name = "NotificationsApi"
   app_service_plan_key   = "Default"
   key_vault_url          = "KEY_VAULT_URL"
   app_urls               = []
