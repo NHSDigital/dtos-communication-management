@@ -124,13 +124,13 @@ app_service_plan = {
   }
 }
 
-function_apps = {
+function_app = {
   acr_mi_name = "dtos-communication-management-acr-push"
   acr_name    = "acrukshubprodcommgt"
   acr_rg_name = "rg-hub-prod-uks-commgt"
 
-  app_insights_name    = "appi-prd-uks-commgt"
-  app_insights_rg_name = "rg-commgt-prd-uks-audit"
+  app_insights_name    = "appi-pre-uks-commgt"
+  app_insights_rg_name = "rg-commgt-pre-uks-audit"
 
   always_on = true
 
@@ -147,42 +147,15 @@ function_apps = {
   storage_uses_managed_identity = null
   worker_32bit                  = false
 
-  fa_config = {
-
-    message-status = {
-      name_suffix            = "message-status"
-      function_endpoint_name = "MessageStatus"
-      app_service_plan_key   = "Default"
-      key_vault_url          = "KEY_VAULT_URL"
-      database_required      = true
-      app_urls               = []
-      env_vars_static        = {}
-    }
-
-    notify = {
-      name_suffix            = "notify"
-      function_endpoint_name = "Notify"
-      app_service_plan_key   = "Default"
-      key_vault_url          = "KEY_VAULT_URL"
-      database_required      = true
-      app_urls               = []
-      env_vars_static = {
-        NOTIFY_API_URL   = "https://api.service.nhs.uk"
-        OAUTH2_TOKEN_URL = "https://api.service.nhs.uk/oauth2/token"
-        ENVIRONMENT      = "PRODUCTION"
-      }
-    }
-
-    process-pilot-data = {
-      name_suffix            = "process-pilot-data"
-      function_endpoint_name = "ProcessPilotData"
-      key_vault_url          = "KEY_VAULT_URL"
-      app_service_plan_key   = "Default"
-      app_urls               = []
-      env_vars_static = {
-        BLOB_CONTAINER_NAME = "pilot-data"
-      }
-    }
+  name_suffix            = "communication-management"
+  function_endpoint_name = "CommunicationManagement"
+  app_service_plan_key   = "Default"
+  key_vault_url          = "KEY_VAULT_URL"
+  app_urls               = []
+  env_vars_static = {
+    NOTIFY_API_URL   = "https://api.service.nhs.uk"
+    OAUTH2_TOKEN_URL = "https://api.service.nhs.uk/oauth2/token"
+    ENVIRONMENT      = "PRODUCTION"
   }
 }
 
