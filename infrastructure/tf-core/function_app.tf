@@ -70,15 +70,15 @@ locals {
       WEBSITE_PULL_IMAGE_OVER_VNET        = var.features.private_endpoints_enabled
 
       DATABASE_NAME     = "communication_management"
-      DATABASE_HOST     = "${module.regions_config[var.regions.keys[0]].names.postgres-sql-server}.postgres.database.azure.com"
+      DATABASE_HOST     = "${module.regions_config[local.primary_region].names.postgres-sql-server}.postgres.database.azure.com"
       DATABASE_USER     = "commgt_db_user"
-      DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=${module.postgresql_flexible_db[var.regions.keys[0]].db_admin_pwd_keyvault_secret})"
+      DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=${module.postgresql_flexible_db[local.primary_region].db_admin_pwd_keyvault_secret})"
 
-      APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[var.regions.keys[0]].versionless_id})"
-      NOTIFY_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.notify_api_key[var.regions.keys[0]].versionless_id})"
-      OAUTH2_API_KID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_kid[var.regions.keys[0]].versionless_id})"
-      OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[var.regions.keys[0]].versionless_id})"
-      PRIVATE_KEY    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_key.private_key[var.regions.keys[0]].versionless_id})"
+      APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[local.primary_region].versionless_id})"
+      NOTIFY_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.notify_api_key[local.primary_region].versionless_id})"
+      OAUTH2_API_KID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_kid[local.primary_region].versionless_id})"
+      OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[local.primary_region].versionless_id})"
+      PRIVATE_KEY    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_key.private_key[local.primary_region].versionless_id})"
     }
   )
 
@@ -86,14 +86,14 @@ locals {
     var.key_vault != {} ? [
       for role in local.rbac_roles_key_vault_user : {
         role_definition_name = role
-        scope                = module.key_vault[var.regions.keys[0]].key_vault_id
+        scope                = module.key_vault[local.primary_region].key_vault_id
       }
     ] : [],
     [
       for account in keys(var.storage_accounts) : [
         for role in local.rbac_roles_storage : {
           role_definition_name = role
-          scope                = module.storage["${account}-${var.regions.keys[0]}"].storage_account_id
+          scope                = module.storage["${account}-${local.primary_region}"].storage_account_id
         }
       ]
     ]

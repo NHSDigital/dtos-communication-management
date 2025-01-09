@@ -260,29 +260,6 @@ variable "postgresql" {
   })
 }
 
-/*
-  application_rule_collection = [
-    {
-      name      = "example-application-rule-collection-1"
-      priority  = 600
-      action    = "Allow"
-      rule_name = "example-rule-1"
-      protocols = [
-        {
-          type = "Http"
-          port = 80
-        },
-        {
-          type = "Https"
-          port = 443
-        }
-      ]
-      source_addresses  = ["0.0.0.0/0"]
-      destination_fqdns = ["example.com"]
-    },
-*/
-
-
 variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({
@@ -363,9 +340,4 @@ variable "function_app_slots" {
     function_app_slots_name   = optional(string, "staging")
     function_app_slot_enabled = optional(bool, false)
   }))
-}
-
-variable "app_service_plan_key" {
-  description = "The key for the app service plan"
-  type        = string
 }
