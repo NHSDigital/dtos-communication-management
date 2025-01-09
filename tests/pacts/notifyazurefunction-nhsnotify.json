@@ -1,0 +1,100 @@
+{
+  "consumer": {
+    "name": "NotifyAzureFunction"
+  },
+  "provider": {
+    "name": "NHSNotify"
+  },
+  "interactions": [
+    {
+      "description": "A request to create a message",
+      "providerState": "A message is created",
+      "request": {
+        "method": "post",
+        "path": "/comms/v1/messages",
+        "headers": {
+          "content-type": "application/vnd.api+json",
+          "accept": "application/vnd.api+json",
+          "x-correlation-id": "e3e3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+          "authorization": "Bearer an_access_token"
+        },
+        "body": {
+          "data": {
+            "type": "Message",
+            "attributes": {
+              "messageReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+              "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+              "recipient": {
+                "nhsNumber": "9990548609",
+                "dateOfBirth": "1990-01-01"
+              },
+              "personalisation": {
+                "appointment_date": "2023-11-17",
+                "appointment_location": "The Hospital",
+                "appointment_time": "14:30",
+                "tracking_id": "9990548609",
+                "contact_telephone_number": "01234567890"
+              }
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+        },
+        "body": {
+          "data": {
+            "type": "Message",
+            "id": "2WL3qFTEFM0qMY8xjRbt1LIKCzM",
+            "attributes": {
+              "messageReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+              "messageStatus": "created",
+              "timestamps": {
+                "created": "2023-11-17T14:27:51.413Z"
+              },
+              "routingPlan": {
+                "id": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+                "version": "ztoe2qRAM8M8vS0bqajhyEBcvXacrGPp"
+              }
+            },
+            "links": {
+              "self": "https://sandbox.api.service.nhs.uk/comms/v1/messages/2WL3qFTEFM0qMY8xjRbt1LIKCzM"
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.data.id": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z]+"
+          },
+          "$.body.data.attributes.messageReference": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\-]{36}"
+          },
+          "$.body.data.attributes.timestamps.created": {
+            "match": "regex",
+            "regex": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z"
+          },
+          "$.body.data.attributes.routingPlan.id": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\-]{36}"
+          },
+          "$.body.data.attributes.routingPlan.version": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z]+"
+          },
+          "$.body.data.links.self": {
+            "match": "regex",
+            "regex": "https:\\/\\/[a-z\\.]*api\\.service\\.nhs\\.uk\\/comms\\/v1\\/messages\\/[aA-zZ0-9]+"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
