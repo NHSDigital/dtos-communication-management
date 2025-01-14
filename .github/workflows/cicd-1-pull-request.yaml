@@ -97,8 +97,8 @@ jobs:
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: Image build stage
     needs: [metadata, commit-stage, test-stage]
-    uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@main
-    if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
+    uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@commgt-feature-branch-deployment
+    if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/feature-flask-function-app-terraform' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: ./compose.yml
       excluded_containers_csv_list: azurite,azurite-setup,db,end-to-end-tests
