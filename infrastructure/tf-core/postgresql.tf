@@ -16,7 +16,7 @@ module "postgresql_flexible_db" {
   public_network_access_enabled   = var.postgresql.public_network_access_enabled
 
   # Diagnostic Settings
-  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  log_analytics_workspace_id                                = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_postgresql_server_enabled_logs = local.monitor_diagnostic_setting_postgresql_server_enabled_logs
   monitor_diagnostic_setting_postgresql_server_metrics      = local.monitor_diagnostic_setting_postgresql_server_metrics
 

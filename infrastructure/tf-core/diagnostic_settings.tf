@@ -21,7 +21,7 @@ locals {
   monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
 
   #POSTGRESQL SERVER
-  monitor_diagnostic_setting_postgresql_server_enabled_logs = ["PostgreSQLLogs", "PostgreSQLFlexSessions",  "PostgreSQLFlexQueryStoreRuntime", "PostgreSQLFlexQueryStoreWaitStats", "PostgreSQLFlexTableStats", "PostgreSQLFlexDatabaseXacts"]
+  monitor_diagnostic_setting_postgresql_server_enabled_logs = ["PostgreSQLLogs", "PostgreSQLFlexSessions", "PostgreSQLFlexQueryStoreRuntime", "PostgreSQLFlexQueryStoreWaitStats", "PostgreSQLFlexTableStats", "PostgreSQLFlexDatabaseXacts"]
   monitor_diagnostic_setting_postgresql_server_metrics      = ["AllMetrics"]
 
   #STORAGE ACCOUNT
