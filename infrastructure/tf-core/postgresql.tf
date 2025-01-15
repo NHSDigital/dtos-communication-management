@@ -15,6 +15,11 @@ module "postgresql_flexible_db" {
   postgresql_admin_principal_type = "Group"
   public_network_access_enabled   = var.postgresql.public_network_access_enabled
 
+  # Diagnostic Settings
+  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_postgresql_server_enabled_logs = local.monitor_diagnostic_setting_postgresql_server_enabled_logs
+  monitor_diagnostic_setting_postgresql_server_metrics      = local.monitor_diagnostic_setting_postgresql_server_metrics
+
   # To be amended to use Managed Identity in Entra ID group after pilot
   password_auth_enabled           = true
   administrator_login             = "commgt_db_user"
