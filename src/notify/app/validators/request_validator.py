@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import os
+import app.validators.schema_validator as schema_validator
 
 API_KEY_HEADER_NAME = 'x-api-key'
 SIGNATURE_HEADER_NAME = 'x-hmac-sha256-signature'
@@ -31,6 +32,14 @@ def verify_signature(headers: dict, body: str) -> bool:
         expected_signature,
         lc_headers[SIGNATURE_HEADER_NAME],
     )
+
+
+def verify_body(body: dict) -> tuple[bool, str]:
+    try:
+        schema_type = body["data"][0]["type"]
+        return schema_validator.validate_with_schema(schema_type, body)
+    except KeyError:
+        return False, "Invalid body"
 
 
 def signature_secret() -> str:
