@@ -1,5 +1,5 @@
 from app import create_app
-from app.lib.request_verifier import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, signature_secret
+from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, signature_secret
 import hashlib
 import hmac
 import json
