@@ -1,5 +1,6 @@
 import app.services.datastore as datastore
 import pytest
+from psycopg2 import sql
 
 
 @pytest.fixture
@@ -58,7 +59,7 @@ def test_create_message_status_record(mock_cursor):
     """Test the SQL execution of message status record creation."""
     datastore.create_status_record("MessageStatus", message_status_data)
 
-    mock_cursor.execute.assert_called_with(datastore.INSERT_STATUS.format(table_name="message_statuses"), message_status_data)
+    mock_cursor.execute.assert_called_with(datastore.INSERT_STATUS.format(table=sql.Identifier("message_statuses")), message_status_data)
     mock_cursor.fetchone.assert_called_once()
 
 
@@ -69,5 +70,5 @@ def test_create_message_status_record_with_error(mock_cursor):
     with pytest.raises(Exception):
         assert datastore.create_status_record("MessageStatus", message_status_data) is False
 
-    mock_cursor.execute.assert_called_with(datastore.INSERT_STATUS.format(table_name="message_statuses"), message_status_data)
+    mock_cursor.execute.assert_called_with(datastore.INSERT_STATUS.format(table=sql.Identifier("message_statuses")), message_status_data)
     mock_cursor.fetchone.assert_not_called()

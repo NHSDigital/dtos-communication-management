@@ -1,6 +1,7 @@
 import app.utils.database as database
 import logging
 import psycopg2
+from psycopg2 import sql
 
 INSERT_BATCH_MESSAGE = """
     INSERT INTO batch_messages (
@@ -19,8 +20,8 @@ INSERT_BATCH_MESSAGE = """
         %(status)s
     ) RETURNING batch_id, message_reference"""
 
-INSERT_STATUS = """
-    INSERT INTO {table_name} (
+INSERT_STATUS = sql.SQL("""
+    INSERT INTO {table} (
         idempotency_key,
         message_id,
         message_reference,
@@ -32,7 +33,7 @@ INSERT_STATUS = """
         %(message_reference)s,
         %(details)s,
         %(status)s
-    ) RETURNING idempotency_key"""
+    ) RETURNING idempotency_key""")
 
 STATUS_TABLE_NAMES_BY_TYPE = {
     "ChannelStatus": "channel_statuses",
@@ -58,7 +59,7 @@ def create_status_record(status_type: str, status_data: dict) -> bool | str:
     try:
         with database.connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(INSERT_STATUS.format(table_name=table_name), status_data)
+                cur.execute(INSERT_STATUS.format(table=sql.Identifier(table_name)), status_data)
 
                 return cur.fetchone()[0]
 
