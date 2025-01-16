@@ -1,6 +1,7 @@
 from flask import request
 import json
 import app.validators.request_validator as request_validator
+import app.services.status_recorder as status_recorder
 
 
 def create():
@@ -14,7 +15,7 @@ def create():
         status_code = 422
         body = {"status": "error"}
     else:
-        # status_recorder.save_statuses(body_dict)
+        status_recorder.save_statuses(dict(request.form))
         status_code = 200
         body = {"status": "success"}
 
