@@ -1,5 +1,6 @@
 from app import create_app
 from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, signature_secret
+import app.utils.hmac_signature as hmac_signature
 import hashlib
 import hmac
 import json
@@ -19,28 +20,37 @@ def client():
     yield app.test_client()
 
 
-def test_status_create_request_validation_fails(setup, client):
+def test_status_create_request_validation_fails(setup, client, message_status_post_body):
     """Test that invalid request header values fail HMAC signature validation."""
-    data = {"some": "data"}
     headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature"}
 
-    response = client.post('/api/status/create', data=data, headers=headers)
+    response = client.post('/api/status/create', json=message_status_post_body, headers=headers)
 
     assert response.status_code == 403
     assert response.get_json() == {"status": "error"}
 
 
-def test_status_create_request_validation_succeeds(setup, client):
-    """Test that valid request header values pass HMAC signature validation."""
-    data = {"some": "data"}
-    signature = hmac.new(
-        bytes(signature_secret(), 'ASCII'),
-        msg=bytes(json.dumps(data), 'ASCII'),
-        digestmod=hashlib.sha256
-    ).hexdigest()
+def test_status_create_body_validation_fails(setup, client, message_status_post_body):
+    """Test that invalid request body fails schema validation."""
+    message_status_post_body["data"][0]["attributes"]["messageStatus"] = "invalid"
+    signature = hmac_signature.create_digest(signature_secret(), json.dumps(message_status_post_body, sort_keys=True))
+
     headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: signature}
 
-    response = client.post('/api/status/create', data=data, headers=headers)
+    response = client.post('/api/status/create', json=message_status_post_body, headers=headers)
+
+    assert response.status_code == 422
+    assert response.get_json() == {"status": "error"}
+
+
+
+def test_status_create_request_validation_succeeds(setup, client, message_status_post_body):
+    """Test that valid request header values pass HMAC signature validation."""
+    signature = hmac_signature.create_digest(signature_secret(), json.dumps(message_status_post_body, sort_keys=True))
+
+    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: signature}
+
+    response = client.post('/api/status/create', json=message_status_post_body, headers=headers)
 
     assert response.status_code == 200
     assert response.get_json() == {"status": "success"}
