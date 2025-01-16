@@ -1,6 +1,8 @@
+import app.validators.request_validator as request_validator
+import app.utils.hmac_signature as hmac_signature
 import hashlib
 import hmac
-import app.validators.request_validator as request_validator
+import json
 import pytest
 
 
@@ -14,19 +16,15 @@ def setup(monkeypatch):
 def test_verify_signature_invalid(setup):
     """Test that an invalid signature fails verification."""
     headers = {request_validator.SIGNATURE_HEADER_NAME: 'signature'}
-    body = 'body'
+    body = {'data': 'body'}
 
     assert not request_validator.verify_signature(headers, body)
 
 
 def test_verify_signature_valid(setup):
     """Test that a valid signature passes verification."""
-    body = 'body'
-    signature = hmac.new(
-        bytes('application_id.api_key', 'ASCII'),
-        msg=bytes(body, 'ASCII'),
-        digestmod=hashlib.sha256
-    ).hexdigest()
+    body = {'data': 'body'}
+    signature = hmac_signature.create_digest('application_id.api_key', json.dumps(body))
 
     headers = {request_validator.SIGNATURE_HEADER_NAME: signature}
     assert request_validator.verify_signature(headers, body)
