@@ -33,19 +33,19 @@ def test_verify_signature_valid(setup):
 def test_verify_headers_missing_all(setup):
     """Test that missing all headers fails verification."""
     headers = {}
-    assert not request_validator.verify_headers(headers)
+    assert request_validator.verify_headers(headers) == (False, 'Missing API key header')
 
 
 def test_verify_headers_missing_api_key(setup):
     """Test that missing API key header fails verification."""
     headers = {request_validator.SIGNATURE_HEADER_NAME: 'signature'}
-    assert not request_validator.verify_headers(headers)
+    assert request_validator.verify_headers(headers) == (False, 'Missing API key header')
 
 
 def test_verify_headers_missing_signature(setup):
     """Test that missing signature header fails verification."""
     headers = {request_validator.API_KEY_HEADER_NAME: 'api_key'}
-    assert not request_validator.verify_headers(headers)
+    assert request_validator.verify_headers(headers) == (False, 'Missing signature header')
 
 
 def test_verify_headers_valid(setup):
@@ -60,4 +60,4 @@ def test_verify_headers_valid(setup):
 def test_verify_headers_invalid_api_key(setup):
     """Test that an invalid API key fails verification."""
     headers = {request_validator.API_KEY_HEADER_NAME: 'invalid_api_key'}
-    assert not request_validator.verify_headers(headers)
+    assert request_validator.verify_headers(headers) == (False, 'Invalid API key')

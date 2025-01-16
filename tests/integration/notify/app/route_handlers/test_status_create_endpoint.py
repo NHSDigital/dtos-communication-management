@@ -27,7 +27,7 @@ def test_status_create_request_validation_fails(setup, client, message_status_po
     response = client.post('/api/status/create', json=message_status_post_body, headers=headers)
 
     assert response.status_code == 403
-    assert response.get_json() == {"status": "error"}
+    assert response.get_json() == {"status": "Invalid signature"}
 
 
 def test_status_create_body_validation_fails(setup, client, message_status_post_body):
@@ -40,7 +40,7 @@ def test_status_create_body_validation_fails(setup, client, message_status_post_
     response = client.post('/api/status/create', json=message_status_post_body, headers=headers)
 
     assert response.status_code == 422
-    assert response.get_json() == {"status": "error"}
+    assert response.get_json() == {"status": "'invalid' is not one of ['created', 'pending_enrichment', 'enriched', 'sending', 'delivered', 'failed']"}
 
 
 
