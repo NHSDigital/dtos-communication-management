@@ -1,4 +1,7 @@
 import pytest
+import dotenv
+
+dotenv.load_dotenv(".env.test")
 
 
 @pytest.hookimpl(hookwrapper=True)
