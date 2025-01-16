@@ -3,14 +3,14 @@ import json
 import logging
 
 
-def save_statuses(request_body: dict) -> None:
+def save_statuses(request_body: dict) -> bool:
     statuses: list[dict] = status_params(request_body)
     status_type = request_body["data"][0]["type"]
 
     for status in statuses:
         datastore.create_status_record(status_type, status)
 
-    return None
+    return True
 
 
 def status_params(request_body: dict) -> list[dict]:

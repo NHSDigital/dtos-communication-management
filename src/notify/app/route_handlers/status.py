@@ -4,18 +4,19 @@ import app.services.status_recorder as status_recorder
 
 
 def create():
-    if request_validator.verify_headers(dict(request.headers)) is False:
-        status_code = 401
-        body = {"status": "error"}
-    elif request_validator.verify_signature(dict(request.headers), request.json) is False:
-        status_code = 403
-        body = {"status": "error"}
-    elif request_validator.verify_body(request.json)[0] is False:
-        status_code = 422
-        body = {"status": "error"}
-    else:
-        status_recorder.save_statuses(request.json)
-        status_code = 200
-        body = {"status": "success"}
+    json_data = request.json or {}
+    valid_headers, error_message = request_validator.verify_headers(dict(request.headers))
 
-    return body, status_code
+    if not valid_headers:
+        return {"status": error_message}, 401
+
+    if not request_validator.verify_signature(dict(request.headers), json_data):
+        return {"status": "Invalid signature"}, 403
+
+    valid_body, error_message = request_validator.verify_body(json_data)
+
+    if not valid_body:
+        return {"status": error_message}, 422
+
+    if status_recorder.save_statuses(json_data):
+        return {"status": "success"}, 200

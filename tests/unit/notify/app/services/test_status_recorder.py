@@ -6,7 +6,7 @@ def test_save_statuses_with_channel_status_data(mocker, channel_status_post_body
     """Test saving channel status data to datastore"""
     mock_datastore = mocker.patch("app.services.status_recorder.datastore")
 
-    assert status_recorder.save_statuses(channel_status_post_body) is None
+    assert status_recorder.save_statuses(channel_status_post_body)
 
     mock_datastore.create_status_record.assert_called_once_with("ChannelStatus", {
         "details": json.dumps(channel_status_post_body),
@@ -21,7 +21,7 @@ def test_save_statuses_with_message_status_data(mocker, message_status_post_body
     """Test saving message status data to datastore"""
     mock_datastore = mocker.patch("app.services.status_recorder.datastore")
 
-    assert status_recorder.save_statuses(message_status_post_body) is None
+    assert status_recorder.save_statuses(message_status_post_body)
 
     mock_datastore.create_status_record.assert_called_once_with("MessageStatus", {
         "details": json.dumps(message_status_post_body),
