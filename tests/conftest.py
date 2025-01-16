@@ -1,8 +1,10 @@
 import app.utils.database as database
-import pytest
 import dotenv
+import os
+import pytest
 
-dotenv.load_dotenv(".env.test")
+if not bool(os.getenv("CI")):
+    dotenv.load_dotenv(".env.test")
 
 
 @pytest.hookimpl(hookwrapper=True)
