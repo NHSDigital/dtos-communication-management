@@ -44,7 +44,7 @@ class ChannelStatus(enum.Enum):
 
 
 # Tables
-class BatchMessage(Base):
+class BatchMessages(Base):
     __tablename__ = "batch_messages"
 
     batch_id = Column(UUID(as_uuid=True), nullable=False, primary_key=True)
@@ -56,7 +56,7 @@ class BatchMessage(Base):
     status = Column(Enum(BatchMessageStatus), default=BatchMessageStatus.NOT_SENT, primary_key=True)
 
 
-class MessageStatusTable(Base):
+class MessageStatuses(Base):
     __tablename__ = "message_statuses"
 
     created_at = Column(TIMESTAMP, nullable=False, default="NOW()")
@@ -67,7 +67,7 @@ class MessageStatusTable(Base):
     status = Column(Enum(MessageStatus), default=MessageStatus.CREATED)
 
 
-class ChannelStatusTable(Base):
+class ChannelStatuses(Base):
     __tablename__ = "channel_statuses"
 
     created_at = Column(TIMESTAMP, nullable=False, default="NOW()")
