@@ -33,7 +33,6 @@ psycopg2-binary = "*"
 flask = "*"
 jsonschema = "*"
 alembic = "*"
-sqlalchemy-utils = "*"
 
 [dev-packages]
 anyio = "==4.6.2.post1"
