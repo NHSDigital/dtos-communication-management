@@ -1,5 +1,6 @@
 import os
 from logging.config import fileConfig
+import logging
 import dotenv
 from sqlalchemy import create_engine, pool
 from sqlalchemy_utils import database_exists, create_database
@@ -8,6 +9,9 @@ from database.models import Base
 
 # Load environment variables
 dotenv.load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env.local"))
+
+# Get logger
+logger = logging.getLogger("alembic")
 
 # Construct the DB connection string
 DATABASE_NAME = os.environ["DATABASE_NAME"]
@@ -26,9 +30,9 @@ try:
     engine = create_engine(connection_string.rsplit("/", 1)[0])  # Remove DB name
     if not database_exists(connection_string):
         create_database(connection_string)
-        print(f"Database '{DATABASE_NAME}' created successfully.")
+        logger.info(f"Database '{DATABASE_NAME}' created successfully.")
 except Exception as e:
-    print(f"Error checking or creating database: {e}")
+    logger.error(f"Error checking or creating database: {e}")
 
 # Pass the connection string to Alembic
 config = context.config
