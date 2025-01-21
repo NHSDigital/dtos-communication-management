@@ -1,4 +1,10 @@
+import app.utils.database as database
+import dotenv
+import os
 import pytest
+
+if not bool(os.getenv("CI")):
+    dotenv.load_dotenv(".env.test")
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -15,6 +21,16 @@ def pytest_runtest_makereport(item, call):
         location = list(report.location)
         location[0] = docstring
         report.location = tuple(location)
+
+
+@pytest.fixture(autouse=True, scope="function")
+def truncate_table():
+    with database.connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("TRUNCATE TABLE batch_messages")
+            cur.execute("TRUNCATE TABLE channel_statuses")
+            cur.execute("TRUNCATE TABLE message_statuses")
+            cur.connection.commit()
 
 
 @pytest.fixture
