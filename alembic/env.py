@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, pool
 from sqlalchemy_utils import database_exists, create_database
 from alembic import context
 from database.models import Base
+import alembic_postgresql_enum
 
 # Load environment variables
 dotenv.load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env.local"))

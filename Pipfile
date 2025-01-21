@@ -34,6 +34,7 @@ flask = "*"
 jsonschema = "*"
 alembic = "*"
 sqlalchemy-utils = "*"
+alembic-postgresql-enum = "*"
 
 [dev-packages]
 anyio = "==4.6.2.post1"
