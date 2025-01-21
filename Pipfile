@@ -32,6 +32,7 @@ exceptiongroup = "*"
 psycopg2-binary = "*"
 flask = "*"
 jsonschema = "*"
+alembic = "*"
 
 [dev-packages]
 anyio = "==4.6.2.post1"
