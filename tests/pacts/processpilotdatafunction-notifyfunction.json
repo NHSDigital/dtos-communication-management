@@ -13,7 +13,7 @@
         "method": "post",
         "path": "/api/notify/send",
         "body": {
-          "routing_plan": "breast-screening-pilot",
+          "routing_plan": "breast-screening-pilot-with-letters",
           "recipients": [
             {
               "nhs_number": "1234567890",

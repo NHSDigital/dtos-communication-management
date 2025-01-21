@@ -72,7 +72,7 @@ def test_send_messages_success(mocker):
     send_message_mock = mocker.patch("notifier.send_message", return_value="OK")
 
     data = {
-        "routing_plan": "breast-screening-pilot",
+        "routing_plan": "breast-screening-pilot-with-letters",
         "recipients": [
             {"nhs_number": "0000000000"},
             {"nhs_number": "0000000001"},
@@ -87,13 +87,13 @@ def test_send_messages_success(mocker):
 
     send_message_mock.assert_any_call(
         "an_access_token",
-        routing_plans.get_id("breast-screening-pilot"),
+        routing_plans.get_id("breast-screening-pilot-with-letters"),
         {"nhs_number": "0000000000"},
         expected_batch_id,
     )
     send_message_mock.assert_any_call(
         "an_access_token",
-        routing_plans.get_id("breast-screening-pilot"),
+        routing_plans.get_id("breast-screening-pilot-with-letters"),
         {"nhs_number": "0000000001"},
         expected_batch_id,
     )
@@ -113,7 +113,7 @@ def test_send_messages_with_exception_raised_on_first_item(mocker):
     send_message_mock.side_effect = side_effect
 
     data = {
-        "routing_plan": "breast-screening-pilot",
+        "routing_plan": "breast-screening-pilot-with-letters",
         "recipients": [
             {"nhs_number": "0000000000"},
             {"nhs_number": "0000000001"},
@@ -132,7 +132,7 @@ def test_send_message_success(mocker, setup, message_data, response_text):
     message_reference = "da0b1495-c7cb-468c-9d81-07dee089d728"
     mocker.patch("uuid_generator.uuid4_str", return_value=message_reference)
     access_token = "access_token"
-    routing_plan = "breast-screening-pilot"
+    routing_plan = "breast-screening-pilot-with-letters"
     routing_plan_id = routing_plans.get_id(routing_plan)
     message_data["routing_plan"] = routing_plan
     batch_id = uuid_generator.reference_uuid(json.dumps(message_data))
@@ -159,7 +159,7 @@ def test_send_message_logs_error(mocker, setup, error_response_text, message_dat
     """Test logging and handling of error responses during message sending."""
     mock_recorder = mocker.patch("batch_message_recorder.save_status")
     access_token = "access_token"
-    routing_plan = "breast-screening-pilot"
+    routing_plan = "breast-screening-pilot-with-letters"
     routing_plan_id = routing_plans.get_id(routing_plan)
     batch_id = uuid_generator.reference_uuid(json.dumps(message_data))
     message_reference = "da0b1495-c7cb-468c-9d81-07dee089d728"
