@@ -3,22 +3,20 @@ import logging
 import psycopg2
 from psycopg2 import sql
 
-INSERT_BATCH_MESSAGE = """
-    INSERT INTO batch_messages (
+INSERT_MESSAGE_BATCH = """
+    INSERT INTO message_batches (
         batch_id,
+        batch_reference,
         details,
-        message_reference,
-        nhs_number,
-        recipient_id,
+        response,
         status
     ) VALUES (
         %(batch_id)s,
+        %(batch_reference)s,
         %(details)s,
-        %(message_reference)s,
-        %(nhs_number)s,
-        %(recipient_id)s,
+        %(response)s,
         %(status)s
-    ) RETURNING batch_id, message_reference"""
+    ) RETURNING batch_id"""
 
 INSERT_STATUS = sql.SQL("""
     INSERT INTO {table} (
@@ -41,15 +39,15 @@ STATUS_TABLE_NAMES_BY_TYPE = {
 }
 
 
-def create_batch_message_record(batch_message_data: dict) -> bool | list[str, str]:
+def create_message_batch_record(message_batch_data: dict) -> bool | list[str, str]:
     try:
         with database.connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(INSERT_BATCH_MESSAGE, batch_message_data)
+                cur.execute(INSERT_MESSAGE_BATCH, message_batch_data)
                 return cur.fetchone()
 
     except psycopg2.Error as e:
-        logging.error("Error creating batch message record")
+        logging.error("Error creating message batch record")
         logging.error(f"{type(e).__name__} : {e}")
         return False
 
