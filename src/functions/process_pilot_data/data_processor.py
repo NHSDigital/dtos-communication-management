@@ -45,7 +45,7 @@ def process_data(filename, raw_data) -> str:
 
 def post_body(data: dict) -> dict:
     return {
-        "routing_plan": "breast-screening-pilot",
+        "routing_plan": "breast-screening-pilot-with-letters",
         "recipients": data,
     }
 

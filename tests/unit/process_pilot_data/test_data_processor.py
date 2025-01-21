@@ -26,7 +26,7 @@ def test_process_data_valid_csv(setup):
     ]
 
     expected_request_body = {
-        "routing_plan": "breast-screening-pilot",
+        "routing_plan": "breast-screening-pilot-with-letters",
         "recipients": [
             {
                 "nhs_number": "0000000000",
