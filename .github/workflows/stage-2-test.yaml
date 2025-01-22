@@ -79,6 +79,7 @@ jobs:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: ""
       DATABASE_SSLMODE: "disable"
+      ENV_FILE: ".env.test"
 
     steps:
       - name: "Create test db"
@@ -92,6 +93,10 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev --system
+
+      - name: "Set up test database"
+        run: |
+          alembic upgrade head
 
       - name: "Run unit test suite"
         run: |
@@ -121,6 +126,7 @@ jobs:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: ""
       DATABASE_SSLMODE: "disable"
+      ENV_FILE: ".env.test"
 
     steps:
       - name: "Create test db"
@@ -134,6 +140,10 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev --system
+
+      - name: "Set up test database"
+        run: |
+          alembic upgrade head
 
       - name: "Run integration test suite"
         run: |
