@@ -9,7 +9,7 @@ ENV_FILE=".env.local"
 
 source ${ENV_FILE}
 
-echo "Set up database and migrate to latest version..."
+echo "Migrating database to latest version..."
 ENV_FILE=${ENV_FILE} alembic upgrade head
 
 echo "Starting the API function app..."
