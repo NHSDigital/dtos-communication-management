@@ -79,6 +79,7 @@ jobs:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: ""
       DATABASE_SSLMODE: "disable"
+      ENV_FILE: ".env.test"
 
     steps:
       - name: "Checkout code"
@@ -89,7 +90,7 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
-      - name: "Set up the database"
+      - name: "Set up test database"
         run: |
           alembic upgrade head
 
@@ -121,6 +122,7 @@ jobs:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: ""
       DATABASE_SSLMODE: "disable"
+      ENV_FILE: ".env.test"
 
     steps:
       - name: "Checkout code"
@@ -131,7 +133,7 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
-      - name: "Set up the database"
+      - name: "Set up test database"
         run: |
           alembic upgrade head
 
