@@ -84,6 +84,7 @@ jobs:
       - name: "Create test db"
         run: |
           psql -U postgres -h 127.0.0.1 -d postgres -tc "CREATE DATABASE communication_management_test;"
+          alembic upgrade head
 
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -126,6 +127,7 @@ jobs:
       - name: "Create test db"
         run: |
           psql -U postgres -h 127.0.0.1 -d postgres -tc "CREATE DATABASE communication_management_test;"
+          alemic upgrade head
 
       - name: "Checkout code"
         uses: actions/checkout@v4
