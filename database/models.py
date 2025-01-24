@@ -1,13 +1,6 @@
-from sqlalchemy import (
-    Column,
-    String,
-    Text,
-    TIMESTAMP,
-    JSON,
-    Enum,
-    UUID,
-)
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, ForeignKey, func, Integer, String, Text, TIMESTAMP
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.declarative import declarative_base
 import enum
 
@@ -15,64 +8,86 @@ Base = declarative_base()
 
 
 # Enums
-class BatchMessageStatus(enum.Enum):
+class MessageBatchStatuses(enum.Enum):
+    FAILED = "failed"
     NOT_SENT = "not_sent"
     SENT = "sent"
-    FAILED = "failed"
 
 
-class MessageStatus(enum.Enum):
-    CREATED = "created"
-    PENDING_ENRICHMENT = "pending_enrichment"
-    ENRICHED = "enriched"
-    SENDING = "sending"
+class ChannelStatuses(enum.Enum):
     DELIVERED = "delivered"
-    FAILED = "failed"
-
-
-class ChannelStatus(enum.Enum):
-    DELIVERED = "delivered"
-    READ = "read"
     NOTIFICATION_ATTEMPTED = "notification_attempted"
-    UNNOTIFIED = "unnotified"
-    REJECTED = "rejected"
     NOTIFIED = "notified"
-    RECEIVED = "received"
     PERMANENT_FAILURE = "permanent_failure"
-    TEMPORARY_FAILURE = "temporary_failure"
+    READ = "read"
+    RECEIVED = "received"
+    REJECTED = "rejected"
     TECHNICAL_FAILURE = "technical_failure"
+    TEMPORARY_FAILURE = "temporary_failure"
+    UNNOTIFIED = "unnotified"
+
+
+class MessageStatuses(enum.Enum):
+    CREATED = "created"
+    DELIVERED = "delivered"
+    ENRICHED = "enriched"
+    FAILED = "failed"
+    PENDING_ENRICHMENT = "pending_enrichment"
+    SENDING = "sending"
 
 
 # Tables
-class BatchMessages(Base):
-    __tablename__ = "batch_messages"
+class MessageBatch(Base):
+    __tablename__ = "message_batches"
 
-    batch_id = Column(UUID(as_uuid=True), nullable=False, primary_key=True)
-    created_at = Column(TIMESTAMP, nullable=False, default="NOW()")
-    details = Column(JSON, nullable=True)
-    message_reference = Column(UUID(as_uuid=True), nullable=False, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    batch_id = Column(String, nullable=True)
+    batch_reference = Column(UUID(as_uuid=True), nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+    details = Column(JSONB, nullable=True)
+    response = Column(JSONB, nullable=True)
+    status = Column(
+        postgresql.ENUM(MessageBatchStatuses, values_callable=lambda x: [e.value for e in x]),
+        default=MessageBatchStatuses.NOT_SENT,
+    )
+
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True)
+    batch_id = Column(Integer, ForeignKey("message_batches.id"), nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+    details = Column(JSONB, nullable=True)
+    message_id = Column(String, nullable=False)
+    message_reference = Column(UUID(as_uuid=True), nullable=False)
     nhs_number = Column(Text, nullable=False)
     recipient_id = Column(UUID(as_uuid=True), nullable=False)
-    status = Column(Enum(BatchMessageStatus), default=BatchMessageStatus.NOT_SENT, primary_key=True)
 
 
-class MessageStatuses(Base):
+class ChannelStatus(Base):
+    __tablename__ = "channel_statuses"
+
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+    details = Column(JSONB, nullable=True)
+    idempotency_key = Column(Text, primary_key=True)
+    message_id = Column(String, nullable=True)
+    message_reference = Column(UUID(as_uuid=True), nullable=False)
+    status = Column(
+        postgresql.ENUM(ChannelStatuses, values_callable=lambda x: [e.value for e in x]),
+        nullable=True,
+    )
+
+
+class MessageStatus(Base):
     __tablename__ = "message_statuses"
 
     created_at = Column(TIMESTAMP, nullable=False, default="NOW()")
-    details = Column(JSON, nullable=True)
+    details = Column(JSONB, nullable=True)
     idempotency_key = Column(Text, primary_key=True)
-    message_id = Column(String, default="UNKNOWN")
+    message_id = Column(String, nullable=True)
     message_reference = Column(UUID(as_uuid=True), nullable=False)
-    status = Column(Enum(MessageStatus), default=MessageStatus.CREATED)
-
-
-class ChannelStatuses(Base):
-    __tablename__ = "channel_statuses"
-
-    created_at = Column(TIMESTAMP, nullable=False, default="NOW()")
-    details = Column(JSON, nullable=True)
-    idempotency_key = Column(Text, primary_key=True)
-    message_id = Column(String, default="UNKNOWN")
-    message_reference = Column(UUID(as_uuid=True), nullable=False)
-    status = Column(Enum(ChannelStatus), nullable=True)
+    status = Column(
+        postgresql.ENUM(MessageStatuses, values_callable=lambda x: [e.value for e in x]),
+        default=MessageStatuses.CREATED,
+    )
