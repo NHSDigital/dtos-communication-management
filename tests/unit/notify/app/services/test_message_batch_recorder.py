@@ -10,7 +10,7 @@ def test_save_batch(message_batch_post_body, message_batch_post_response):
     success, response = message_batch_recorder.save_batch(
         message_batch_post_body["data"],
         message_batch_post_response,
-        "sent"
+        models.MessageBatchStatuses.SENT
     )
     assert success
     assert response == "Batch id: 1 saved successfully"
@@ -33,6 +33,27 @@ def test_save_batch(message_batch_post_body, message_batch_post_response):
         merged_messages = message_batch_recorder.merged_messages(message_batch_post_body["data"], message_batch_post_response)
         assert messages[0].details == merged_messages[0]
         assert messages[0].nhs_number == merged_messages[0]["recipient"]["nhsNumber"]
+
+
+def test_save_batch_with_failed_status(message_batch_post_body, message_batch_post_response):
+    """When save_batch is called with a failed status, the batch should still be saved without message records."""
+    success, response = message_batch_recorder.save_batch(
+        message_batch_post_body["data"],
+        message_batch_post_response,
+        models.MessageBatchStatuses.FAILED
+    )
+    assert success
+    assert response == "Batch id: 1 saved successfully"
+
+    with Session(database.engine()) as session:
+        message_batch = session.scalars(select(models.MessageBatch)).all()[0]
+
+        assert len(session.scalars(select(models.Message)).all()) == 0
+        assert message_batch.batch_id == message_batch_post_response["data"]["id"]
+        assert str(message_batch.batch_reference) == message_batch_post_response["data"]["attributes"]["messageBatchReference"]
+        assert message_batch.details == message_batch_post_body["data"]
+        assert message_batch.response == message_batch_post_response
+        assert message_batch.status == models.MessageBatchStatuses.FAILED
 
 
 def test_save_batch_with_errors(message_batch_post_body, message_batch_post_response):

@@ -20,16 +20,17 @@ def save_batch(data, response, status) -> tuple[bool, str]:
             session.add(message_batch)
             session.flush()
 
-            for message in merged_messages(data, response):
-                message = models.Message(
-                    batch_id=message_batch.id,
-                    details=message,
-                    message_id=message["id"],
-                    message_reference=message["messageReference"],
-                    nhs_number=message["recipient"]["nhsNumber"],
-                    recipient_id=uuid_generator.reference_uuid(message["recipient"]["nhsNumber"]),
-                )
-                session.add(message)
+            if status == models.MessageBatchStatuses.SENT:
+                for message in merged_messages(data, response):
+                    message = models.Message(
+                        batch_id=message_batch.id,
+                        details=message,
+                        message_id=message["id"],
+                        message_reference=message["messageReference"],
+                        nhs_number=message["recipient"]["nhsNumber"],
+                        recipient_id=uuid_generator.reference_uuid(message["recipient"]["nhsNumber"]),
+                    )
+                    session.add(message)
 
             session.commit()
 
