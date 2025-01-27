@@ -1,7 +1,10 @@
 #!/bin/bash
 
-source .env.test
-sudo -u ${DATABASE_USER} psql -c "CREATE DATABASE ${DATABASE_NAME};"
+ENV_FILE=".env.test"
+
+source ${ENV_FILE}
+
+ENV_FILE=${ENV_FILE} alembic upgrade head
 
 ./test-setup.sh
 ./test-unit.sh

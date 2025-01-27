@@ -81,10 +81,6 @@ jobs:
       DATABASE_SSLMODE: "disable"
 
     steps:
-      - name: "Create test db"
-        run: |
-          psql -U postgres -h 127.0.0.1 -d postgres -tc "CREATE DATABASE communication_management_test;"
-
       - name: "Checkout code"
         uses: actions/checkout@v4
 
@@ -92,6 +88,10 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev --system
+
+      - name: "Set up the database"
+        run: |
+          alembic upgrade head
 
       - name: "Run unit test suite"
         run: |
@@ -123,10 +123,6 @@ jobs:
       DATABASE_SSLMODE: "disable"
 
     steps:
-      - name: "Create test db"
-        run: |
-          psql -U postgres -h 127.0.0.1 -d postgres -tc "CREATE DATABASE communication_management_test;"
-
       - name: "Checkout code"
         uses: actions/checkout@v4
 
@@ -135,9 +131,14 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
+      - name: "Set up the database"
+        run: |
+          alembic upgrade head
+
       - name: "Run integration test suite"
         run: |
           ./test-integration.sh
+
   test-coverage:
     name: "Test coverage"
     needs: [test-unit]
