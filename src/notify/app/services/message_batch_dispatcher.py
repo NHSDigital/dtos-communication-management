@@ -7,7 +7,7 @@ import requests
 import uuid
 
 
-def dispatch(body: dict) -> tuple[bool, str]:
+def dispatch(body: dict) -> tuple[int, str]:
     response = requests.post(url(), json=body, headers=headers())
     logging.info(f"Response from Notify API {url()}: {response.status_code}")
 
@@ -15,7 +15,7 @@ def dispatch(body: dict) -> tuple[bool, str]:
     status = models.MessageBatchStatuses.SENT if success else models.MessageBatchStatuses.FAILED
     message_batch_recorder.save_batch(body, response.json(), status)
 
-    return success, response.json()
+    return response.status_code, response.json()
 
 
 def headers() -> dict:

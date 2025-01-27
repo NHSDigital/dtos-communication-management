@@ -24,10 +24,10 @@ def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_bod
             json=message_batch_post_response
         )
 
-        success, response = message_batch_dispatcher.dispatch(message_batch_post_body)
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body)
 
         assert adapter.call_count == 1
-        assert success
+        assert status_code == 201
         assert response == message_batch_post_response
 
     assert mock_access_token.call_count == 1
@@ -50,14 +50,14 @@ def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
             "http://example.com/comms/v1/message-batches",
-            status_code=500,
+            status_code=400,
             json={"error": "Bad request"}
         )
 
-        success, response = message_batch_dispatcher.dispatch(message_batch_post_body)
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body)
 
         assert adapter.call_count == 1
-        assert not success
+        assert status_code == 400
         assert response == {"error": "Bad request"}
 
     assert mock_access_token.call_count == 1

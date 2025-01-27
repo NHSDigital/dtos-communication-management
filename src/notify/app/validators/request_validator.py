@@ -37,10 +37,16 @@ def verify_signature(headers: dict, body: dict) -> bool:
 
 def verify_body(body: dict) -> tuple[bool, str]:
     try:
-        schema_type = body["data"][0]["type"]
+        body_data = body["data"]
+
+        if type(body_data) is list:
+            schema_type = body_data[0]["type"]
+        else:
+            schema_type = body_data["type"]
+
         return schema_validator.validate_with_schema(schema_type, body)
-    except KeyError:
-        return False, "Invalid body"
+    except KeyError as e:
+        return False, f"Invalid body: {e}"
 
 
 def signature_secret() -> str:
