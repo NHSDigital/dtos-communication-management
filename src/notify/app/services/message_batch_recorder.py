@@ -4,6 +4,7 @@ import database.models as models
 from itertools import chain
 from sqlalchemy.orm import Session
 import uuid
+import app.utils.uuid_generator as uuid_generator
 
 
 def save_batch(data, response, status) -> tuple[bool, str]:
@@ -26,7 +27,7 @@ def save_batch(data, response, status) -> tuple[bool, str]:
                     message_id=message["id"],
                     message_reference=message["messageReference"],
                     nhs_number=message["recipient"]["nhsNumber"],
-                    recipient_id=str(uuid.uuid4()),
+                    recipient_id=uuid_generator.reference_uuid(message["recipient"]["nhsNumber"]),
                 )
                 session.add(message)
 
