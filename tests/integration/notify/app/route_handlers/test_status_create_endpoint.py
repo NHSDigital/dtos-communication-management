@@ -3,8 +3,6 @@ from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEAD
 from datetime import datetime, timedelta
 import app.utils.database as database
 import app.utils.hmac_signature as hmac_signature
-import hashlib
-import hmac
 import json
 import pytest
 
