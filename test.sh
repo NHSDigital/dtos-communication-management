@@ -3,7 +3,6 @@
 ENV_FILE=".env.test"
 
 source ${ENV_FILE}
-psql -U ${DATABASE_USER} -c "CREATE DATABASE ${DATABASE_NAME};"
 
 ENV_FILE=${ENV_FILE} alembic upgrade head
 

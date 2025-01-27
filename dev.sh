@@ -8,10 +8,8 @@
 ENV_FILE=".env.local"
 
 source ${ENV_FILE}
-echo "Creating database ${DATABASE_NAME}..."
-psql -U ${DATABASE_USER} -c "CREATE DATABASE ${DATABASE_NAME};"
 
-echo "Migrating database to latest version..."
+echo "Set up database and migrate to latest version..."
 ENV_FILE=${ENV_FILE} alembic upgrade head
 
 echo "Starting the API function app..."
