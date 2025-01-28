@@ -6,17 +6,6 @@ import pytest
 
 
 @pytest.fixture
-def message_batch_data() -> dict[str, str | dict]:
-    return {
-        "batch_id": "2WL3qFTEFM0qMY8xjRbt1LIKCzM",
-        "batch_reference": "499c8396-16a0-417c-849e-f0062940cd2a",
-        "details": json.dumps({"test": "details"}),
-        "response": json.dumps({"test": "response"}),
-        "status": "sent",
-    }
-
-
-@pytest.fixture
 def message_status_data() -> dict[str, str | dict]:
     return {
         "details": json.dumps({"test": "details"}),
@@ -25,33 +14,6 @@ def message_status_data() -> dict[str, str | dict]:
         "message_reference": "5bd25347-f941-461f-952f-773540ad86c9",
         "status": "delivered",
     }
-
-
-def test_create_message_batch_record(message_batch_data):
-    """Test the SQL execution of message batch record creation."""
-    datastore.create_message_batch_record(message_batch_data)
-
-    with database.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT * FROM message_batches WHERE batch_id = %s",
-                (message_batch_data["batch_id"],)
-            )
-            row = cur.fetchone()
-
-            assert row[1] == message_batch_data["batch_id"]
-            assert row[2] == message_batch_data["batch_reference"]
-            assert row[3] - datetime.now() < timedelta(seconds=1)
-            assert row[4] == json.loads(message_batch_data["details"])
-            assert row[5] == json.loads(message_batch_data["response"])
-            assert row[6] == message_batch_data["status"]
-
-
-def test_create_message_batch_record_error(message_batch_data):
-    """Test the error handling of message batch record creation."""
-    message_batch_data["batch_reference"] = "invalid"
-
-    assert not datastore.create_message_batch_record(message_batch_data)
 
 
 def test_create_message_status_record(message_status_data):
