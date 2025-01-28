@@ -1,12 +1,15 @@
 import app.utils.database as database
 import dotenv
+import logging
 import os
+import psycopg2
 import pytest
 
 if not bool(os.getenv("CI")):
     dotenv.load_dotenv(".env.test")
 
 
+# Inserts the human readable docstring as the nodeid for the test
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
@@ -19,18 +22,19 @@ def pytest_runtest_makereport(item, call):
         report.nodeid = docstring
 
         location = list(report.location)
-        location[0] = docstring
+        location[0] = f"{docstring} {location[0]}"
         report.location = tuple(location)
 
 
 @pytest.fixture(autouse=True, scope="function")
 def truncate_table():
-    with database.connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("TRUNCATE TABLE batch_messages")
-            cur.execute("TRUNCATE TABLE channel_statuses")
-            cur.execute("TRUNCATE TABLE message_statuses")
-            cur.connection.commit()
+    try:
+        with database.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("TRUNCATE TABLE message_batches, messages, channel_statuses, message_statuses RESTART IDENTITY")
+                cur.connection.commit()
+    except psycopg2.OperationalError as e:
+        logging.error(f"Error: {e}")
 
 
 @pytest.fixture
