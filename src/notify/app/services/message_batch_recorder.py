@@ -3,7 +3,6 @@ from collections import defaultdict
 import database.models as models
 from itertools import chain
 from sqlalchemy.orm import Session
-import uuid
 import app.utils.uuid_generator as uuid_generator
 
 
