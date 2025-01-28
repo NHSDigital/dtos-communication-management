@@ -1,9 +1,9 @@
 from app import create_app
 from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, signature_secret
 from datetime import datetime, timedelta
+import app.models as models
 import app.utils.database as database
 import app.utils.hmac_signature as hmac_signature
-import database.models as models
 import json
 import pytest
 from sqlalchemy.sql.expression import select

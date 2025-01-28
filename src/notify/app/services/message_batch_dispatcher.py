@@ -1,6 +1,6 @@
+import app.models as models
 import app.services.message_batch_recorder as message_batch_recorder
 import app.utils.access_token as access_token
-import database.models as models
 import logging
 import os
 import requests

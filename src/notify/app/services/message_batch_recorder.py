@@ -1,6 +1,6 @@
+import app.models as models
 import app.utils.database as database
 from collections import defaultdict
-import database.models as models
 from itertools import chain
 from sqlalchemy.orm import Session
 import app.utils.uuid_generator as uuid_generator

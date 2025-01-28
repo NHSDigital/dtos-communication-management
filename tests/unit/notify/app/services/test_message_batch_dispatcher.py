@@ -1,5 +1,5 @@
+import app.models as models
 import app.services.message_batch_dispatcher as message_batch_dispatcher
-import database.models as models
 import pytest
 import requests_mock
 
