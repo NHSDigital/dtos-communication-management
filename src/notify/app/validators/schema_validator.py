@@ -5,7 +5,7 @@ import os
 schema_path = os.path.dirname(os.path.abspath(__file__)) + "/schemas/"
 schema = json.load(open(schema_path + "nhs-notify.json"))
 schema_path_identifiers = {
-    "BatchMessage": "/v1/message-batches",
+    "MessageBatch": "/v1/message-batches",
     "ChannelStatus": "/\u003Cclient-provided-channel-status-URI\u003E",
     "MessageStatus": "/\u003Cclient-provided-message-status-URI\u003E",
 }

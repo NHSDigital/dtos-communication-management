@@ -38,6 +38,70 @@ def truncate_table():
 
 
 @pytest.fixture
+def message_batch_post_body():
+    return {
+        "data": {
+            "type": "MessageBatch",
+            "attributes": {
+                "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+                "messages": [
+                    {
+                        "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
+                        "recipient": {
+                            "nhsNumber": "9990548609",
+                            "contactDetails": {
+                                "email": "recipient@nhs.net",
+                                "sms": "07777777777",
+                                "address": {
+                                    "lines": [
+                                        "NHS England",
+                                        "6th Floor",
+                                        "7&8 Wellington Place",
+                                        "Leeds",
+                                        "West Yorkshire"
+                                    ],
+                                    "postcode": "LS1 4AP"
+                                }
+                            }
+                        },
+                        "originator": {
+                            "odsCode": "X26"
+                        },
+                        "personalisation": {}
+                    }
+                ]
+            }
+        }
+    }
+
+
+@pytest.fixture
+def message_batch_post_response():
+    return {
+        "data": {
+            "type": "MessageBatch",
+            "id": "2ZljUiS8NjJNs95PqiYOO7gAfJb",
+            "attributes": {
+                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+                "routingPlan": {
+                    "id": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+                    "name": "Plan Abc",
+                    "version": "ztoe2qRAM8M8vS0bqajhyEBcvXacrGPp",
+                    "createdDate": "2023-11-17T14:27:51.413Z"
+                },
+                "messages": [
+                    {
+                        "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
+                        "id": "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
+                    }
+                ]
+            }
+        }
+    }
+
+
+@pytest.fixture
 def channel_status_post_body():
     return {
         "data": [
