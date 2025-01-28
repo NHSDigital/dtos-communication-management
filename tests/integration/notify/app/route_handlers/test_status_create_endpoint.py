@@ -3,8 +3,11 @@ from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEAD
 from datetime import datetime, timedelta
 import app.utils.database as database
 import app.utils.hmac_signature as hmac_signature
+import database.models as models
 import json
 import pytest
+from sqlalchemy.sql.expression import select
+from sqlalchemy.orm import Session
 
 
 @pytest.fixture
@@ -66,9 +69,11 @@ def test_status_create_saves_records(setup, client, message_status_post_body):
 
     assert response.status_code == 200
 
-    with database.connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM message_statuses")
-            record = cursor.fetchone()
-            assert record[0] - datetime.now() < timedelta(seconds=1)
-            assert record[1] == message_status_post_body
+    with Session(database.engine()) as session:
+        status_record = session.scalars(select(models.MessageStatus)).all()[0]
+        assert status_record.created_at - datetime.now() < timedelta(seconds=1)
+        assert status_record.details == json.dumps(message_status_post_body, sort_keys=True)
+        assert status_record.idempotency_key == message_status_post_body["data"][0]["meta"]["idempotencyKey"]
+        assert status_record.message_id == message_status_post_body["data"][0]["attributes"]["messageId"]
+        assert str(status_record.message_reference) == message_status_post_body["data"][0]["attributes"]["messageReference"]
+        assert status_record.status == models.MessageStatuses(message_status_post_body["data"][0]["attributes"]["messageStatus"])
