@@ -1,5 +1,5 @@
+import app.models as models
 import app.utils.database as database
-import database.models as models
 import json
 import logging
 from sqlalchemy.orm import Session

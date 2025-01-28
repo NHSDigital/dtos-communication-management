@@ -1,6 +1,6 @@
+import app.models as models
 import app.services.message_batch_recorder as message_batch_recorder
 import app.utils.database as database
-import database.models as models
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
 

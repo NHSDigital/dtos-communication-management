@@ -1,12 +1,17 @@
-import os
 from logging.config import fileConfig
-import logging
-import dotenv
 from sqlalchemy import create_engine, pool
 from sqlalchemy_utils import database_exists, create_database
 from alembic import context
-from database.models import Base
 import alembic_postgresql_enum
+import dotenv
+import logging
+import os
+import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(SCRIPT_DIR) + "/src/notify/")
+
+from app.models import Base
 
 # Load environment variables
 dotenv.load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env.local"))
