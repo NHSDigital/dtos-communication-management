@@ -1,34 +1,29 @@
-import app.services.datastore as datastore
+import app.utils.database as database
+import database.models as models
 import json
 import logging
+from sqlalchemy.orm import Session
 
 
 def save_statuses(request_body: dict) -> bool:
-    statuses: list[dict] = status_params(request_body)
-    status_type = request_body["data"][0]["type"]
+    try:
+        with Session(database.engine()) as session:
+            for status_data in request_body["data"]:
+                status_model = models.ChannelStatus if status_data["type"] == "ChannelStatus" else models.MessageStatus
+                meta = status_data["meta"]
+                attributes = status_data["attributes"]
 
-    for status in statuses:
-        datastore.create_status_record(status_type, status)
+                session.add(status_model(
+                    details=json.dumps(request_body, sort_keys=True),
+                    idempotency_key=meta["idempotencyKey"],
+                    message_id=attributes["messageId"],
+                    message_reference=attributes["messageReference"],
+                    status=attributes.get("messageStatus", attributes.get("channelStatus")),
+                ))
 
-    return True
+            session.commit()
 
-
-def status_params(request_body: dict) -> list[dict]:
-    params = []
-    for status_data in request_body["data"]:
-        try:
-            attributes = status_data["attributes"]
-            meta = status_data["meta"]
-            params.append({
-                "details": json.dumps(request_body),
-                "idempotency_key": meta["idempotencyKey"],
-                "message_id": attributes["messageId"],
-                "message_reference": attributes["messageReference"],
-                "status": attributes.get("messageStatus", attributes.get("channelStatus")),
-            })
-        except KeyError as e:
-            logging.error(f"Missing required field: {e}")
-            logging.error(f"Request body: {request_body}")
-            continue
-
-    return params
+        return True
+    except Exception as e:
+        logging.error(f"Error saving statuses: {e}")
+        return False
