@@ -20,4 +20,3 @@ RUN pip install pipenv
 RUN pipenv install --system
 
 COPY . /home/site/wwwroot
-COPY --from=root_dir ./database/schema.sql /home/site/wwwroot/database/schema.sql
