@@ -1,8 +1,13 @@
 import azure.functions as func
 from app import create_app
+import dotenv
+import os
 
 funcapp = func.FunctionApp()
 flaskapp = create_app()
+
+if "ENV_FILE" in os.environ:
+    dotenv.load_dotenv(os.environ["ENV_FILE"])
 
 
 @funcapp.route(
