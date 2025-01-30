@@ -1,4 +1,3 @@
-import hashlib
 import hmac
 import json
 import os
@@ -9,12 +8,12 @@ API_KEY_HEADER_NAME = 'x-api-key'
 SIGNATURE_HEADER_NAME = 'x-hmac-sha256-signature'
 
 
-def verify_headers(headers: dict) -> tuple[bool, str]:
+def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
     lc_headers = header_keys_to_lower(headers)
     if lc_headers.get(API_KEY_HEADER_NAME) is None:
         return False, "Missing API key header"
 
-    if lc_headers.get(API_KEY_HEADER_NAME) != os.getenv('NOTIFY_API_KEY'):
+    if lc_headers.get(API_KEY_HEADER_NAME) != api_key:
         return False, "Invalid API key"
 
     if lc_headers.get(SIGNATURE_HEADER_NAME) is None:
@@ -23,11 +22,11 @@ def verify_headers(headers: dict) -> tuple[bool, str]:
     return True, ""
 
 
-def verify_signature(headers: dict, body: dict) -> bool:
+def verify_signature(headers: dict, body: dict, signature: str) -> bool:
     lc_headers = header_keys_to_lower(headers)
     body_str = json.dumps(body, sort_keys=True)
 
-    expected_signature = hmac_signature.create_digest(signature_secret(), body_str)
+    expected_signature = hmac_signature.create_digest(signature, body_str)
 
     return hmac.compare_digest(
         expected_signature,
