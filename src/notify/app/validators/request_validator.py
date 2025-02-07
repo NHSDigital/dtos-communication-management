@@ -46,7 +46,7 @@ def verify_body(body: dict) -> tuple[bool, str]:
             schema_type = body_data[0]["type"]
 
             # Verify all items have same type
-            if not all(item.type == schema_type for item in body_data):
+            if not all(item.get("type") == schema_type for item in body_data):
                 return False, "All items must have the same type"
         else:
             schema_type = body_data["type"]
