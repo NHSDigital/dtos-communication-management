@@ -81,11 +81,43 @@ def test_verify_body_mixed_types(setup):
 def test_verify_body_valid_list(setup):
     """Test that a list with same types passes verification."""
     body = {
-        "data": [
-            {"type": "MessageBatch", "content": "test1"},
-            {"type": "MessageBatch", "content": "test2"}
-        ]
+        "data": [{
+            "type": "MessageBatch",
+            "attributes": {
+                "messageReference": "REF123",
+                "routingPlanId": "PLAN123",
+                "recipient": {
+                    "nhsNumber": "1234567890",
+                    "dateOfBirth": "1990-01-01",
+                },
+                "personalisation": {
+                    "appointment_date": "2024-03-20",
+                    "appointment_location": "City Hospital",
+                    "appointment_time": "14:30",
+                    "tracking_id": "1234567890",
+                    "contact_telephone_number": "07700900001",
+                },
+            },
+        },{
+            "type": "MessageBatch",
+            "attributes": {
+                "messageReference": "REF234",
+                "routingPlanId": "PLAN234",
+                "recipient": {
+                    "nhsNumber": "1234567891",
+                    "dateOfBirth": "1990-01-01",
+                },
+                "personalisation": {
+                    "appointment_date": "2024-03-21",
+                    "appointment_location": "City Hospital",
+                    "appointment_time": "14:30",
+                    "tracking_id": "1234567891",
+                    "contact_telephone_number": "07700900001",
+                },
+            },
+        }]
     }
+
     assert request_validator.verify_body(body)[0] == True
 
 
