@@ -59,3 +59,41 @@ def test_verify_headers_invalid_api_key(setup):
     """Test that an invalid API key fails verification."""
     headers = {request_validator.API_KEY_HEADER_NAME: 'invalid_api_key'}
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Invalid API key')
+
+
+def test_verify_body_empty_data_list(setup):
+    """Test that an empty data list fails verification."""
+    body = {"data": []}
+    assert request_validator.verify_body(body) == (False, "Empty data list")
+
+
+def test_verify_body_mixed_types(setup):
+    """Test that a list with mixed types fails verification."""
+    body = {
+        "data": [
+            {"type": "MessageBatch", "content": "test"},
+            {"type": "Message", "content": "test"}
+        ]
+    }
+    assert request_validator.verify_body(body) == (False, "All items must have the same type")
+
+
+def test_verify_body_valid_list(setup):
+    """Test that a list with same types passes verification."""
+    body = {
+        "data": [
+            {"type": "MessageBatch", "content": "test1"},
+            {"type": "MessageBatch", "content": "test2"}
+        ]
+    }
+    assert request_validator.verify_body(body)[0] == True
+
+
+def test_verify_body_missing_type(setup):
+    """Test that missing type field fails verification."""
+    body = {
+        "data": [
+            {"content": "test"}
+        ]
+    }
+    assert request_validator.verify_body(body) == (False, "Invalid body: 'type'")
