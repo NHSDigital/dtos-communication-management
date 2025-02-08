@@ -35,27 +35,16 @@ def verify_signature(headers: dict, body: dict, signature: str) -> bool:
 
 
 def verify_body(body: dict) -> tuple[bool, str]:
+    """Verify the request body against the schema."""
     try:
         body_data = body["data"]
+        if not isinstance(body_data, dict):
+            return False, "Data must be an object"
 
-        if isinstance(body_data, list):
-            if not body_data:
-                return False, "Empty data list"
-
-            # Get first item's type
-            schema_type = body_data[0]["type"]
-
-            # Verify all items have same type
-            if not all(item.get("type") == schema_type for item in body_data):
-                return False, "All items must have the same type"
-        else:
-            schema_type = body_data["type"]
-
+        schema_type = body_data["type"]
         return schema_validator.validate_with_schema(schema_type, body)
     except KeyError as e:
         return False, f"Invalid body: {e}"
-    except IndexError:
-        return False, "Invalid body: empty data list"
 
 
 def signature_secret() -> str:

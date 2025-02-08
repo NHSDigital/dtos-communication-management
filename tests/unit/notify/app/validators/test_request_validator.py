@@ -61,97 +61,53 @@ def test_verify_headers_invalid_api_key(setup):
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Invalid API key')
 
 
-def test_verify_body_empty_data_list(setup):
-    """Test that an empty data list fails verification."""
-    body = {"data": []}
-    assert request_validator.verify_body(body) == (False, "Empty data list")
-
-
-def test_verify_body_mixed_types(setup):
-    """Test that a list with mixed types fails verification."""
-    body = {
-        "data": [
-            {
-                "type": "MessageBatch",
-                "attributes": {
-                    "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-                    "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
-                    "messages": [{
-                        "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
-                        "recipient": {
-                            "nhsNumber": "9990548609",
-                            "dateOfBirth": "1990-01-01"
-                        }
-                    }]
-                }
-            },
-            {
-                "type": "Message",  # Different type
-                "attributes": {
-                    "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-                    "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d729",
-                    "messages": [{
-                        "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1576",
-                        "recipient": {
-                            "nhsNumber": "9990548610",
-                            "dateOfBirth": "1990-01-01"
-                        }
-                    }]
-                }
-            }
-        ]
-    }
-    assert request_validator.verify_body(body) == (False, "All items must have the same type")
-
-
-def test_verify_body_valid_list(setup):
-    """Test that a list with same types passes verification."""
-    body = {
-        "data": [{
-            "type": "MessageBatch",
-            "attributes": {
-                "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
-                "messages": [{
-                    "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
-                    "recipient": {
-                        "nhsNumber": "9990548609",
-                        "dateOfBirth": "1990-01-01"
-                    },
-                    "personalisation": {
-                        "appointment_date": "2024-03-20",
-                        "appointment_location": "City Hospital"
-                    }
-                }]
-            }
-        },{
-            "type": "MessageBatch",
-            "attributes": {
-                "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
-                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d729",
-                "messages": [{
-                    "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1576",
-                    "recipient": {
-                        "nhsNumber": "9990548610",
-                        "dateOfBirth": "1990-01-01"
-                    },
-                    "personalisation": {
-                        "appointment_date": "2024-03-21",
-                        "appointment_location": "City Hospital"
-                    }
-                }]
-            }
-        }]
-    }
-
-    assert request_validator.verify_body(body)[0] == True
+def test_verify_body_empty_object(setup):
+    """Test that an empty data object fails verification."""
+    body = {"data": {}}
+    assert request_validator.verify_body(body) == (False, "Invalid body: 'type'")
 
 
 def test_verify_body_missing_type(setup):
     """Test that missing type field fails verification."""
     body = {
-        "data": [
+        "data":
             {"content": "test"}
-        ]
     }
     assert request_validator.verify_body(body) == (False, "Invalid body: 'type'")
+
+
+def test_verify_body_valid_batch(setup):
+    """Test that a batch with multiple messages passes verification."""
+    body = {
+        "data": {  # Single message batch
+            "type": "MessageBatch",
+            "attributes": {
+                "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+                "messages": [  # Multiple messages in the batch
+                    {
+                        "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
+                        "recipient": {
+                            "nhsNumber": "9990548609"
+                        },
+                        "personalisation": {
+                            "appointment_date": "2024-03-20",
+                            "appointment_location": "City Hospital"
+                        }
+                    },
+                    {
+                        "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1576",
+                        "recipient": {
+                            "nhsNumber": "9990548610"
+                        },
+                        "personalisation": {
+                            "appointment_date": "2024-03-21",
+                            "appointment_location": "City Hospital"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    assert request_validator.verify_body(body) == (True, "")
