@@ -35,14 +35,13 @@ def verify_signature(headers: dict, body: dict, signature: str) -> bool:
 
 
 def verify_body(body: dict) -> tuple[bool, str]:
+    """Verify the request body against the schema."""
     try:
         body_data = body["data"]
+        if not isinstance(body_data, dict):
+            return False, "Data must be an object"
 
-        if type(body_data) is list:
-            schema_type = body_data[0]["type"]
-        else:
-            schema_type = body_data["type"]
-
+        schema_type = body_data["type"]
         return schema_validator.validate_with_schema(schema_type, body)
     except KeyError as e:
         return False, f"Invalid body: {e}"
