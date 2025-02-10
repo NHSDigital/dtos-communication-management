@@ -11,13 +11,20 @@ schema_path_identifiers = {
 }
 
 
-def validate_with_schema(schema_type: str, data: dict) -> tuple[bool, str]:
-    """Validate against the specified schema."""
+def validate_with_schema(data: dict) -> tuple[bool, str]:
+    """Validate against the relevant schema."""
     try:
+        schema_type = type_of_request(data["data"])
         validate(instance=data, schema=schema_for_type(schema_type))
         return True, ""
     except ValidationError as e:
         return False, e.message
+    except KeyError as e:
+        return False, f"Invalid body: {e}"
+
+
+def type_of_request(data: dict) -> str:
+    return data[0]["type"] if type(data) is list else data["type"]
 
 
 def schema_for_type(schema_type: str):
