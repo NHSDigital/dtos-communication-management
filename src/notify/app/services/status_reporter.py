@@ -11,6 +11,7 @@ def get_statuses(query_params):
     query = select(model)
 
     query = filter_on_batch_reference(query, query_params)
+    query = filter_on_nhs_number(query, query_params)
     query = filter_on_created_at(query, query_params)
     query = filter_on_status_clause(query, query_params)
 
@@ -33,6 +34,17 @@ def filter_on_batch_reference(query, query_params):
             models.MessageBatch, models.MessageBatch.id == models.Message.batch_id
         ).where(
             models.MessageBatch.batch_reference == query_params.get("batchReference")
+        )
+
+    return query
+
+
+def filter_on_nhs_number(query, query_params):
+    if query_params.get("nhsNumber"):
+        query = query.join(
+            models.Message, models.Message.message_id == models.ChannelStatus.message_id
+        ).where(
+            models.Message.nhs_number == query_params.get("nhsNumber")
         )
 
     return query
