@@ -46,7 +46,6 @@ def test_status_create_body_validation_fails(setup, client, message_status_post_
     assert response.get_json() == {"status": "'invalid' is not one of ['created', 'pending_enrichment', 'enriched', 'sending', 'delivered', 'failed']"}
 
 
-
 def test_status_create_request_validation_succeeds(setup, client, message_status_post_body):
     """Test that valid request header values pass HMAC signature validation."""
     signature = hmac_signature.create_digest(signature_secret(), json.dumps(message_status_post_body, sort_keys=True))
@@ -72,7 +71,7 @@ def test_status_create_saves_records(setup, client, message_status_post_body):
     with Session(database.engine()) as session:
         status_record = session.scalars(select(models.MessageStatus)).all()[0]
         assert status_record.created_at - datetime.now() < timedelta(seconds=1)
-        assert status_record.details == json.dumps(message_status_post_body, sort_keys=True)
+        assert status_record.details == message_status_post_body
         assert status_record.idempotency_key == message_status_post_body["data"][0]["meta"]["idempotencyKey"]
         assert status_record.message_id == message_status_post_body["data"][0]["attributes"]["messageId"]
         assert str(status_record.message_reference) == message_status_post_body["data"][0]["attributes"]["messageReference"]
