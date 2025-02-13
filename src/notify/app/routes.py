@@ -20,3 +20,8 @@ def message_batch():
 @api.route("/status/create", methods=["POST"])
 def create_status():
     return app.route_handlers.status.create()
+
+
+@api.route("/statuses", methods=["GET"])
+def get_statuses():
+    return app.route_handlers.status.get()

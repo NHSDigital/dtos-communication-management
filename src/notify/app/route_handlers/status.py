@@ -1,6 +1,8 @@
 from flask import request
 import app.validators.request_validator as request_validator
+import app.presenters.channel_status_presenter as status_presenter
 import app.services.status_recorder as status_recorder
+import app.services.status_reporter as status_reporter
 import os
 
 
@@ -23,6 +25,20 @@ def create():
 
     if status_recorder.save_statuses(json_data):
         return {"status": "success"}, 200
+
+
+def get():
+    valid_headers, error_message = request_validator.verify_headers(
+        dict(request.headers), str(os.getenv("CLIENT_API_KEY"))
+    )
+
+    if not valid_headers:
+        return {"status": error_message}, 401
+
+    statuses = status_reporter.get_statuses(request.args)
+    statuses_as_json = [status_presenter.as_json(status) for status in statuses]
+
+    return {"status": "success", "data": statuses_as_json}, 200
 
 
 def signature_secret() -> str:

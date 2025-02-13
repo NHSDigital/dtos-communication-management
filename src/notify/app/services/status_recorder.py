@@ -14,7 +14,7 @@ def save_statuses(request_body: dict) -> bool:
                 attributes = status_data["attributes"]
 
                 session.add(status_model(
-                    details=json.dumps(request_body, sort_keys=True),
+                    details=request_body,
                     idempotency_key=meta["idempotencyKey"],
                     message_id=attributes["messageId"],
                     message_reference=attributes["messageReference"],
