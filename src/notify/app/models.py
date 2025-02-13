@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, func, Integer, String, Text, TIMESTAM
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.declarative import declarative_base
+from dataclasses import dataclass
 import enum
 
 Base = declarative_base()
@@ -65,6 +66,7 @@ class Message(Base):
     recipient_id = Column(UUID(as_uuid=True), nullable=False)
 
 
+@dataclass
 class ChannelStatus(Base):
     __tablename__ = "channel_statuses"
 
