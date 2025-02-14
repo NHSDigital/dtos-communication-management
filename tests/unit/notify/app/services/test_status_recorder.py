@@ -13,7 +13,7 @@ def test_save_statuses_with_channel_status_data(channel_status_post_body):
 
     with Session(database.engine()) as session:
         status_record = session.scalars(select(models.ChannelStatus)).all()[0]
-        assert status_record.details == json.dumps(channel_status_post_body, sort_keys=True)
+        assert status_record.details == channel_status_post_body
         assert status_record.idempotency_key == channel_status_data["meta"]["idempotencyKey"]
         assert status_record.message_id == channel_status_data["attributes"]["messageId"]
         assert str(status_record.message_reference) == channel_status_data["attributes"]["messageReference"]
@@ -27,7 +27,7 @@ def test_save_statuses_with_message_status_data(message_status_post_body):
 
     with Session(database.engine()) as session:
         status_record = session.scalars(select(models.MessageStatus)).all()[0]
-        assert status_record.details == json.dumps(message_status_post_body, sort_keys=True)
+        assert status_record.details == message_status_post_body
         assert status_record.idempotency_key == message_status_data["meta"]["idempotencyKey"]
         assert status_record.message_id == message_status_data["attributes"]["messageId"]
         assert str(status_record.message_reference) == message_status_data["attributes"]["messageReference"]
