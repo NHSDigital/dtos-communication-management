@@ -57,7 +57,7 @@ def message_batch_body(filename, raw_data) -> dict | None:
 
     if messages_data:
         body = message_batch(routing_plan_id, message_batch_reference, messages_data)
-        if schema_validator.validate_with_schema("MessageBatch", body):
+        if schema_validator.validate_with_schema(body):
             return body
 
 

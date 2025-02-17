@@ -100,7 +100,7 @@ def test_statuses_for_multiple_criteria_are_found(channel_status_post_body):
 
 def test_statuses_for_nhs_number_are_found(channel_status_post_body, message_batch_post_body, message_batch_post_response):
     """Test searching channel status records by NHS number"""
-    message_batch_recorder.save_batch(message_batch_post_body["data"], message_batch_post_response, models.MessageBatchStatuses.SENT)
+    message_batch_recorder.save_batch(message_batch_post_body, message_batch_post_response, models.MessageBatchStatuses.SENT)
     status_recorder.save_statuses(channel_status_post_body)
 
     query_params = {"nhsNumber": "9990548609"}
@@ -111,7 +111,7 @@ def test_statuses_for_nhs_number_are_found(channel_status_post_body, message_bat
 
 def test_statuses_for_batch_reference_are_found(message_batch_post_body, message_batch_post_response, channel_status_post_body):
     """Test searching channel status records by batch reference"""
-    message_batch_recorder.save_batch(message_batch_post_body["data"], message_batch_post_response, models.MessageBatchStatuses.SENT)
+    message_batch_recorder.save_batch(message_batch_post_body, message_batch_post_response, models.MessageBatchStatuses.SENT)
     status_recorder.save_statuses(channel_status_post_body)
 
     another_message_batch_reference = str(uuid.uuid4())
@@ -120,7 +120,7 @@ def test_statuses_for_batch_reference_are_found(message_batch_post_body, message
     another_message_batch_post_response = message_batch_post_response.copy()
     another_message_batch_post_response["data"]["attributes"]["messages"][0]["id"] = "another_message_id"
     another_message_batch_post_response["data"]["attributes"]["messageBatchReference"] = another_message_batch_reference
-    message_batch_recorder.save_batch(another_message_batch_post_body["data"], another_message_batch_post_response, models.MessageBatchStatuses.SENT)
+    message_batch_recorder.save_batch(another_message_batch_post_body, another_message_batch_post_response, models.MessageBatchStatuses.SENT)
 
     another_channel_status_post_body = channel_status_post_body.copy()
     another_channel_status_post_body["data"][0]["attributes"]["messageId"] = another_message_batch_post_response["data"]["attributes"]["messages"][0]["id"]
