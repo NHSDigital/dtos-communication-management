@@ -164,3 +164,59 @@ def message_status_post_body():
             }
         ]
     }
+
+
+@pytest.fixture
+def csv_data():
+    return [
+        'UNUSED_STAGE_COLUMN,0000000000,987654,"BLAKE, KYLIE, MRS",03M02M2001,EP700,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
+        'UNUSED_STAGE_COLUMN,1111111111,987654,"BLAKE, KAREN, MRS",04M04M2002,EP700,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
+    ]
+
+
+# The message_batch_body function should return the following dictionary for the above CSV data:
+@pytest.fixture
+def expected_message_batch_body():
+    return {
+        "data": {
+            "type": "MessageBatch",
+            "attributes": {
+                "messageBatchReference": "c022d875-221e-a913-9494-d69fb5835145",
+                "routingPlanId": "f134ef50-3d4d-4fc5-8fab-19087a84349f",
+                "messages": [
+                    {
+                        "messageReference": "24be387c-8d22-f5ba-ee53-4dbcafec576a",
+                        "recipient": {
+                            "nhsNumber": "0000000000",
+                        },
+                        "originator": {
+                            "odsCode": "X26"
+                        },
+                        "personalisation": {
+                            "appointment_date": "Thursday 03 February 2022",
+                            "appointment_location": "The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ",
+                            "appointment_time": "10:00am",
+                            "contact_telephone_number": "020 3758 2024",
+                            "tracking_id": "0000000000"
+                        }
+                    },
+                    {
+                        "messageReference": "b212fb30-1414-d6ac-92a0-431b2d4b77c5",
+                        "recipient": {
+                            "nhsNumber": "1111111111",
+                        },
+                        "originator": {
+                            "odsCode": "X26"
+                        },
+                        "personalisation": {
+                            "appointment_date": "Thursday 04 April 2024",
+                            "appointment_location": "The Epping Breast Screening Unit, St Margaret's Hospital, The Plain, Epping, Essex, CM16 6TN",
+                            "appointment_time": "11:00am",
+                            "contact_telephone_number": "020 3758 2024",
+                            "tracking_id": "1111111111"
+                        }
+                    }
+                ]
+            }
+        }
+    }
