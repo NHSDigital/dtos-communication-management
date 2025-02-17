@@ -26,20 +26,23 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(), nullable=False, server_default=sa.text('NOW()')),
     sa.Column('details', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
     sa.Column('idempotency_key', sa.Text(), nullable=False),
-    sa.Column('message_id', sa.String(), nullable=True),
+    sa.Column('message_id', sa.String(), nullable=False),
     sa.Column('message_reference', sa.UUID(), nullable=False),
     sa.Column('status', postgresql.ENUM('delivered', 'notification_attempted', 'notified', 'permanent_failure', 'read', 'received', 'rejected', 'technical_failure', 'temporary_failure', 'unnotified', name='channelstatuses', create_type=False), nullable=True),
     sa.PrimaryKeyConstraint('idempotency_key')
     )
+    sa.ForeignKeyConstraint(['message_id'], ['messages.message_id'], ),
+
     op.create_table('message_statuses',
     sa.Column('created_at', sa.TIMESTAMP(), nullable=False, server_default=sa.text('NOW()')),
     sa.Column('details', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
     sa.Column('idempotency_key', sa.Text(), nullable=False),
-    sa.Column('message_id', sa.String(), nullable=True),
+    sa.Column('message_id', sa.String(), nullable=False),
     sa.Column('message_reference', sa.UUID(), nullable=False),
     sa.Column('status', postgresql.ENUM('created', 'delivered', 'enriched', 'failed', 'pending_enrichment', 'sending', name='messagestatuses', create_type=False), nullable=True),
     sa.PrimaryKeyConstraint('idempotency_key')
     )
+    sa.ForeignKeyConstraint(['message_id'], ['messages.message_id'], ),
     # ### end Alembic commands ###
 
 

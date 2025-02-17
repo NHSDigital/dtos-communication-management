@@ -71,7 +71,7 @@ class ChannelStatus(Base):
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     details = Column(JSONB, nullable=True)
     idempotency_key = Column(Text, primary_key=True)
-    message_id = Column(String, nullable=True)
+    message_id = Column(String, ForeignKey("messages.message_id"), nullable=False)
     message_reference = Column(UUID(as_uuid=True), nullable=False)
     status = Column(
         postgresql.ENUM(ChannelStatuses, values_callable=lambda x: [e.value for e in x]),
@@ -85,7 +85,7 @@ class MessageStatus(Base):
     created_at = Column(TIMESTAMP, nullable=False, default="NOW()")
     details = Column(JSONB, nullable=True)
     idempotency_key = Column(Text, primary_key=True)
-    message_id = Column(String, nullable=True)
+    message_id = Column(String, ForeignKey("messages.message_id"), nullable=False)
     message_reference = Column(UUID(as_uuid=True), nullable=False)
     status = Column(
         postgresql.ENUM(MessageStatuses, values_callable=lambda x: [e.value for e in x]),
