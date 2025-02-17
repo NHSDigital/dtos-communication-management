@@ -12,7 +12,7 @@ def test_statuses_for_supplier_status_are_found(channel_status_post_body):
     status_recorder.save_statuses(channel_status_post_body)
 
     another_nhsapp_channel_status = channel_status_post_body.copy()
-    another_nhsapp_channel_status["data"][0]["attributes"]["supplierStatus"] = "read"
+    another_nhsapp_channel_status["data"][0]["attributes"]["supplierStatus"] = "notified"
     another_nhsapp_channel_status["data"][0]["meta"]["idempotencyKey"] = sha256(b"another_idempotency_key").hexdigest()
     status_recorder.save_statuses(another_nhsapp_channel_status)
 
@@ -85,7 +85,6 @@ def test_statuses_for_created_before_are_found(channel_status_post_body):
 
 def test_statuses_for_multiple_criteria_are_found(channel_status_post_body):
     """Test searching channel status records by multiple criteria"""
-    channel_status_post_body["data"][0]["attributes"]["supplierStatus"] = "read"
     status_recorder.save_statuses(channel_status_post_body)
 
     query_params = {"channel": "nhsapp", "channelStatus": "delivered", "supplierStatus": "read", "createdAfter": "2025-01-01T00:00:00Z"}
@@ -112,7 +111,6 @@ def test_statuses_for_nhs_number_are_found(channel_status_post_body, message_bat
 
 def test_statuses_for_batch_reference_are_found(message_batch_post_body, message_batch_post_response, channel_status_post_body):
     """Test searching channel status records by batch reference"""
-    channel_status_post_body["data"][0]["attributes"]["supplierStatus"] = "read"
     message_batch_recorder.save_batch(message_batch_post_body["data"], message_batch_post_response, models.MessageBatchStatuses.SENT)
     status_recorder.save_statuses(channel_status_post_body)
 
