@@ -2,17 +2,18 @@ import app.models as models
 import app.utils.database as database
 from collections import defaultdict
 from itertools import chain
+import logging
 from sqlalchemy.orm import Session
 import app.utils.uuid_generator as uuid_generator
 
 
-def save_batch(data, response, status) -> tuple[bool, str]:
+def save_batch(body, response, status) -> tuple[bool, str]:
     try:
         with Session(database.engine(), expire_on_commit=False) as session:
             message_batch = models.MessageBatch(
                 batch_id=response["data"]["id"],
                 batch_reference=response["data"]["attributes"]["messageBatchReference"],
-                details=data,
+                details=body,
                 response=response,
                 status=status,
             )
@@ -20,7 +21,7 @@ def save_batch(data, response, status) -> tuple[bool, str]:
             session.flush()
 
             if status == models.MessageBatchStatuses.SENT:
-                for message in merged_messages(data, response):
+                for message in merged_messages(body, response):
                     message = models.Message(
                         batch_id=message_batch.id,
                         details=message,
@@ -35,12 +36,13 @@ def save_batch(data, response, status) -> tuple[bool, str]:
 
         return True, f"Batch id: {message_batch.id} saved successfully"
     except Exception as e:
+        logging.error(f"Failed to save batch: {e}")
         return False, str(e)
 
 
 def merged_messages(data: dict, response: dict) -> list[dict]:
     message_chain = chain(
-        data["attributes"]["messages"],
+        data["data"]["attributes"]["messages"],
         response["data"]["attributes"]["messages"]
     )
     collector = defaultdict(dict)
