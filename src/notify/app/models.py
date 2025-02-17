@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, func, Integer, String, Text, TIMESTAMP
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 import enum
 
 Base = declarative_base()
