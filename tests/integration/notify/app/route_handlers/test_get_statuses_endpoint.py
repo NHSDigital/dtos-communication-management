@@ -34,7 +34,7 @@ def test_get_statuses(setup, client, channel_status_post_body):
     status_recorder.save_statuses(channel_status_post_body)
     query_params = {
         "channel": "nhsapp",
-        "channelStatus": "delivered",
+        "supplierStatus": "read",
     }
 
     headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature"}
@@ -47,6 +47,6 @@ def test_get_statuses(setup, client, channel_status_post_body):
     assert len(response_json["data"]) == 1
     assert response_json["data"][0]["channel"] == "nhsapp"
     assert response_json["data"][0]["channelStatus"] == "delivered"
-    assert response_json["data"][0]["supplierStatus"] == "delivered"
+    assert response_json["data"][0]["supplierStatus"] == "read"
     assert response_json["data"][0]["message_id"] == "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
     assert response_json["data"][0]["message_reference"] == "1642109b-69eb-447f-8f97-ab70a74f5db4"

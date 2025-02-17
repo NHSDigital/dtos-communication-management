@@ -17,7 +17,7 @@ def test_save_statuses_with_channel_status_data(channel_status_post_body):
         assert status_record.idempotency_key == channel_status_data["meta"]["idempotencyKey"]
         assert status_record.message_id == channel_status_data["attributes"]["messageId"]
         assert str(status_record.message_reference) == channel_status_data["attributes"]["messageReference"]
-        assert status_record.status == models.ChannelStatuses(channel_status_data["attributes"]["channelStatus"])
+        assert status_record.status == models.ChannelStatuses(channel_status_data["attributes"]["supplierStatus"])
 
 
 def test_save_statuses_with_message_status_data(message_status_post_body):

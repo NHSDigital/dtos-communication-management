@@ -115,7 +115,7 @@ def channel_status_post_body():
                     "channel": "nhsapp",
                     "channelStatus": "delivered",
                     "channelStatusDescription": " ",
-                    "supplierStatus": "delivered",
+                    "supplierStatus": "read",
                     "timestamp": "2023-11-17T14:27:51.413Z",
                     "retryCount": 1
                 },

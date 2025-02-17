@@ -18,7 +18,7 @@ def save_statuses(request_body: dict) -> bool:
                     idempotency_key=meta["idempotencyKey"],
                     message_id=attributes["messageId"],
                     message_reference=attributes["messageReference"],
-                    status=attributes.get("messageStatus", attributes.get("channelStatus")),
+                    status=attributes.get("messageStatus", attributes.get("supplierStatus")),
                 ))
 
             session.commit()
