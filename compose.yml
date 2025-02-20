@@ -1,40 +1,19 @@
 name: communication-management
 
 services:
-  db:
-    image: postgres
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_DB=${DATABASE_NAME}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_USER=${DATABASE_USER}
-      - SSLMODE=${DATABASE_SSLMODE}
-    volumes:
-      - ./pgdata:/var/lib/postgresql/pgdata
-    profiles:
-      - dev
-
   notify:
     container_name: notify
-    network_mode: host
     build:
       context: ./src/notify
       dockerfile: Dockerfile
       additional_contexts:
         root_dir: .
     environment:
-      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - APPLICATION_ID=${APPLICATION_ID}
-      - ASPNETCORE_URLS=http://*:7072
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+      - CLIENT_API_KEY=${CLIENT_API_KEY}
+      - CLIENT_APPLICATION_ID=${CLIENT_APPLICATION_ID}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -46,5 +25,98 @@ services:
       - OAUTH2_API_KID=${OAUTH2_API_KID}
       - OAUTH2_TOKEN_URL=${OAUTH2_TOKEN_URL}
       - PRIVATE_KEY=${PRIVATE_KEY}
+    ports:
+      - 7071:7071
     volumes:
-      - ./log/function/communication-management:/tmp/Functions/Host
+      - ./log/function/notify:/tmp/Functions/Host
+
+  azurite:
+    container_name: azurite
+    command: "azurite --loose --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001"
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
+    profiles:
+      - test-end-to-end
+
+  azurite-setup:
+    build:
+      context: ./
+      dockerfile: ./dependencies/azurite/Dockerfile
+    depends_on:
+      - azurite
+    environment:
+      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
+      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+    profiles:
+      - test-end-to-end
+
+  db:
+    container_name: db
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - SSLMODE=${DATABASE_SSLMODE}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    image: postgres
+    ports:
+      - 5432:5432
+    profiles:
+      - test-end-to-end
+    restart: always
+    volumes:
+      - ./pgdata:/var/lib/postgresql/pgdata
+
+  nhs-notify-api-stub:
+    build:
+      context: tests/end_to_end/nhs_notify_api_stub
+      target: builder
+    container_name: nhs-notify-api
+    # flask requires SIGINT to stop gracefully
+    # (default stop signal from Compose is SIGTERM)
+    ports:
+      - 8000:8000
+    profiles:
+      - test-end-to-end
+    stop_signal: SIGINT
+
+  end-to-end-tests:
+    build:
+      context: ./tests/end_to_end/runner/
+      additional_contexts:
+        root_dir: .
+      dockerfile: Dockerfile
+    container_name: end-to-end-tests
+    depends_on:
+      azurite:
+        condition: service_started
+      azurite-setup:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      nhs-notify-api-stub:
+        condition: service_started
+      notify:
+        condition: service_started
+    environment:
+      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
+      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
+      - CLIENT_API_KEY=${CLIENT_API_KEY}
+      - CLIENT_APPLICATION_ID=${CLIENT_APPLICATION_ID}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE}
+      - DATABASE_USER=${DATABASE_USER}
+    profiles:
+      - test-end-to-end
+    volumes:
+      - ./log/functions/notify:/tests/end_to_end/log/functions/notify
