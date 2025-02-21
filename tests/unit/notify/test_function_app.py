@@ -9,7 +9,7 @@ def test_function_app_calls_flask_app():
     req = func.HttpRequest(
         method="GET",
         body=b"",
-        url="/api/status/health-check",
+        url="/api/healthcheck",
     )
     mock_context = MagicMock(
         function_directory=".",

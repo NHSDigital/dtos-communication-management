@@ -31,10 +31,10 @@ urllib3 = "==2.2.3"
 exceptiongroup = "*"
 psycopg2-binary = "*"
 flask = "*"
-jsonschema = "*"
 alembic = "*"
 sqlalchemy-utils = "*"
 alembic-postgresql-enum = "*"
+jsonschema = "*"
 
 [dev-packages]
 anyio = "==4.6.2.post1"
