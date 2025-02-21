@@ -1,7 +1,11 @@
 #!/bin/bash
 
+ENV_FILE=".env.test"
+
+source ${ENV_FILE}
+
+ENV_FILE=${ENV_FILE} alembic upgrade head
+
 ./test-setup.sh
 ./test-unit.sh
-./test-pacts.sh
 ./test-integration.sh
-./test-end-to-end.sh

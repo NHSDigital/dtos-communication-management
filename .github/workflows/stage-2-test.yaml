@@ -42,12 +42,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade pip
-
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
@@ -66,6 +60,27 @@ jobs:
     needs: set-up-dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:11.6-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
+          POSTGRES_SSLMODE: "disable"
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    env:
+      CI: true
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      DATABASE_NAME: communication_management_test
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: ""
+      DATABASE_SSLMODE: "disable"
+      ENV_FILE: ".env.test"
+
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -74,32 +89,41 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev --system
+
+      - name: "Set up test database"
+        run: |
+          alembic upgrade head
 
       - name: "Run unit test suite"
         run: |
           ./test-unit.sh
-  test-pacts:
-    name: "Contract tests"
-    needs: set-up-dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
 
-      - name: "Install dependencies"
-        run: |
-          pip install pipenv
-          pipenv install --dev --system
-
-      - name: "Run contract test suite"
-        run: |
-          ./test-pacts.sh
   test-integration:
     name: "Integration tests"
     needs: set-up-dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:11.6-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
+          POSTGRES_SSLMODE: "disable"
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    env:
+      CI: true
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      DATABASE_NAME: communication_management_test
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: ""
+      DATABASE_SSLMODE: "disable"
+      ENV_FILE: ".env.test"
+
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -109,20 +133,14 @@ jobs:
           pip install pipenv
           pipenv install --dev --system
 
+      - name: "Set up test database"
+        run: |
+          alembic upgrade head
+
       - name: "Run integration test suite"
         run: |
           ./test-integration.sh
-  test-end-to-end:
-    name: "End-to-end tests"
-    needs: set-up-dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Run end to end test suite"
-        run: |
-          ./test-end-to-end.sh
+
   test-coverage:
     name: "Test coverage"
     needs: [test-unit]

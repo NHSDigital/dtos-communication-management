@@ -1,27 +1,43 @@
+from unittest.mock import MagicMock
 import azure.functions as func
-import function_app
+from function_app import main, process_file_upload
 import json
 
 
-def test_main_calls_notifier_with_correct_data(mocker):
-    """Test that the main function calls the notifier with the correct data."""
-    send_messages_mock = mocker.patch("notifier.send_messages")
-
-    input_data = {
-        "routing_plan": "breast_screening_first_appointment",
-        "recipients": [
-            {"nhs_number": "0000000000"},
-            {"nhs_number": "0000000001"},
-        ],
-    }
-
+def test_function_app_calls_flask_app():
+    """Test that the function calls the flask app."""
     req = func.HttpRequest(
-        method="POST",
-        body=json.dumps(input_data).encode("utf-8"),
-        url="/api/notify/message/send",
+        method="GET",
+        body=b"",
+        url="/api/healthcheck",
+    )
+    mock_context = MagicMock(
+        function_directory=".",
+        invocation_id="123",
+        function_name="Notify"
     )
 
-    func_call = function_app.main.build().get_user_function()
-    func_call(req)
+    func_call = main.build().get_user_function()
+    resp = func_call(req, mock_context)
 
-    send_messages_mock.assert_called_once_with(input_data)
+    assert resp.status_code == 200
+    assert json.loads(resp.get_body()) == {"status": "healthy"}
+
+
+def test_function_app_blob_trigger(mocker, csv_data, expected_message_batch_body):
+    """Test that the function calls the blob trigger."""
+    mock = mocker.patch(
+        "app.services.message_batch_dispatcher.dispatch",
+        return_value=(201, {"status": "OK"})
+    )
+
+    input_stream = func.blob.InputStream(
+        data=bytes("\n".join(csv_data), "utf-8"),
+        name="file-upload-data/HWA NHS App Pilot 002 SPRPT.csv",
+    )
+
+    func_call = process_file_upload.build().get_user_function()
+    func_call(input_stream)
+
+    mock.assert_called_once()
+    mock.assert_called_with(expected_message_batch_body)
