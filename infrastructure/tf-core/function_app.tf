@@ -62,22 +62,30 @@ locals {
   app_settings = merge(
     var.function_app.env_vars_static,
     {
-      DOCKER_ENABLE_CI                    = var.function_app.docker_CI_enable
-      FUNCTIONS_WORKER_RUNTIME            = "python"
-      REMOTE_DEBUGGING_ENABLED            = var.function_app.remote_debugging_enabled
-      WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_app.enable_appsrv_storage
-      WEBSITE_PULL_IMAGE_OVER_VNET        = var.features.private_endpoints_enabled
+
+      APPLICATION_ID                   = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[local.primary_region].versionless_id})"
+      AzureWebJobsStorage__accountName = module.storage["fnapp-${local.primary_region}"].storage_account_name
+      BLOB_CONTAINER_NAME              = "file-upload-data"
+
+      CLIENT_APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.client_application_id[local.primary_region].versionless_id})"
+      CLIENT_API_KEY        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.client_api_key[local.primary_region].versionless_id})"
 
       DATABASE_NAME     = "communication_management"
       DATABASE_HOST     = "${module.regions_config[local.primary_region].names.postgres-sql-server}.postgres.database.azure.com"
       DATABASE_USER     = "commgt_db_user"
       DATABASE_PASSWORD = "@Microsoft.KeyVault(SecretUri=${module.postgresql_flexible_db[local.primary_region].db_admin_pwd_keyvault_secret})"
 
-      APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.application_id[local.primary_region].versionless_id})"
+      DOCKER_ENABLE_CI         = var.function_app.docker_CI_enable
+      FUNCTIONS_WORKER_RUNTIME = "python"
+
       NOTIFY_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.notify_api_key[local.primary_region].versionless_id})"
-      OAUTH2_API_KID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_kid[local.primary_region].versionless_id})"
       OAUTH2_API_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_key[local.primary_region].versionless_id})"
+      OAUTH2_API_KID = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.oauth2_api_kid[local.primary_region].versionless_id})"
       PRIVATE_KEY    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_key.private_key[local.primary_region].versionless_id})"
+
+      REMOTE_DEBUGGING_ENABLED            = var.function_app.remote_debugging_enabled
+      WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_app.enable_appsrv_storage
+      WEBSITE_PULL_IMAGE_OVER_VNET        = var.features.private_endpoints_enabled
     }
   )
 

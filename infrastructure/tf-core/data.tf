@@ -71,12 +71,27 @@ data "azurerm_key_vault_secret" "application_id" {
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
 
+data "azurerm_key_vault_secret" "client_application_id" {
+  for_each = var.regions
+
+  name         = "CLIENT-APPLICATION-ID"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
 data "azurerm_key_vault_secret" "notify_api_key" {
   for_each = var.regions
 
   name         = "NOTIFY-API-KEY"
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
+
+data "azurerm_key_vault_secret" "client_api_key" {
+  for_each = var.regions
+
+  name         = "CLIENT-API-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
 
 data "azurerm_key_vault_secret" "oauth2_api_kid" {
   for_each = var.regions
