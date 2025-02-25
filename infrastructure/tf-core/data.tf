@@ -46,22 +46,22 @@ data "azurerm_subnet" "subnet_audit_pep" {
 data "azurerm_container_registry" "acr" {
   provider = azurerm.hub
 
-  name                = var.function_apps.acr_name
-  resource_group_name = var.function_apps.acr_rg_name
+  name                = var.function_app.acr_name
+  resource_group_name = var.function_app.acr_rg_name
 }
 
 data "azurerm_user_assigned_identity" "acr_mi" {
   provider = azurerm.hub
 
-  name                = var.function_apps.acr_mi_name
-  resource_group_name = var.function_apps.acr_rg_name
+  name                = var.function_app.acr_mi_name
+  resource_group_name = var.function_app.acr_rg_name
 }
 
 data "azurerm_application_insights" "ai" {
   provider = azurerm.audit
 
-  name                = var.function_apps.app_insights_name
-  resource_group_name = var.function_apps.app_insights_rg_name
+  name                = var.function_app.app_insights_name
+  resource_group_name = var.function_app.app_insights_rg_name
 }
 
 data "azurerm_key_vault_secret" "application_id" {
@@ -71,12 +71,27 @@ data "azurerm_key_vault_secret" "application_id" {
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
 
+data "azurerm_key_vault_secret" "client_application_id" {
+  for_each = var.regions
+
+  name         = "CLIENT-APPLICATION-ID"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
 data "azurerm_key_vault_secret" "notify_api_key" {
   for_each = var.regions
 
   name         = "NOTIFY-API-KEY"
   key_vault_id = module.key_vault[each.key].key_vault_id
 }
+
+data "azurerm_key_vault_secret" "client_api_key" {
+  for_each = var.regions
+
+  name         = "CLIENT-API-KEY"
+  key_vault_id = module.key_vault[each.key].key_vault_id
+}
+
 
 data "azurerm_key_vault_secret" "oauth2_api_kid" {
   for_each = var.regions

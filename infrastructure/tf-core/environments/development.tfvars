@@ -124,7 +124,7 @@ app_service_plan = {
   }
 }
 
-function_apps = {
+function_app = {
   acr_mi_name = "dtos-communication-management-acr-push"
   acr_name    = "acrukshubdevcommgt"
   acr_rg_name = "rg-hub-dev-uks-commgt"
@@ -147,42 +147,15 @@ function_apps = {
   storage_uses_managed_identity = null
   worker_32bit                  = false
 
-  fa_config = {
-
-    message-status = {
-      name_suffix            = "message-status"
-      function_endpoint_name = "MessageStatus"
-      app_service_plan_key   = "Default"
-      key_vault_url          = "KEY_VAULT_URL"
-      database_required      = true
-      app_urls               = []
-      env_vars_static        = {}
-    }
-
-    notify = {
-      name_suffix            = "notify"
-      function_endpoint_name = "Notify"
-      app_service_plan_key   = "Default"
-      key_vault_url          = "KEY_VAULT_URL"
-      database_required      = true
-      app_urls               = []
-      env_vars_static = {
-        NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
-        OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
-        ENVIRONMENT      = "DEVELOPMENT"
-      }
-    }
-
-    process-pilot-data = {
-      name_suffix            = "process-pilot-data"
-      function_endpoint_name = "ProcessPilotData"
-      key_vault_url          = "KEY_VAULT_URL"
-      app_service_plan_key   = "Default"
-      app_urls               = []
-      env_vars_static = {
-        BLOB_CONTAINER_NAME = "pilot-data"
-      }
-    }
+  name_suffix            = "notify"
+  function_endpoint_name = "Notify"
+  app_service_plan_key   = "Default"
+  key_vault_url          = "KEY_VAULT_URL"
+  app_urls               = []
+  env_vars_static = {
+    NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
+    OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"
+    ENVIRONMENT      = "DEVELOPMENT"
   }
 }
 
@@ -206,8 +179,8 @@ storage_accounts = {
     replication_type              = "LRS"
     public_network_access_enabled = false
     containers = {
-      pilot-data = {
-        container_name        = "pilot-data"
+      file-upload-data = {
+        container_name        = "file-upload-data"
         container_access_type = "private"
       }
     }
