@@ -147,11 +147,9 @@ function_app = {
   storage_uses_managed_identity = null
   worker_32bit                  = false
 
-  name_suffix            = "notify"
-  function_endpoint_name = "Notify"
-  app_service_plan_key   = "Default"
-  key_vault_url          = "KEY_VAULT_URL"
-  app_urls               = []
+  app_service_plan_key = "Default"
+  key_vault_url        = "KEY_VAULT_URL"
+  app_urls             = []
   env_vars_static = {
     NOTIFY_API_URL   = "https://int.api.service.nhs.uk"
     OAUTH2_TOKEN_URL = "https://int.api.service.nhs.uk/oauth2/token"

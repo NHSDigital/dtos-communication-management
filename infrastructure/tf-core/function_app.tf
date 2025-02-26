@@ -58,7 +58,9 @@ module "functionapp" {
 
 
 locals {
-  name_suffix = "notify"
+  function_endpoint_name = "Notify"
+  name_suffix            = "notify"
+
   app_settings = merge(
     var.function_app.env_vars_static,
     {

@@ -186,9 +186,7 @@ variable "function_app" {
       slot_enabled = optional(bool, false)
     })))
 
-    name_suffix            = string
-    function_endpoint_name = string
-    app_service_plan_key   = string
+    app_service_plan_key = string
 
     storage_containers = optional(list(object({
       env_var_name   = string
