@@ -162,7 +162,7 @@ variable "app_service_plan" {
   })
 }
 
-variable "function_apps" {
+variable "function_app" {
   description = "Configuration for function apps"
   type = object({
     acr_mi_name                   = string
@@ -185,22 +185,21 @@ variable "function_apps" {
       name         = string
       slot_enabled = optional(bool, false)
     })))
-    fa_config = map(object({
-      name_suffix            = string
-      function_endpoint_name = string
-      app_service_plan_key   = string
-      storage_containers = optional(list(object({
-        env_var_name   = string
-        container_name = string
-      })), [])
-      database_required = optional(bool, false)
-      key_vault_url     = optional(string, "")
-      app_urls = optional(list(object({
-        env_var_name     = string
-        function_app_key = string
-      })), [])
-      env_vars_static = optional(map(string), {})
-    }))
+
+    app_service_plan_key = string
+
+    storage_containers = optional(list(object({
+      env_var_name   = string
+      container_name = string
+    })), [])
+
+    key_vault_url = optional(string, "")
+
+    app_urls = optional(list(object({
+      env_var_name     = string
+      function_app_key = string
+    })), [])
+    env_vars_static = optional(map(string), {})
   })
 }
 
@@ -258,29 +257,6 @@ variable "postgresql" {
     })), {})
   })
 }
-
-/*
-  application_rule_collection = [
-    {
-      name      = "example-application-rule-collection-1"
-      priority  = 600
-      action    = "Allow"
-      rule_name = "example-rule-1"
-      protocols = [
-        {
-          type = "Http"
-          port = 80
-        },
-        {
-          type = "Https"
-          port = 443
-        }
-      ]
-      source_addresses  = ["0.0.0.0/0"]
-      destination_fqdns = ["example.com"]
-    },
-*/
-
 
 variable "routes" {
   description = "Routes configuration for different regions"
