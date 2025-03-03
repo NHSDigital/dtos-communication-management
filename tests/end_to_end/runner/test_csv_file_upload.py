@@ -1,56 +1,28 @@
-import azure.storage.blob
-import app.utils.database as database
 import app.models as models
+import app.utils.database as database
 import app.utils.hmac_signature as hmac_signature
 import dotenv
-import logging
-import os
-import time
+from .helpers import get_status_endpoint, upload_file_to_blob_storage
+from pytest_steps import test_steps
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
+import time
 
-ENV_FILE = os.getenv("ENV_FILE", ".env.compose")
-dotenv.load_dotenv(dotenv_path=ENV_FILE)
-
-
-def csv_data():
-    return (
-        'UNUSED_STAGE_COLUMN,9990548609,987654,"BLAKE, KYLIE, MRS",07M09M1971,EP700,01M12M2024,10:15:00,'
-        '"The Royal Shrewsbury Hospital, Breast Screening Office, Treatment Centre, Mytton Oak Road, Shrewsbury, SY3 8XQ"'
-        "\n"
-        'UNUSED_STAGE_COLUMN,9435732992,987654,"BLAKE, KAREN, MRS",04M02M1980,EP700,03M01M2025,11:25:00,'
-        '"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"'
-        "\n"
-    )
+dotenv.load_dotenv()
 
 
-def upload_file_to_blob_storage():
-    logging.info("Uploading file to blob storage")
-    try:
-        azurite_connection_string = os.getenv('AZURITE_CONNECTION_STRING')
-        blob_container_name = os.getenv('BLOB_CONTAINER_NAME')
-        blob_service_client = azure.storage.blob.BlobServiceClient.from_connection_string(azurite_connection_string)
-        pilot_data_client = blob_service_client.get_container_client(blob_container_name)
-        blob_client = pilot_data_client.get_blob_client("HWA NHS App Pilot 002 SPRPT.csv")
-        content_settings = azure.storage.blob.ContentSettings(content_type='text/csv')
-        blob_client.upload_blob(csv_data(), blob_type="BlockBlob", content_settings=content_settings, overwrite=True)
-    except Exception as e:
-        logging.error("Error uploading file to blob storage:")
-        logging.error(e)
-        return False
-
-    return True
-
-
-def test_csv_file_upload():
+@test_steps(
+    'upload_file_to_blob_storage',
+    'check_records_saved_to_database',
+    'check_get_statuses_endpoint'
+)
+def test_file_upload_end_to_end():
     assert upload_file_to_blob_storage()
 
-
-def test_csv_file_upload_saves_to_database():
-    assert upload_file_to_blob_storage()
+    yield
 
     # Wait for the function app to be triggered, make a request to NHS Notify Stub and save the data to the database
-    time.sleep(2)
+    time.sleep(5)
 
     with Session(database.engine()) as session:
         message_batch = session.scalars(select(models.MessageBatch)).all()[0]
@@ -61,3 +33,17 @@ def test_csv_file_upload_saves_to_database():
 
         assert len(messages) == 2
         assert messages[0].batch_id == message_batch.id
+
+    yield
+
+    response = get_status_endpoint(message_batch.batch_reference)
+
+    assert response.status_code == 200
+
+    json_data = response.json()
+    supplier_statuses = [status["supplierStatus"] for status in json_data["data"]]
+    assert json_data["status"] == "success"
+    assert len(json_data["data"]) == 6
+    assert ["notified", "read", "received"] == sorted(list(set(supplier_statuses)))
+
+    yield
