@@ -26,8 +26,16 @@ def pytest_runtest_makereport(item, call):
         report.location = tuple(location)
 
 
-@pytest.fixture(autouse=True, scope="function")
-def truncate_table():
+def pytest_addoption(parser):
+    parser.addoption('--truncatedb-scope', action='store', default='function')
+
+
+def determine_truncatedb_scope(fixture_name, config):
+    return config.getoption("--truncatedb-scope", "function")
+
+
+@pytest.fixture(autouse=True, scope=determine_truncatedb_scope)
+def truncatedb():
     try:
         with database.connection() as conn:
             with conn.cursor() as cur:
