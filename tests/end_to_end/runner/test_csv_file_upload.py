@@ -49,7 +49,8 @@ def test_csv_file_upload():
 def test_csv_file_upload_saves_to_database():
     assert upload_file_to_blob_storage()
 
-    time.sleep(1.5)
+    # Wait for the function app to be triggered, make a request to NHS Notify Stub and save the data to the database
+    time.sleep(2)
 
     with Session(database.engine()) as session:
         message_batch = session.scalars(select(models.MessageBatch)).all()[0]
