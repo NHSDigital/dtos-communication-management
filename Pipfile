@@ -57,6 +57,7 @@ uvicorn = "==0.32.0"
 yarl = "==1.18.3"
 pytest-cov = "*"
 azure-storage-blob = "*"
+pytest-steps = "*"
 
 [requires]
 python_version = "3.11"
