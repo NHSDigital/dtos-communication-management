@@ -141,6 +141,18 @@ jobs:
         run: |
           ./test-integration.sh
 
+  test-end-to-end:
+    name: "End-to-end tests"
+    needs: set-up-dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Run end to end test suite"
+        run: |
+          ./test-end-to-end.sh
+
   test-coverage:
     name: "Test coverage"
     needs: [test-unit]
