@@ -30,7 +30,7 @@ def message_batches():
                     "id": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
                     "name": "Plan Abc",
                     "version": "ztoe2qRAM8M8vS0bqajhyEBcvXacrGPp",
-                    "createdDate": "2023-11-17T14:27:51.413Z"
+                    "createdDate": time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                 },
                 "messages": messages
             }
@@ -94,7 +94,7 @@ def channel_status(message, status="delivered", supplier_status="read"):
                     "channelStatus": status,
                     "channelStatusDescription": " ",
                     "supplierStatus": supplier_status,
-                    "timestamp": "2023-11-17T14:27:51.413Z",
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                     "retryCount": 1
                 },
                 "links": {
@@ -124,7 +124,7 @@ def message_status(message, message_status="sending", channel_status="delivered"
                             "channelStatus": channel_status
                         }
                     ],
-                    "timestamp": "2023-11-17T14:27:51.413Z",
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                     "routingPlan": {
                         "id": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
                         "name": "Plan Abc",
