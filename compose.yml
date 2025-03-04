@@ -78,6 +78,8 @@ services:
   nhs-notify-api-stub:
     build:
       context: tests/end_to_end/nhs_notify_api_stub
+      additional_contexts:
+        root_dir: .
       target: builder
     container_name: nhs-notify-api
     # flask requires SIGINT to stop gracefully

@@ -20,7 +20,7 @@ COPY --from=root_dir /src/notify/ /src/notify/
 COPY --from=root_dir /tests/conftest.py /tests/end_to_end/conftest.py
 COPY --from=root_dir /alembic/ /alembic/
 COPY --from=root_dir /alembic.ini /alembic.ini
-COPY --from=root_dir /.env.compose /.env.compose
+COPY --from=root_dir /.env.compose /.env
 COPY . /tests/end_to_end
 
 RUN pip install pipenv
