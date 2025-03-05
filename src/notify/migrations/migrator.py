@@ -1,20 +1,23 @@
+from alembic import context
+from app.models import Base
 from logging.config import fileConfig
 from sqlalchemy import create_engine, pool
 from sqlalchemy_utils import database_exists, create_database
-from alembic import context
-import alembic_postgresql_enum
-import dotenv
 import logging
 import os
-import sys
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(SCRIPT_DIR) + "/src/notify/")
 
-from app.models import Base
+def migrate_database(offline: bool = False) -> str:
+    conn_string = connection_string()
+    configure_alembic(conn_string)
+    create_database_if_not_exists(conn_string)
 
-# Load environment variables
-dotenv.load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env.local"))
+    if offline:
+        run_migrations_offline(conn_string)
+    else:
+        run_migrations_online(conn_string)
+
+    return "Database migration complete."
 
 
 def connection_string() -> str:
@@ -66,14 +69,3 @@ def configure_alembic(connection_string: str) -> None:
 
     if context.config.config_file_name is not None:
         fileConfig(context.config.config_file_name)
-
-
-# Perform steps to run migrations
-connection_string: str = connection_string()
-configure_alembic(connection_string)
-create_database_if_not_exists(connection_string)
-
-if context.is_offline_mode():
-    run_migrations_offline(connection_string)
-else:
-    run_migrations_online(connection_string)
