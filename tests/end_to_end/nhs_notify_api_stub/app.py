@@ -4,6 +4,7 @@ import dotenv
 import json
 import os
 import requests
+from jsonschema import validate, ValidationError
 import time
 import utils.hmac_signature as hmac_signature
 import uuid
@@ -16,8 +17,11 @@ dotenv.load_dotenv()
 @app.route('/comms/v1/message-batches', methods=['POST'])
 def message_batches():
     json_data = request.json or default_response_data()
-
     messages = messages_with_ids(json_data["data"]["attributes"]["messages"])
+
+    if not validate_with_schema(json_data):
+        return json.dumps({"error": "Invalid body"}), 422
+
     queue_status_callbacks(messages)
 
     return json.dumps({
@@ -152,6 +156,18 @@ def messages_with_ids(messages: list[dict]) -> list[dict]:
 
 def uid(n) -> str:
     return uuid.uuid4().hex[0:n]
+
+
+def validate_with_schema(data: dict):
+    try:
+        schema = json.load(open("schema.json"))
+        subschema = schema["paths"]["/v1/message-batches"]["post"]["requestBody"]["content"]["application/vnd.api+json"]["schema"]
+        validate(instance=data, schema=subschema)
+        return True, ""
+    except ValidationError as e:
+        return False, e.message
+    except KeyError as e:
+        return False, f"Invalid body: {e}"
 
 
 if __name__ == '__main__':
