@@ -1,30 +1,21 @@
-from logging.config import fileConfig
-from sqlalchemy import create_engine, pool
-from sqlalchemy_utils import database_exists, create_database
 from alembic import context
 import alembic_postgresql_enum
 import dotenv
 import logging
+from logging.config import fileConfig
 import os
+from sqlalchemy import create_engine, pool
+from sqlalchemy_utils import database_exists, create_database
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(SCRIPT_DIR) + "/src/notify/")
+sys.path.insert(0, os.path.dirname(SCRIPT_DIR))
 
 from app.models import Base
+from migrations.utils import connection_string
 
 # Load environment variables
 dotenv.load_dotenv(dotenv_path=os.getenv("ENV_FILE", ".env.local"))
-
-
-def connection_string() -> str:
-    return (
-        f"postgresql+psycopg2://{os.environ['DATABASE_USER']}"
-        f":{os.environ['DATABASE_PASSWORD']}"
-        f"@{os.environ['DATABASE_HOST']}"
-        f"/{os.environ['DATABASE_NAME']}"
-        f"?sslmode={os.environ.get('DATABASE_SSLMODE', 'require')}"
-    )
 
 
 def run_migrations_offline(connection_string: str):
@@ -69,11 +60,11 @@ def configure_alembic(connection_string: str) -> None:
 
 
 # Perform steps to run migrations
-connection_string: str = connection_string()
-configure_alembic(connection_string)
-create_database_if_not_exists(connection_string)
+conn_string: str = connection_string()
+configure_alembic(conn_string)
+create_database_if_not_exists(conn_string)
 
 if context.is_offline_mode():
-    run_migrations_offline(connection_string)
+    run_migrations_offline(conn_string)
 else:
-    run_migrations_online(connection_string)
+    run_migrations_online(conn_string)

@@ -4,6 +4,7 @@ import app.services.message_batch_dispatcher as message_batch_dispatcher
 import dotenv
 import file_processor.csv_file_processor as csv_file_processor
 import logging
+from migrations.utils import alembic_migrate
 import os
 
 funcapp = func.FunctionApp()
@@ -40,4 +41,25 @@ def process_file_upload(csvblob: func.InputStream):
     logging.info(
         f"Response from Notify API: {status_code}"
         f"\n{response}"
+    )
+
+
+@funcapp.function_name(name="MigrateDatabase")
+@funcapp.route(
+    route="migrate-database",
+    auth_level=func.AuthLevel.FUNCTION,
+    methods=[func.HttpMethod.POST],
+)
+def migrate_database(req: func.HttpRequest) -> func.HttpResponse:
+    if req.headers.get("x-migration-key") != os.getenv("DATABASE_PASSWORD"):
+        return func.HttpResponse(
+            "Unauthorized",
+            status_code=401,
+        )
+
+    migration_info = alembic_migrate()
+
+    return func.HttpResponse(
+        f"Database migration complete: {migration_info}",
+        status_code=200,
     )
