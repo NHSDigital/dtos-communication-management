@@ -10,7 +10,7 @@ ENV_FILE=".env.local"
 source ${ENV_FILE}
 
 echo "Migrating database to latest version..."
-ENV_FILE=${ENV_FILE} alembic upgrade head
+ENV_FILE=${ENV_FILE} alembic -c src/notify/alembic.ini upgrade head
 
 echo "Starting the API function app..."
 cd src/notify && ENV_FILE="../../${ENV_FILE}" func start --verbose

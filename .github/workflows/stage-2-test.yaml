@@ -92,7 +92,7 @@ jobs:
 
       - name: "Set up test database"
         run: |
-          alembic upgrade head
+          alembic -c src/notify/alembic.ini upgrade head
 
       - name: "Run unit test suite"
         run: |
@@ -135,7 +135,7 @@ jobs:
 
       - name: "Set up test database"
         run: |
-          alembic upgrade head
+          alembic -c src/notify/alembic.ini upgrade head
 
       - name: "Run integration test suite"
         run: |
