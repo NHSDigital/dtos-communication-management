@@ -16,12 +16,11 @@ def connection():
         sslmode=os.getenv("DATABASE_SSLMODE", "require"),
     )
     end = time.time()
-    logging.debug(f"Connected to database in {(end - start)}s")
+    logging.debug("Connected to database in %ss", (end - start))
 
     return conn
 
 
-# TODO: Determine whether to memoize the engine
 def engine():
     return create_engine(connection_url())
 

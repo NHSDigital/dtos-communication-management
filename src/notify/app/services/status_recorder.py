@@ -1,6 +1,5 @@
 import app.models as models
 import app.utils.database as database
-import json
 import logging
 from sqlalchemy.orm import Session
 
@@ -25,5 +24,5 @@ def save_statuses(request_body: dict) -> bool:
 
         return True
     except Exception as e:
-        logging.error(f"Error saving statuses: {e}")
+        logging.error("Error saving statuses: %s", e)
         return False

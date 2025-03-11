@@ -57,6 +57,7 @@ yarl = "==1.18.3"
 pytest-cov = "*"
 azure-storage-blob = "*"
 pytest-steps = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.11"

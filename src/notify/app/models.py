@@ -1,3 +1,4 @@
+# pylint: skip-file
 from sqlalchemy import Column, ForeignKey, func, Integer, String, Text, TIMESTAMP
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import JSONB, UUID

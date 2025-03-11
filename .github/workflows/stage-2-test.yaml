@@ -49,12 +49,17 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
       - name: "Run linting"
         run: |
-          make test-lint
+          PYTHONPATH=src/notify pylint src
       - name: "Save the linting result"
         run: |
           echo "Nothing to save"
+
   test-unit:
     name: "Unit tests"
     needs: set-up-dependencies

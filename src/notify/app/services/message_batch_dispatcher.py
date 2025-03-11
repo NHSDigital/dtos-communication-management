@@ -8,8 +8,8 @@ import uuid
 
 
 def dispatch(body: dict) -> tuple[int, str]:
-    response = requests.post(url(), json=body, headers=headers())
-    logging.info(f"Response from Notify API {url()}: {response.status_code}")
+    response = requests.post(url(), json=body, headers=headers(), timeout=10)
+    logging.info("Response from Notify API %s: %s", url(), response.status_code)
 
     success = response.status_code == 201
     status = models.MessageBatchStatuses.SENT if success else models.MessageBatchStatuses.FAILED

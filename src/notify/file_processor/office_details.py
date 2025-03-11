@@ -24,8 +24,8 @@ def routing_plan_id(filename: str) -> str:
     service = SERVICES.get(code_from_filename(filename))
     if service:
         return service.get("routing_plan_id", DEFAULT_ROUTING_PLAN_ID)
-    else:
-        return DEFAULT_ROUTING_PLAN_ID
+
+    return DEFAULT_ROUTING_PLAN_ID
 
 
 def code_from_filename(filename: str) -> str:
