@@ -13,21 +13,22 @@ def get_token() -> str:
     if not os.getenv("OAUTH2_API_KEY"):
         return "awaiting-token"
 
-    jwt: str = generate_auth_jwt()
+    auth_jwt: str = generate_auth_jwt()
     headers: dict = {"Content-Type": "application/x-www-form-urlencoded"}
 
     body = {
         "grant_type": "client_credentials",
         "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-        "client_assertion": jwt,
+        "client_assertion": auth_jwt,
     }
 
     response = requests.post(
         str(os.getenv("OAUTH2_TOKEN_URL")),
         data=body,
         headers=headers,
+        timeout=10,
     )
-    logging.info(f"Response from OAuth2 token provider: {response.status_code}")
+    logging.info("Response from OAuth2 token provider: %s", response.status_code)
     response_json = response.json()
 
     if response.status_code == 200:

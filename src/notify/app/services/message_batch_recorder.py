@@ -1,10 +1,10 @@
 import app.models as models
 import app.utils.database as database
+import app.utils.uuid_generator as uuid_generator
 from collections import defaultdict
 from itertools import chain
 import logging
 from sqlalchemy.orm import Session
-import app.utils.uuid_generator as uuid_generator
 
 
 def save_batch(body, response, status) -> tuple[bool, str]:
@@ -36,7 +36,7 @@ def save_batch(body, response, status) -> tuple[bool, str]:
 
         return True, f"Batch id: {message_batch.id} saved successfully"
     except Exception as e:
-        logging.error(f"Failed to save batch: {e}")
+        logging.error("Failed to save batch: %s", e)
         return False, str(e)
 
 

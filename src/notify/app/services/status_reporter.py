@@ -15,13 +15,13 @@ def get_statuses(query_params):
     query = filter_on_created_at(query, query_params)
     query = filter_on_status_clause(query, query_params)
 
-    logging.debug(f"Query: {query}")
+    logging.debug("Query: %s", query)
 
     try:
         with Session(database.engine()) as session:
             statuses = session.scalars(query).all()
     except Exception as e:
-        logging.error(f"Error getting statuses: {e}")
+        logging.error("Error getting statuses: %s",  e)
 
     return statuses
 

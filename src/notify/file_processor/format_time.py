@@ -17,5 +17,5 @@ def to_human_readable_twelve_hours(raw_time: str | None) -> str | None:
         return time_obj.strftime("%-I:%M%p").lower()
 
     except (ValueError, TypeError):
-        logging.error(f"Invalid time format: {raw_time}")
+        logging.error("Invalid time format: %s", raw_time)
         return None

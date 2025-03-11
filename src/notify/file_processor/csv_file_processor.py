@@ -50,7 +50,7 @@ def message_batch_body(filename, raw_data) -> dict | None:
                     )
                 )
             else:
-                logging.info(f"Omitting invalid row: {row}")
+                logging.info("Omitting invalid row: %s", row)
 
     except csv.Error:
         logging.error("Invalid CSV data")
@@ -59,6 +59,8 @@ def message_batch_body(filename, raw_data) -> dict | None:
         body = message_batch(routing_plan_id, message_batch_reference, messages_data)
         if schema_validator.validate_with_schema(body):
             return body
+
+    return None
 
 
 def valid_row(row) -> bool:
@@ -104,7 +106,7 @@ def message_batch(
 def message(
         message_reference: str,
         nhs_number: str,
-        personalisation: dict) -> dict:
+        personalisation_data: dict) -> dict:
 
     return {
         "messageReference": message_reference,
@@ -114,7 +116,7 @@ def message(
         "originator": {
             "odsCode": "X26"
         },
-        "personalisation": personalisation
+        "personalisation": personalisation_data
     }
 
 

@@ -27,11 +27,9 @@ def batch():
     return {"status": status, "response": response}, status_code
 
 
-# TODO: This will need to vary per client
 def client_api_key() -> str:
     return str(os.getenv("CLIENT_API_KEY"))
 
 
-# TODO: This will need to vary per client
 def signature_secret() -> str:
     return f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}"

@@ -3,7 +3,9 @@ from jsonschema import validate, ValidationError
 import os
 
 schema_path = os.path.dirname(os.path.abspath(__file__)) + "/schemas/"
-schema = json.load(open(schema_path + "nhs-notify.json"))
+with open(schema_path + "nhs-notify.json", encoding="utf-8") as f:
+    schema = json.load(f)
+
 schema_path_identifiers = {
     "MessageBatch": "/v1/message-batches",
     "ChannelStatus": "/\u003Cclient-provided-channel-status-URI\u003E",
@@ -24,7 +26,7 @@ def validate_with_schema(data: dict) -> tuple[bool, str]:
 
 
 def type_of_request(data: dict) -> str:
-    return data[0]["type"] if type(data) is list else data["type"]
+    return data[0]["type"] if isinstance(data, list) else data["type"]
 
 
 def schema_for_type(schema_type: str):

@@ -33,14 +33,15 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     connection="AzureWebJobsStorage",
 )
 def process_file_upload(csvblob: func.InputStream):
-    logging.info(f"Processing uploaded file: {csvblob.name}")
+    logging.info("Processing uploaded file: %s", csvblob.name)
     raw_data = csvblob.read().decode("utf-8").splitlines()
     filename = os.path.splitext(os.path.basename(csvblob.name))[0]
     message_batch_body = csv_file_processor.message_batch_body(filename, raw_data)
     status_code, response = message_batch_dispatcher.dispatch(message_batch_body)
     logging.info(
-        f"Response from Notify API: {status_code}"
-        f"\n{response}"
+        "Response from Notify API: %s\n %s",
+        status_code,
+        response,
     )
 
 

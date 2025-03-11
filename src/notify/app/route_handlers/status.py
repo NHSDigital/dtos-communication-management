@@ -26,6 +26,8 @@ def create():
     if status_recorder.save_statuses(json_data):
         return {"status": "success"}, 200
 
+    return {"status": "error"}, 500
+
 
 def get():
     valid_headers, error_message = request_validator.verify_headers(
