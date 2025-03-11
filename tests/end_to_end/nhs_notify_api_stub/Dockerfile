@@ -4,9 +4,10 @@ FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
 WORKDIR /app
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install dotenv flask requests
+    pip3 install dotenv flask jsonschema requests
 
 COPY --from=root_dir /src/notify/app/utils/ /app/utils/
+COPY --from=root_dir /src/notify/app/validators/schemas/nhs-notify.json /app/schema.json
 COPY --from=root_dir .env.compose /app/.env
 COPY . /app
 
