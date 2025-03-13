@@ -114,7 +114,7 @@ def message(
             "nhsNumber": nhs_number,
         },
         "originator": {
-            "odsCode": "X26"
+            "odsCode": "T8T9T"
         },
         "personalisation": personalisation_data
     }
