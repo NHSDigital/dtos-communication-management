@@ -74,7 +74,7 @@ def message_batch_post_body():
                             }
                         },
                         "originator": {
-                            "odsCode": "X26"
+                            "odsCode": "T8T9T"
                         },
                         "personalisation": {}
                     }
@@ -198,7 +198,7 @@ def expected_message_batch_body():
                             "nhsNumber": "0000000000",
                         },
                         "originator": {
-                            "odsCode": "X26"
+                            "odsCode": "T8T9T"
                         },
                         "personalisation": {
                             "appointment_date": "Thursday 03 February 2022",
@@ -214,7 +214,7 @@ def expected_message_batch_body():
                             "nhsNumber": "1111111111",
                         },
                         "originator": {
-                            "odsCode": "X26"
+                            "odsCode": "T8T9T"
                         },
                         "personalisation": {
                             "appointment_date": "Thursday 04 April 2024",
