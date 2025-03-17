@@ -37,7 +37,7 @@ alembic-postgresql-enum = "*"
 jsonschema = "*"
 
 [dev-packages]
-anyio = "==4.8.0"
+anyio = "==4.9.0"
 click = "==8.1.7"
 h11 = "==0.14.0"
 multidict = "==6.1.0"
