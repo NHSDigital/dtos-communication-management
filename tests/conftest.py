@@ -197,9 +197,6 @@ def expected_message_batch_body():
                         "recipient": {
                             "nhsNumber": "0000000000",
                         },
-                        "originator": {
-                            "odsCode": "X26"
-                        },
                         "personalisation": {
                             "appointment_date": "Thursday 03 February 2022",
                             "appointment_location": "The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ",
@@ -212,9 +209,6 @@ def expected_message_batch_body():
                         "messageReference": "b212fb30-1414-d6ac-92a0-431b2d4b77c5",
                         "recipient": {
                             "nhsNumber": "1111111111",
-                        },
-                        "originator": {
-                            "odsCode": "X26"
                         },
                         "personalisation": {
                             "appointment_date": "Thursday 04 April 2024",
