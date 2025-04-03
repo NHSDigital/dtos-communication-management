@@ -7,8 +7,11 @@ import requests
 import uuid
 
 
-def dispatch(body: dict) -> tuple[int, str]:
-    response = requests.post(url(), json=body, headers=headers(), timeout=10)
+def dispatch(body: dict, bearer_token: str | None = None) -> tuple[int, str]:
+    if not bearer_token:
+        bearer_token = access_token.get_token()
+
+    response = requests.post(url(), json=body, headers=headers(bearer_token), timeout=10)
     logging.info("Response from Notify API %s: %s", url(), response.status_code)
 
     success = response.status_code == 201
@@ -18,12 +21,12 @@ def dispatch(body: dict) -> tuple[int, str]:
     return response.status_code, response.json()
 
 
-def headers() -> dict:
+def headers(bearer_token) -> dict:
     return {
         "content-type": "application/vnd.api+json",
         "accept": "application/vnd.api+json",
         "x-correlation-id": str(uuid.uuid4()),
-        "authorization": "Bearer " + access_token.get_token(),
+        "authorization": "Bearer " + bearer_token,
     }
 
 

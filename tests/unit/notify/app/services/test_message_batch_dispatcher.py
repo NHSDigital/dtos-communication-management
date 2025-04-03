@@ -24,7 +24,7 @@ def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_bod
             json=message_batch_post_response
         )
 
-        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body)
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, None)
 
         assert adapter.call_count == 1
         assert status_code == 201
@@ -37,6 +37,25 @@ def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_bod
         message_batch_post_response,
         models.MessageBatchStatuses.SENT
     )
+
+def test_message_batch_dispatcher_includes_bearer_token(mocker, setup, message_batch_post_body, message_batch_post_response):
+    """When dispatch is called with a bearer token, the request headers should include it."""
+    mock_recorder = mocker.patch(
+        "app.services.message_batch_recorder.save_batch",
+        return_value=(True, "Batch id: 1 saved successfully")
+    )
+
+    with requests_mock.Mocker() as rm:
+        adapter = rm.post(
+            "http://example.com/comms/v1/message-batches",
+            status_code=201,
+            json=message_batch_post_response
+        )
+
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, "client_bearer_token")
+
+        assert status_code == 201
+        assert adapter.last_request.headers["Authorization"] == "Bearer client_bearer_token"
 
 
 def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
@@ -54,7 +73,7 @@ def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
             json={"error": "Bad request"}
         )
 
-        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body)
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, None)
 
         assert adapter.call_count == 1
         assert status_code == 400

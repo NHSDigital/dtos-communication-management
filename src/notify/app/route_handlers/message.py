@@ -21,7 +21,7 @@ def batch():
     if not valid_body:
         return {"status": "failed", "error": error_message}, 422
 
-    status_code, response = message_batch_dispatcher.dispatch(json_data)
+    status_code, response = message_batch_dispatcher.dispatch(json_data, bearer_token())
     status = "success" if status_code == 201 else "failed"
 
     return {"status": status, "response": response}, status_code
@@ -33,3 +33,10 @@ def client_api_key() -> str:
 
 def signature_secret() -> str:
     return f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}"
+
+
+def bearer_token() -> str | None:
+    header_value = request.headers.get("Authorization")
+    if header_value and header_value.startswith("Bearer "):
+        return header_value.split(" ")[1]
+    return None
