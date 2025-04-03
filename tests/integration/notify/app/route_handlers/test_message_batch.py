@@ -53,6 +53,33 @@ def test_message_batch_succeeds(setup, client, message_batch_post_body, message_
         assert response.get_json() == {"status": "success", "response": message_batch_post_response}
 
 
+def test_message_batch_preserves_auth_header(setup, client, message_batch_post_body, message_batch_post_response):
+    """Test that valid request header values pass HMAC signature validation."""
+    signature = hmac_signature.create_digest(
+        f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}",
+        json.dumps(message_batch_post_body, sort_keys=True)
+    )
+
+    headers = {
+        API_KEY_HEADER_NAME: "api_key",
+        "Authorization": "Bearer client_token",
+        SIGNATURE_HEADER_NAME: signature,
+    }
+
+    with requests_mock.Mocker() as rm:
+        adapter = rm.post(
+            "http://example.com/comms/v1/message-batches",
+            status_code=201,
+            json=message_batch_post_response
+        )
+
+        response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
+
+        assert response.status_code == 201
+        assert adapter.last_request.headers["Authorization"] == "Bearer client_token"
+
+
+
 def test_message_batch_fails_with_invalid_post_body(setup, client, message_batch_post_body):
     """Test that invalid request body fails schema validation."""
     message_batch_post_body["data"]["type"] = "invalid"
