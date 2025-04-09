@@ -35,8 +35,8 @@ def signature_secret() -> str:
     return f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}"
 
 
-def bearer_token() -> str | None:
+def bearer_token() -> str:
     header_value = request.headers.get("Authorization")
     if header_value and header_value.startswith("Bearer "):
         return header_value.split(" ")[1]
-    return None
+    return "invalid"
