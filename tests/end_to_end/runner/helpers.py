@@ -1,19 +1,10 @@
-import app.utils.hmac_signature as hmac_signature
 import azure.storage.blob
 import dotenv
-import json
 import logging
 import os
 import requests
 
 dotenv.load_dotenv()
-
-
-def signature(body):
-    return hmac_signature.create_digest(
-        f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}",
-        json.dumps(body, sort_keys=True)
-    )
 
 
 def get_status_endpoint(batch_reference):
@@ -30,12 +21,9 @@ def get_status_endpoint(batch_reference):
 
 
 def post_message_batch_endpoint(message_batch_post_body):
-    hmac_signature = signature(message_batch_post_body)
-
     headers = {
+        "Authorization": "Bearer client_token",
         "Content-Type": "application/json",
-        "x-api-key": os.getenv('CLIENT_API_KEY'),
-        "x-hmac-sha256-signature": hmac_signature,
     }
 
     return requests.post(

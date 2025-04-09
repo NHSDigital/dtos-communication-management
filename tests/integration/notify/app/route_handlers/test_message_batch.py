@@ -1,8 +1,5 @@
 from app import create_app
 from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME
-import app.utils.hmac_signature as hmac_signature
-import json
-import os
 import pytest
 import requests_mock
 
@@ -10,8 +7,6 @@ import requests_mock
 @pytest.fixture
 def setup(monkeypatch):
     """Set up environment variables for tests."""
-    monkeypatch.setenv('CLIENT_APPLICATION_ID', 'application_id')
-    monkeypatch.setenv('CLIENT_API_KEY', 'api_key')
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
 
 
@@ -21,24 +16,10 @@ def client():
     yield app.test_client()
 
 
-def test_message_batch_request_validation_fails(setup, client, message_batch_post_body):
-    """Test that invalid request header values fail HMAC signature validation."""
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature"}
-
-    response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
-
-    assert response.status_code == 403
-    assert response.get_json() == {"status": "failed", "error": "Invalid signature"}
-
-
 def test_message_batch_succeeds(setup, client, message_batch_post_body, message_batch_post_response):
-    """Test that valid request header values pass HMAC signature validation."""
-    signature = hmac_signature.create_digest(
-        f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}",
-        json.dumps(message_batch_post_body, sort_keys=True)
-    )
+    """Test that valid auth header and payload succeeds."""
 
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: signature}
+    headers = {"Authorization": "Bearer client_token"}
 
     with requests_mock.Mocker() as rm:
         rm.post(
@@ -54,16 +35,10 @@ def test_message_batch_succeeds(setup, client, message_batch_post_body, message_
 
 
 def test_message_batch_preserves_auth_header(setup, client, message_batch_post_body, message_batch_post_response):
-    """Test that valid request header values pass HMAC signature validation."""
-    signature = hmac_signature.create_digest(
-        f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}",
-        json.dumps(message_batch_post_body, sort_keys=True)
-    )
+    """Test that the supplied auth header is preserved in the request to the Notify API."""
 
     headers = {
-        API_KEY_HEADER_NAME: "api_key",
         "Authorization": "Bearer client_token",
-        SIGNATURE_HEADER_NAME: signature,
     }
 
     with requests_mock.Mocker() as rm:
@@ -79,16 +54,47 @@ def test_message_batch_preserves_auth_header(setup, client, message_batch_post_b
         assert adapter.last_request.headers["Authorization"] == "Bearer client_token"
 
 
+def test_message_batch_fails_with_invalid_auth_header(setup, client, message_batch_post_body):
+    """Test that invalid Bearer token fails authentication."""
+    headers = {
+        "Authorization": "some_invalid_value",
+    }
+
+    with requests_mock.Mocker() as rm:
+        adapter = rm.post(
+            "http://example.com/comms/v1/message-batches",
+            status_code=401,
+            json={"status": "failed", "error": "Unauthorized"}
+        )
+
+        response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
+
+        assert response.status_code == 401
+        assert adapter.last_request.headers["Authorization"] == "Bearer invalid"
+
+
+def test_message_batch_fails_with_missing_auth_header(setup, client, message_batch_post_body):
+    """Test that missing auth header fails authentication."""
+    headers = {}
+
+    with requests_mock.Mocker() as rm:
+        adapter = rm.post(
+            "http://example.com/comms/v1/message-batches",
+            status_code=401,
+            json={"status": "failed", "error": "Authorization header not present"}
+        )
+
+        response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
+
+        assert response.status_code == 401
+        assert response.get_json() == {"status": "failed", "error": "Authorization header not present"}
+
 
 def test_message_batch_fails_with_invalid_post_body(setup, client, message_batch_post_body):
     """Test that invalid request body fails schema validation."""
     message_batch_post_body["data"]["type"] = "invalid"
-    signature = hmac_signature.create_digest(
-        f"{os.getenv('CLIENT_APPLICATION_ID')}.{os.getenv('CLIENT_API_KEY')}",
-        json.dumps(message_batch_post_body, sort_keys=True)
-    )
 
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: signature}
+    headers = {"Authorization": "Bearer client_token"}
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
 
