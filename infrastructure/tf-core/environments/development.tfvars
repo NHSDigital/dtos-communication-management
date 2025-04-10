@@ -132,6 +132,9 @@ function_app = {
   app_insights_name    = "appi-dev-uks-commgt"
   app_insights_rg_name = "rg-commgt-dev-uks-audit"
 
+  app_service_logs_disk_quota_mb         = 35
+  app_service_logs_retention_period_days = 7
+
   always_on = true
 
   cont_registry_use_mi = true
