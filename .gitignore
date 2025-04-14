@@ -73,6 +73,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+unit-test-results.xml
+unit-test-results.html
+assets/style.css
 
 # Translations
 *.mo
@@ -97,3 +100,6 @@ venv.bak/
 terraform.tfstate
 terraform.tfstate.backup
 .DS_Store
+
+# In case some weirdo is using PyCharm. Looking at you @davelush
+.idea/

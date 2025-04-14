@@ -4,7 +4,10 @@ import app.services.status_recorder as status_recorder
 import json
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
+import pytest
 
+
+pytestmark = pytest.mark.test_id(["DTOSS-4691#2.1"])
 
 def test_save_statuses_with_channel_status_data(channel_status_post_body):
     """Test saving channel status data to database"""

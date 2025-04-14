@@ -9,6 +9,26 @@ if not bool(os.getenv("CI")):
     dotenv.load_dotenv(".env.test")
 
 
+def pytest_configure(config):
+    # Register the test_id marker
+    config.addinivalue_line(
+        "markers",
+        "test_id(id): mark test with specific test ID(s). Example: @pytest.mark.test_id('DTOSS-123')"
+    )
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        # Get test IDs from marker if present
+        test_ids = [
+            id for mark in item.iter_markers(name="test_id")
+            for id in (mark.args[0] if isinstance(mark.args[0], list) else [mark.args[0]])
+        ]
+        if test_ids:
+            # Add test IDs as a property that will appear in the XML
+            item.user_properties.append(("test_ids", ",".join(test_ids)))
+
+
 # Inserts the human readable docstring as the nodeid for the test
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):

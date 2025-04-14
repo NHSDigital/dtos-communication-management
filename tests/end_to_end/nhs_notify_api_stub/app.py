@@ -8,10 +8,13 @@ from jsonschema import validate, ValidationError
 import time
 import utils.hmac_signature as hmac_signature
 import uuid
+import pytest
+
 
 app = Flask(__name__)
 
 dotenv.load_dotenv()
+pytestmark = pytest.mark.test_id(["DTOSS-4691#2.1", "DTOSS-4691#1.3"])
 
 
 @app.route('/comms/v1/message-batches', methods=['POST'])
