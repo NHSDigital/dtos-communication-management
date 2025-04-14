@@ -73,6 +73,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+unit-test-results.xml
+unit-test-results.html
+assets/style.css
 
 # Translations
 *.mo
