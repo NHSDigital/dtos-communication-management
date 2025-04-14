@@ -94,6 +94,7 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev --system
+          pip list
 
       - name: "Set up test database"
         run: |
