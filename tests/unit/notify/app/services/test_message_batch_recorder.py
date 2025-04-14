@@ -3,7 +3,10 @@ import app.services.message_batch_recorder as message_batch_recorder
 import app.utils.database as database
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
+import pytest
 
+
+pytestmark = pytest.mark.test_id(["DTOSS-4691#2.1"])
 
 def test_save_batch(message_batch_post_body, message_batch_post_response):
     """When save_batch is called with a valid batch, the batch and messages should be saved."""

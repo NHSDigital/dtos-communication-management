@@ -2,6 +2,9 @@ import pytest
 from datetime import datetime
 from file_processor.format_time import to_human_readable_twelve_hours
 
+
+pytestmark = pytest.mark.test_id("DTOSS-4691#1.1")
+
 def test_valid_time_am():
     """
     Test that a valid morning time converts correctly.

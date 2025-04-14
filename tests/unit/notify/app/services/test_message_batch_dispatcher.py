@@ -4,6 +4,8 @@ import pytest
 import requests_mock
 
 
+pytestmark = pytest.mark.test_id(["DTOSS-4691#1.3", "DTOSS-4691#2.1"])
+
 @pytest.fixture
 def setup(monkeypatch):
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")

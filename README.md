@@ -38,6 +38,10 @@ graph TD
     style L fill:#f8d7da,stroke:#721c24,stroke-width:2px,color:#000;
 ```
 
+## Clinical Hazard Test Evidence Reports
+
+ - [DTOSS-4691 Clinical Hazard Test Evidence](https://nhsd-confluence.digital.nhs.uk/spaces/DTS/pages/962958383/DTOSS-4691+Clinical+Hazard+Test+Evidence)
+
 ## Contacts
 
 For any info please contact the [Invite team on Slack](https://nhsdigitalcorporate.enterprise.slack.com/archives/C07QHFSV79U)

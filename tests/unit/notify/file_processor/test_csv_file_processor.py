@@ -1,5 +1,14 @@
 import file_processor.csv_file_processor as csv_file_processor
+import pytest
 
+
+pytestmark = pytest.mark.test_id([
+    "DTOSS-4691#1.1",
+    "DTOSS-4691#2.1",
+    "DTOSS-4691#3.1",
+    "DTOSS-4691#3.2",
+    "DTOSS-4691#3.3"
+    ])
 
 def test_process_data_valid_csv(csv_data, expected_message_batch_body):
     """Test processing valid CSV data."""

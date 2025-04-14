@@ -7,6 +7,10 @@ from pytest_steps import test_steps
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
 import time
+import pytest
+
+
+pytestmark = pytest.mark.test_id(["DTOSS-4691#1.1", "DTOSS-4691#2.1", "DTOSS-4691#1.3"])
 
 dotenv.load_dotenv()
 

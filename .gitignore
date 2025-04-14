@@ -97,3 +97,6 @@ venv.bak/
 terraform.tfstate
 terraform.tfstate.backup
 .DS_Store
+
+# In case some weirdo is using PyCharm. Looking at you @davelush
+.idea/
