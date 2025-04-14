@@ -40,7 +40,7 @@ graph TD
 
 ## Clinical Hazard Test Evidence Reports
 
- - [DTOSS-4691 Clinical Hazard Test Evidence](https://nhsd-confluence.digital.nhs.uk/spaces/DTS/pages/962958383/DTOSS-4691+Clinical+Hazard+Test+Evidence)
+- [DTOSS-4691 Clinical Hazard Test Evidence](https://nhsd-confluence.digital.nhs.uk/spaces/DTS/pages/962958383/DTOSS-4691+Clinical+Hazard+Test+Evidence)
 
 ## Contacts
 
