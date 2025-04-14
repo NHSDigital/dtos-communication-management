@@ -20,7 +20,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python3 pretty_print_xml.py <xml_file>")
         sys.exit(1)
-    
+
     input_file = sys.argv[1]
     pretty_print_xml(input_file)
-    print(f"XML report has been pretty printed to {input_file}") 
+    print(f"XML report has been pretty printed to {input_file}")
