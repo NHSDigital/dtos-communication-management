@@ -12,7 +12,7 @@ FIELDNAMES = (
     "nhs_number",
     "sx_code", # Not sent to Notify
     "full_name", # Not sent to Notify
-    "date_of_birth",
+    "date_of_birth", # Not sent to Notify
     "office_code", # Not sent to Notify
     "appointment_date",
     "appointment_time",
@@ -66,7 +66,6 @@ def message_batch_body(filename, raw_data) -> dict | None:
 def valid_row(row) -> bool:
     return (
         valid_nhs_number(row["nhs_number"]) and
-        valid_date_or_time(row["date_of_birth"]) and
         valid_date_or_time(row["appointment_date"]) and
         valid_date_or_time(row["appointment_time"]) and
         row["appointment_location"]
