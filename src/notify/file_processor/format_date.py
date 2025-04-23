@@ -17,9 +17,5 @@ def _to_format(date_str: str, desired_format: str) -> str | None:
         return None
 
 
-def to_date_of_birth(date_str: str) -> str | None:
-    return _to_format(date_str, "%Y-%m-%d")
-
-
 def to_human_readable_date(date_str: str) -> str | None:
     return _to_format(date_str, "%A %d %B %Y")
