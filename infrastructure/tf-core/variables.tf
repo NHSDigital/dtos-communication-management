@@ -100,7 +100,6 @@ variable "regions" {
   }))
 }
 
-### Cohort Manager specific variables ###
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
@@ -169,8 +168,6 @@ variable "function_app" {
     acr_name                               = string
     acr_rg_name                            = string
     always_on                              = bool
-    app_insights_name                      = string
-    app_insights_rg_name                   = string
     app_service_logs_disk_quota_mb         = optional(number)
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
@@ -230,7 +227,6 @@ variable "network_security_group_rules" {
     destination_address_prefix = string
   })))
 }
-
 
 variable "postgresql" {
   description = "Configuration for the Azure Postgres server instance and a default database "

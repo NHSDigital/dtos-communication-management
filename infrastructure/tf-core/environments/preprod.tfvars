@@ -129,9 +129,6 @@ function_app = {
   acr_name    = "acrukshubprodcommgt"
   acr_rg_name = "rg-hub-prod-uks-commgt"
 
-  app_insights_name    = "appi-pre-uks-commgt"
-  app_insights_rg_name = "rg-commgt-pre-uks-audit"
-
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
 

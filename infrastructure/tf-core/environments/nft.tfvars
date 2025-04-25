@@ -129,9 +129,6 @@ function_app = {
   acr_name    = "acrukshubdevcommgt"
   acr_rg_name = "rg-hub-dev-uks-commgt"
 
-  app_insights_name    = "appi-nft-uks-commgt"
-  app_insights_rg_name = "rg-commgt-nft-uks-audit"
-
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
 
