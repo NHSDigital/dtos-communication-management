@@ -189,6 +189,105 @@ The application is deployed using Azure DevOps pipelines and Terraform infrastru
 
 ## API Endpoints
 
+### POST /api/message/batch
+
+This endpoint is used to send a batch of messages. It accepts a JSON payload containing message data and validates the request using a bearer token.
+
+#### Request
+
+- **Method:** POST
+- **Headers:**
+  - Authorization: `Bearer <CLIENT_TOKEN>`
+  - Content-Type: application/json
+- **Body (JSON):**
+
+  ```json
+  {
+    "data": {
+      "type": "MessageBatch",
+      "attributes": {
+        "routingPlanId": "<routing_plan_id>",
+        "messageBatchReference": "<batch_reference>",
+        "messages": [
+          {
+            "messageReference": "<message_reference>",
+            "recipient": {
+              "nhsNumber": "<nhs_number>",
+              "contactDetails": {
+                "email": "<email>",
+                "sms": "<phone_number>",
+                "address": {
+                  "lines": [
+                    "<address_line_1>",
+                    "<address_line_2>",
+                    "<address_line_3>",
+                    "<city>",
+                    "<county>"
+                  ],
+                  "postcode": "<postcode>"
+                }
+              }
+            },
+            "originator": {
+              "odsCode": "<ods_code>"
+            },
+            "personalisation": {}
+          }
+        ]
+      }
+    }
+  }
+  ```
+
+#### Response
+
+- **Success (201):**
+
+  ```json
+  {
+    "status": "success",
+    "response": {
+      "data": {
+        "type": "MessageBatch",
+        "id": "<batch_id>",
+        "attributes": {
+          "messageBatchReference": "<batch_reference>",
+          "routingPlan": {
+            "id": "<routing_plan_id>",
+            "name": "<plan_name>",
+            "version": "<plan_version>",
+            "createdDate": "<timestamp>"
+          },
+          "messages": [
+            {
+              "messageReference": "<message_reference>",
+              "id": "<message_id>"
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
+
+- **Error (401):** Missing or invalid Authorization header
+
+  ```json
+  {
+    "status": "failed",
+    "error": "Authorization header not present"
+  }
+  ```
+
+- **Error (422):** Invalid request body
+
+  ```json
+  {
+    "status": "failed",
+    "error": "Invalid body: '<error_message>'"
+  }
+  ```
+
 ### POST /api/status/create
 
 This endpoint is used to record status updates for messages. It accepts a JSON payload containing status data and validates the request using API keys and an HMAC signature.
