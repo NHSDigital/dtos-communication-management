@@ -15,23 +15,27 @@ This service manages communication delivery for the National Screening Platform,
 ### Environment Setup
 
 1. Clone the repository:
+
    ```bash
    git clone [repository-url]
    cd dtos-communication-management
    ```
 
 2. Create and activate a virtual environment:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. Set up environment variables:
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
@@ -49,16 +53,19 @@ This service manages communication delivery for the National Screening Platform,
 ### Running Locally
 
 1. Start the PostgreSQL database:
+
    ```bash
    docker-compose up -d db
    ```
 
 2. Run database migrations:
+
    ```bash
    alembic upgrade head
    ```
 
 3. Start the development server:
+
    ```bash
    python -m src.notify.app.main
    ```
@@ -66,11 +73,13 @@ This service manages communication delivery for the National Screening Platform,
 ### Database Migrations
 
 To create a new migration:
+
 ```bash
 alembic revision --autogenerate -m "description of changes"
 ```
 
 To apply migrations:
+
 ```bash
 alembic upgrade head
 ```
@@ -181,27 +190,29 @@ The application is deployed using Azure DevOps pipelines and Terraform infrastru
 ## API Endpoints
 
 ### POST /api/status/create
+
 This endpoint is used to record status updates for messages. It accepts a JSON payload containing status data and validates the request using API keys and an HMAC signature.
 
 #### Request
+
 - **Method:** POST
 - **Headers:**
   - Content-Type: application/json
-  - x-api-key: <NOTIFY_API_KEY>
-  - x-hmac-sha256-signature: <signature>
+  - x-api-key: `<NOTIFY_API_KEY>`
+  - x-hmac-sha256-signature: `<signature>`
 - **Body (JSON):**
+
   ```json
   {
     "data": [
       {
-        "type": "MessageStatus", // or "ChannelStatus"
+        "type": "MessageStatus",
         "attributes": {
           "messageId": "<message_id>",
           "messageReference": "<message_reference>",
-          "messageStatus": "<status>", // e.g., "created", "delivered", "enriched", "failed", "pending_enrichment", "sending"
-          // For ChannelStatus, you may also include:
+          "messageStatus": "<status>",
           "channel": "<channel>",
-          "channelStatus": "<channel_status>", // e.g., "delivered", "notification_attempted", "notified", "permanent_failure", "read", "received", "rejected", "technical_failure", "temporary_failure", "unnotified"
+          "channelStatus": "<channel_status>",
           "supplierStatus": "<supplier_status>"
         },
         "meta": {
@@ -213,31 +224,41 @@ This endpoint is used to record status updates for messages. It accepts a JSON p
   ```
 
 #### Response
+
 - **Success (200):**
+
   ```json
   {
     "status": "success"
   }
   ```
+
 - **Error (401):** Invalid API key
+
   ```json
   {
     "status": "Invalid API key"
   }
   ```
+
 - **Error (403):** Invalid signature
+
   ```json
   {
     "status": "Invalid signature"
   }
   ```
-- **Error (422):** Invalid request body (e.g., invalid status value)
+
+- **Error (422):** Invalid request body
+
   ```json
   {
     "status": "<error_message>"
   }
   ```
+
 - **Error (500):** Server error
+
   ```json
   {
     "status": "error"
@@ -245,12 +266,14 @@ This endpoint is used to record status updates for messages. It accepts a JSON p
   ```
 
 ### GET /api/statuses
+
 This endpoint retrieves status records based on query parameters. It filters statuses by attributes such as channel, supplier status, batch reference, NHS number, and creation date.
 
 #### Request
+
 - **Method:** GET
 - **Headers:**
-  - x-api-key: <CLIENT_API_KEY>
+  - x-api-key: `<CLIENT_API_KEY>`
 - **Query Parameters (optional):**
   - channel: Filter by channel (e.g., "nhsapp")
   - supplierStatus: Filter by supplier status (e.g., "read")
@@ -259,7 +282,9 @@ This endpoint retrieves status records based on query parameters. It filters sta
   - created_at: Filter by creation date
 
 #### Response
+
 - **Success (200):**
+
   ```json
   {
     "status": "success",
@@ -271,18 +296,21 @@ This endpoint retrieves status records based on query parameters. It filters sta
         "channel": "<channel>",
         "channelStatus": "<channel_status>",
         "supplierStatus": "<supplier_status>"
-      },
-      // Additional status records...
+      }
     ]
   }
   ```
+
 - **Error (401):** Invalid API key
+
   ```json
   {
     "status": "Invalid API key"
   }
   ```
+
 - **Error (500):** Server error
+
   ```json
   {
     "status": "error"
