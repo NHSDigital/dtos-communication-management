@@ -16,3 +16,6 @@ Syft
 Terraform
 toolchain
 Trufflehog
+SQLAlchemy
+batchReference
+created_at
