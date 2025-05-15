@@ -1,4 +1,4 @@
-# Communication Management (National Screening Platform)
+# Communication Management API
 
 ## Overview
 
@@ -21,20 +21,15 @@ This service manages communication delivery for the National Screening Platform,
    cd dtos-communication-management
    ```
 
-2. Create and activate a virtual environment:
+2. Install dependencies:
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install pipenv
+   pipenv install --dev
+   pipenv shell
    ```
 
-3. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Set up environment variables:
+3. Set up environment variables:
 
    ```bash
    cp .env.example .env
