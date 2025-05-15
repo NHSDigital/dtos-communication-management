@@ -1,42 +1,420 @@
 # Communication Management (National Screening Platform)
 
-This repository makes up the NSP component that handles communication with NHS Notify.
+## Overview
 
-At present, this component is processing a file, and then using the appointment data in that file to create an event, and calling NHS Notify with the payload.
-In future, the file processing will be removed, and the event subscription will remain.
+This service manages communication delivery for the National Screening Platform, handling message status updates and delivery tracking across multiple channels. It provides a robust API for recording and retrieving message statuses, with support for various delivery channels and status types.
 
-Here's a diagram:
+## Getting Started
 
-```mermaid
-graph TD
-    A[NBSS Crystal Report] -->|Sent as CSV to | M[NHSMail Mailbox]
-    M -->|Uploaded to| N[Azure Blob Storage]
-    N -->|Triggers| B[Appointment File Processor]
-    B -->|Saves to DB| J[(Message Status)]
-    B -->|Calls| D[Communications Management]
-    D -->|Calls| E[NHS Notify]
-    E -->|NHS App| F[NHS App User]
-    E -->|SMS| H[Participant SMS]
-    E -->|Letter| I[Participant Letter]
-    E -->|Status Callback| K[Verify HMAC Key]
-    K -->|Verified| D
-    K -->|Invalid HMAC| L[Reject Request]
+### Prerequisites
 
-    D -->|Updates DB| J
+- Python 3.11 or higher
+- PostgreSQL 14 or higher
+- Docker (for containerized development)
 
-    style A fill:#cce5ff,stroke:#0056b3,stroke-width:2px,color:#000;
-    style M fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#000;
-    style N fill:#d4edda,stroke:#155724,stroke-width:2px,color:#000;
-    style B fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000;
-    style D fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000;
-    style E fill:#cce5ff,stroke:#0056b3,stroke-width:2px,color:#000;
-    style F fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#000;
-    style H fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#000;
-    style I fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#000;
-    style J fill:#f8d7da,stroke:#721c24,stroke-width:2px,color:#000;
-    style K fill:#fefefe,stroke:#0056b3,stroke-width:2px,color:#000;
-    style L fill:#f8d7da,stroke:#721c24,stroke-width:2px,color:#000;
+### Environment Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone [repository-url]
+   cd dtos-communication-management
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Set up environment variables:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+### Required Environment Variables
+
+- `NOTIFY_API_KEY`: API key for the notification service
+- `CLIENT_API_KEY`: API key for client authentication
+- `DATABASE_URL`: PostgreSQL connection string
+- `HMAC_SECRET`: Secret key for HMAC signature generation
+
+## Development
+
+### Running Locally
+
+1. Start the PostgreSQL database:
+
+   ```bash
+   docker-compose up -d db
+   ```
+
+2. Run database migrations:
+
+   ```bash
+   alembic upgrade head
+   ```
+
+3. Start the development server:
+
+   ```bash
+   python -m src.notify.app.main
+   ```
+
+### Database Migrations
+
+To create a new migration:
+
+```bash
+alembic revision --autogenerate -m "description of changes"
 ```
+
+To apply migrations:
+
+```bash
+alembic upgrade head
+```
+
+## Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test file
+pytest tests/unit/notify/app/route_handlers/test_status_create_endpoint.py
+
+# Run with coverage
+pytest --cov=src
+```
+
+### Test Categories
+
+- Unit Tests: `tests/unit/`
+- Integration Tests: `tests/integration/`
+- End-to-End Tests: `tests/end_to_end/`
+
+## Architecture
+
+### Components
+
+- **API Layer**: FastAPI-based REST API for status management
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Message Processing**: Asynchronous message handling with status tracking
+- **Authentication**: API key and HMAC signature-based security
+
+### Data Flow
+
+1. Status updates are received via the `/api/status/create` endpoint
+2. Updates are validated and stored in the database
+3. Status queries are handled via the `/api/statuses` endpoint
+4. All operations are logged and monitored
+
+## Deployment
+
+### Infrastructure Requirements
+
+- Azure Function App (Linux-based)
+- Azure PostgreSQL Flexible Server
+- Azure Key Vault for secrets management
+- Azure Container Registry for Docker images
+- Azure Storage Account for file uploads
+- Azure Virtual Network with private endpoints
+
+### Deployment Process
+
+The application is deployed using Azure DevOps pipelines and Terraform infrastructure as code. The deployment process is automated and follows these stages:
+
+1. **Infrastructure Deployment**
+   - Core infrastructure is deployed using Terraform
+   - Separate pipelines for core and audit infrastructure
+   - Environments: Development (DEV), Integration (INT), Pre-production (PRE), and Production (PRD)
+   - Pipeline files:
+     - Core: `.azuredevops/pipelines/cd-infrastructure-{env}-core.yaml`
+     - Audit: `.azuredevops/pipelines/cd-infrastructure-{env}-audit.yaml`
+
+2. **Application Deployment**
+   - Docker image is built and pushed to Azure Container Registry
+   - Function App is deployed with environment-specific configuration
+   - Production and Pre-production environments include a staging slot for zero-downtime deployments
+   - Environment-specific variables are managed through Azure Key Vault
+
+3. **Deployment Environments**
+   - Development (DEV): `https://int.api.service.nhs.uk`
+   - Integration (INT): `https://int.api.service.nhs.uk`
+   - Pre-production (PRE): `https://api.service.nhs.uk`
+   - Production (PRD): `https://api.service.nhs.uk`
+
+4. **Infrastructure Configuration**
+   - App Service Plan: Linux-based P2v3 with auto-scaling
+   - PostgreSQL: Flexible Server with private endpoints
+   - Storage: Private endpoints for blob and queue storage
+   - Network: Virtual Network with private endpoints for all services
+
+## Contributing
+
+### Development Workflow
+
+1. Create a branch from `main`
+2. Make your changes
+3. Add tests for new functionality
+4. Update documentation
+5. Submit a pull request
+
+### Code Standards
+
+- Follow PEP 8 style guide
+- Write unit tests for new features
+- Update documentation for API changes
+- Use type hints for all new code
+- Follow functional programming principles where possible
+
+### Pull Request Process
+
+1. Ensure all checks pass (tests + linting)
+2. Update documentation if needed
+3. Get code review approval
+4. Merge to main branch
+
+## API Endpoints
+
+### POST /api/message/batch
+
+This endpoint is used to send a batch of messages. It accepts a JSON payload containing message data and validates the request using a bearer token.
+
+#### Request
+
+- **Method:** POST
+- **Headers:**
+  - Authorization: `Bearer <CLIENT_TOKEN>`
+  - Content-Type: application/json
+- **Body (JSON):**
+
+  ```json
+  {
+    "data": {
+      "type": "MessageBatch",
+      "attributes": {
+        "routingPlanId": "<routing_plan_id>",
+        "messageBatchReference": "<batch_reference>",
+        "messages": [
+          {
+            "messageReference": "<message_reference>",
+            "recipient": {
+              "nhsNumber": "<nhs_number>",
+              "contactDetails": {
+                "email": "<email>",
+                "sms": "<phone_number>",
+                "address": {
+                  "lines": [
+                    "<address_line_1>",
+                    "<address_line_2>",
+                    "<address_line_3>",
+                    "<city>",
+                    "<county>"
+                  ],
+                  "postcode": "<postcode>"
+                }
+              }
+            },
+            "originator": {
+              "odsCode": "<ods_code>"
+            },
+            "personalisation": {}
+          }
+        ]
+      }
+    }
+  }
+  ```
+
+#### Response
+
+- **Success (201):**
+
+  ```json
+  {
+    "status": "success",
+    "response": {
+      "data": {
+        "type": "MessageBatch",
+        "id": "<batch_id>",
+        "attributes": {
+          "messageBatchReference": "<batch_reference>",
+          "routingPlan": {
+            "id": "<routing_plan_id>",
+            "name": "<plan_name>",
+            "version": "<plan_version>",
+            "createdDate": "<timestamp>"
+          },
+          "messages": [
+            {
+              "messageReference": "<message_reference>",
+              "id": "<message_id>"
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
+
+- **Error (401):** Missing or invalid Authorization header
+
+  ```json
+  {
+    "status": "failed",
+    "error": "Authorization header not present"
+  }
+  ```
+
+- **Error (422):** Invalid request body
+
+  ```json
+  {
+    "status": "failed",
+    "error": "Invalid body: '<error_message>'"
+  }
+  ```
+
+### POST /api/status/create
+
+This endpoint is used to record status updates for messages. It accepts a JSON payload containing status data and validates the request using API keys and an HMAC signature.
+
+#### Request
+
+- **Method:** POST
+- **Headers:**
+  - Content-Type: application/json
+  - x-api-key: `<NOTIFY_API_KEY>`
+  - x-hmac-sha256-signature: `<signature>`
+- **Body (JSON):**
+
+  ```json
+  {
+    "data": [
+      {
+        "type": "MessageStatus",
+        "attributes": {
+          "messageId": "<message_id>",
+          "messageReference": "<message_reference>",
+          "messageStatus": "<status>",
+          "channel": "<channel>",
+          "channelStatus": "<channel_status>",
+          "supplierStatus": "<supplier_status>"
+        },
+        "meta": {
+          "idempotencyKey": "<idempotency_key>"
+        }
+      }
+    ]
+  }
+  ```
+
+#### Response
+
+- **Success (200):**
+
+  ```json
+  {
+    "status": "success"
+  }
+  ```
+
+- **Error (401):** Invalid API key
+
+  ```json
+  {
+    "status": "Invalid API key"
+  }
+  ```
+
+- **Error (403):** Invalid signature
+
+  ```json
+  {
+    "status": "Invalid signature"
+  }
+  ```
+
+- **Error (422):** Invalid request body
+
+  ```json
+  {
+    "status": "<error_message>"
+  }
+  ```
+
+- **Error (500):** Server error
+
+  ```json
+  {
+    "status": "error"
+  }
+  ```
+
+### GET /api/statuses
+
+This endpoint retrieves status records based on query parameters. It filters statuses by attributes such as channel, supplier status, batch reference, NHS number, and creation date.
+
+#### Request
+
+- **Method:** GET
+- **Headers:**
+  - x-api-key: `<CLIENT_API_KEY>`
+- **Query Parameters (optional):**
+  - channel: Filter by channel (e.g., "nhsapp")
+  - supplierStatus: Filter by supplier status (e.g., "read")
+  - batchReference: Filter by batch reference
+  - nhsNumber: Filter by NHS number
+  - created_at: Filter by creation date
+
+#### Response
+
+- **Success (200):**
+
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "created_at": "<timestamp>",
+        "message_id": "<message_id>",
+        "message_reference": "<message_reference>",
+        "channel": "<channel>",
+        "channelStatus": "<channel_status>",
+        "supplierStatus": "<supplier_status>"
+      }
+    ]
+  }
+  ```
+
+- **Error (401):** Invalid API key
+
+  ```json
+  {
+    "status": "Invalid API key"
+  }
+  ```
+
+- **Error (500):** Server error
+
+  ```json
+  {
+    "status": "error"
+  }
+  ```
 
 ## Contacts
 

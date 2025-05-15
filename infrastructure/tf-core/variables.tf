@@ -100,7 +100,6 @@ variable "regions" {
   }))
 }
 
-### Cohort Manager specific variables ###
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
@@ -165,22 +164,22 @@ variable "app_service_plan" {
 variable "function_app" {
   description = "Configuration for function apps"
   type = object({
-    acr_mi_name                   = string
-    acr_name                      = string
-    acr_rg_name                   = string
-    always_on                     = bool
-    app_insights_name             = string
-    app_insights_rg_name          = string
-    cont_registry_use_mi          = bool
-    docker_CI_enable              = string
-    docker_env_tag                = string
-    docker_img_prefix             = string
-    enable_appsrv_storage         = bool
-    ftps_state                    = string
-    https_only                    = bool
-    remote_debugging_enabled      = bool
-    storage_uses_managed_identity = bool
-    worker_32bit                  = bool
+    acr_mi_name                            = string
+    acr_name                               = string
+    acr_rg_name                            = string
+    always_on                              = bool
+    app_service_logs_disk_quota_mb         = optional(number)
+    app_service_logs_retention_period_days = optional(number)
+    cont_registry_use_mi                   = bool
+    docker_CI_enable                       = string
+    docker_env_tag                         = string
+    docker_img_prefix                      = string
+    enable_appsrv_storage                  = bool
+    ftps_state                             = string
+    https_only                             = bool
+    remote_debugging_enabled               = bool
+    storage_uses_managed_identity          = bool
+    worker_32bit                           = bool
     slots = optional(map(object({
       name         = string
       slot_enabled = optional(bool, false)
@@ -228,7 +227,6 @@ variable "network_security_group_rules" {
     destination_address_prefix = string
   })))
 }
-
 
 variable "postgresql" {
   description = "Configuration for the Azure Postgres server instance and a default database "
