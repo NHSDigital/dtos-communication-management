@@ -89,7 +89,7 @@ The test suite is organized into three main categories:
 
 - **Local:** Development environment
 - **CI/CD:** Automated test execution
-- **Staging:** Pre-production validation
+- **Integration:** Pre-production validation
 
 ---
 
