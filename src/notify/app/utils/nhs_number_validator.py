@@ -1,6 +1,3 @@
-"""
-Utility functions for validating NHS numbers using functional programming practices.
-"""
 from typing import Tuple
 from functools import reduce
 from operator import mul, add
