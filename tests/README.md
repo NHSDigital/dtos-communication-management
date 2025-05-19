@@ -1,4 +1,4 @@
-# Test Plan: Comms Manager
+# Test Strategy: Comms Manager
 
 ## Overview
 
@@ -93,4 +93,4 @@ The test suite is organized into three main categories:
 
 ---
 
-This test plan reflects the current implementation and structure of the test suite.
+This test strategy reflects the current implementation and structure of the test suite.
