@@ -57,7 +57,7 @@ def message_batch_post_body():
                     {
                         "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
                         "recipient": {
-                            "nhsNumber": "9990548609",
+                            "nhsNumber": "4010232137",
                             "contactDetails": {
                                 "email": "recipient@nhs.net",
                                 "sms": "07777777777",
@@ -177,8 +177,8 @@ def message_status_post_body():
 @pytest.fixture
 def csv_data():
     return [
-        'UNUSED_STAGE_COLUMN,0000000000,987654,"BLAKE, KYLIE, MRS",03M02M2001,EP700,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
-        'UNUSED_STAGE_COLUMN,1111111111,987654,"BLAKE, KAREN, MRS",04M04M2002,EP700,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
+        'UNUSED_STAGE_COLUMN,4010232137,987654,"BLAKE, KYLIE, MRS",03M02M2001,EP700,03M02M2022,10:00:00,"The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ"',
+        'UNUSED_STAGE_COLUMN,9876543210,987654,"BLAKE, KAREN, MRS",04M04M2002,EP700,04M04M2024,11:00:00,"The Epping Breast Screening Unit, St Margaret\'s Hospital, The Plain, Epping, Essex, CM16 6TN"',
     ]
 
 
@@ -195,27 +195,27 @@ def expected_message_batch_body():
                     {
                         "messageReference": "24be387c-8d22-f5ba-ee53-4dbcafec576a",
                         "recipient": {
-                            "nhsNumber": "0000000000",
+                            "nhsNumber": "4010232137",
                         },
                         "personalisation": {
                             "appointment_date": "Thursday 03 February 2022",
                             "appointment_location": "The Royal Shrewsbury Hospital, Breast Screening Office, Shrewsbury, SY3 8XQ",
                             "appointment_time": "10:00am",
                             "contact_telephone_number": "020 3758 2024",
-                            "tracking_id": "0000000000"
+                            "tracking_id": "4010232137"
                         }
                     },
                     {
                         "messageReference": "b212fb30-1414-d6ac-92a0-431b2d4b77c5",
                         "recipient": {
-                            "nhsNumber": "1111111111",
+                            "nhsNumber": "9876543210",
                         },
                         "personalisation": {
                             "appointment_date": "Thursday 04 April 2024",
                             "appointment_location": "The Epping Breast Screening Unit, St Margaret's Hospital, The Plain, Epping, Essex, CM16 6TN",
                             "appointment_time": "11:00am",
                             "contact_telephone_number": "020 3758 2024",
-                            "tracking_id": "1111111111"
+                            "tracking_id": "9876543210"
                         }
                     }
                 ]
