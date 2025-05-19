@@ -6,20 +6,22 @@ from functools import reduce
 from operator import mul, add
 
 
-def remove_spaces(nhs_number: str) -> str:
+def remove_spaces(nhs_number: str | None) -> str | None:
+    if nhs_number is None:
+        return None
     return nhs_number.replace(" ", "")
 
 
-def is_digits_only(nhs_number: str) -> bool:
-    return nhs_number.isdigit()
+def is_digits_only(nhs_number: str | None) -> bool:
+    return nhs_number is not None and nhs_number.isdigit()
 
 
-def has_correct_length(nhs_number: str) -> bool:
-    return len(nhs_number) == 10
+def has_correct_length(nhs_number: str | None) -> bool:
+    return nhs_number is not None and len(nhs_number) == 10
 
 
-def has_unique_digits(nhs_number: str) -> bool:
-    return len(set(nhs_number)) > 1
+def has_unique_digits(nhs_number: str | None) -> bool:
+    return nhs_number is not None and len(set(nhs_number)) > 1
 
 
 def calculate_check_digit(nhs_number: str) -> int:
