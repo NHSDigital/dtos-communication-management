@@ -103,7 +103,7 @@ def test_statuses_for_nhs_number_are_found(channel_status_post_body, message_bat
     message_batch_recorder.save_batch(message_batch_post_body, message_batch_post_response, models.MessageBatchStatuses.SENT)
     status_recorder.save_statuses(channel_status_post_body)
 
-    query_params = {"nhsNumber": "9990548609"}
+    query_params = {"nhsNumber": "4010232137"}
 
     statuses = status_reporter.get_statuses(query_params)
     assert len(statuses) == 1
