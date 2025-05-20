@@ -36,6 +36,9 @@ def determine_truncatedb_scope(fixture_name, config):
 
 @pytest.fixture(autouse=True, scope=determine_truncatedb_scope)
 def truncatedb():
+    if os.getenv("NO_DB") == "true":
+        return
+
     try:
         with database.connection() as conn:
             with conn.cursor() as cur:

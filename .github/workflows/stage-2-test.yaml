@@ -146,6 +146,29 @@ jobs:
         run: |
           ./test-integration.sh
 
+  test-contract:
+    name: "Contract tests"
+    needs: set-up-dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CI: true
+      ENV_FILE: ".env.test"
+      NO_DB: "true"
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Install dependencies"
+        run: |
+          pip install pipenv
+          pipenv install --dev --system
+
+      - name: "Run contract test suite"
+        run: |
+          ./test-contract.sh
+
   test-end-to-end:
     name: "End-to-end tests"
     needs: set-up-dependencies
