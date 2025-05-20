@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the test strategy and coverage for the Comms Manager service, which forms part of the National Screening Platform (NSP). Comms Manager is responsible for sending participant notifications via NHS Notify and tracking delivery status.
+This document outlines the test strategy and coverage for the Comms Manager service. Comms Manager is responsible for sending participant notifications via NHS Notify and tracking delivery status.
 
 ## Test Structure
 
