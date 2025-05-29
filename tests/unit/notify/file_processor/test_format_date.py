@@ -1,7 +1,9 @@
 import pytest
 import file_processor.format_date as format_date
+from compliance_framework import compliance
 
 
+@compliance({"DTOSS-4691#1.1": ["RISK-010", "RISK-011"]})
 def test_to_human_readable_date():
     """Test human-readable date formatting to DD/MM/YYYY."""
     valid_test_cases = [

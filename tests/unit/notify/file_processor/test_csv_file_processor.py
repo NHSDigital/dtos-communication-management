@@ -1,12 +1,31 @@
 import file_processor.csv_file_processor as csv_file_processor
+import pytest
+from compliance_framework import compliance
 
+pytestmark = pytest.mark.test_id([
+    "DTOSS-4691#1.1",
+    "DTOSS-4691#2.1",
+    "DTOSS-4691#3.1",
+    "DTOSS-4691#3.2",
+    "DTOSS-4691#3.3"
+])
 
+@compliance({
+    "DTOSS-4691#1.1": ["RISK-001", "RISK-002"],  # Data validation risks
+    "DTOSS-4691#2.1": ["RISK-003"],  # Processing risks
+    "DTOSS-4691#3.1": ["RISK-004"],  # Format validation risks
+    "DTOSS-4691#3.2": ["RISK-005"],  # Data integrity risks
+    "DTOSS-4691#3.3": ["RISK-006"]   # Output validation risks
+})
 def test_process_data_valid_csv(csv_data, expected_message_batch_body):
     """Test processing valid CSV data."""
     result = csv_file_processor.message_batch_body("HWA NHS App Pilot 002 SPRPT", csv_data)
     assert result == expected_message_batch_body
 
-
+@compliance({
+    "DTOSS-4691#1.1": ["RISK-001", "RISK-002"],  # Data validation risks
+    "DTOSS-4691#2.1": ["RISK-003"]  # Processing risks
+})
 def test_process_data_missing_csv_data():
     """Test handling CSV data with missing fields."""
     csv_data = [
@@ -16,10 +35,12 @@ def test_process_data_missing_csv_data():
     ]
 
     result = csv_file_processor.message_batch_body("JDO", csv_data)
-
     assert result is None
 
-
+@compliance({
+    "DTOSS-4691#1.1": ["RISK-001", "RISK-002"],  # Data validation risks
+    "DTOSS-4691#2.1": ["RISK-003"]  # Processing risks
+})
 def test_process_data_invalid_csv_data():
     """Test handling completely invalid CSV data."""
     invalid_data = "\n"

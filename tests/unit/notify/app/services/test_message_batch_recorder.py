@@ -3,8 +3,11 @@ import app.services.message_batch_recorder as message_batch_recorder
 import app.utils.database as database
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
+import pytest
+from compliance_framework import compliance
 
 
+@compliance({"DTOSS-4691#2.1": ["RISK-012", "RISK-013", "RISK-014"]})
 def test_save_batch(message_batch_post_body, message_batch_post_response):
     """When save_batch is called with a valid batch, the batch and messages should be saved."""
     success, response = message_batch_recorder.save_batch(
@@ -34,7 +37,7 @@ def test_save_batch(message_batch_post_body, message_batch_post_response):
         assert messages[0].details == merged_messages[0]
         assert messages[0].nhs_number == merged_messages[0]["recipient"]["nhsNumber"]
 
-
+@compliance({"DTOSS-4691#2.1": ["RISK-012", "RISK-013", "RISK-014"]})
 def test_save_batch_with_failed_status(message_batch_post_body, message_batch_post_response):
     """When save_batch is called with a failed status, the batch should still be saved without message records."""
     success, response = message_batch_recorder.save_batch(
@@ -55,7 +58,7 @@ def test_save_batch_with_failed_status(message_batch_post_body, message_batch_po
         assert message_batch.response == message_batch_post_response
         assert message_batch.status == models.MessageBatchStatuses.FAILED
 
-
+@compliance({"DTOSS-4691#2.1": ["RISK-012", "RISK-013", "RISK-014"]})
 def test_save_batch_with_errors(message_batch_post_body, message_batch_post_response):
     """When save_batch fails with an error, the batch should not be saved."""
     success, response = message_batch_recorder.save_batch(

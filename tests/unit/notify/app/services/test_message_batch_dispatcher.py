@@ -2,13 +2,15 @@ import app.models as models
 import app.services.message_batch_dispatcher as message_batch_dispatcher
 import pytest
 import requests_mock
+from compliance_framework import compliance
 
 
+@compliance({"DTOSS-4691#1.3": ["RISK-015", "RISK-016"], "DTOSS-4691#2.1": ["RISK-017"]})
 @pytest.fixture
 def setup(monkeypatch):
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
 
-
+@compliance({"DTOSS-4691#1.3": ["RISK-015", "RISK-016"], "DTOSS-4691#2.1": ["RISK-017"]})
 def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_body, message_batch_post_response):
     """When dispatch is called with a valid body, a success response should be returned."""
     mock_recorder = mocker.patch(
@@ -58,6 +60,7 @@ def test_message_batch_dispatcher_includes_bearer_token(mocker, setup, message_b
         assert adapter.last_request.headers["Authorization"] == "Bearer client_bearer_token"
 
 
+@compliance({"DTOSS-4691#1.3": ["RISK-015", "RISK-016"], "DTOSS-4691#2.1": ["RISK-017"]})
 def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
     """When dispatch is called with an invalid body, a failed response should be returned."""
     mock_recorder = mocker.patch(

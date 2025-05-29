@@ -21,6 +21,8 @@ log/
 
 *.pem
 # Please, add your custom content below!
+/compliance_reports/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
