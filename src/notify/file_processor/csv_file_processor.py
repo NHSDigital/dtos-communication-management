@@ -1,5 +1,6 @@
 from app.utils.uuid_generator import reference_uuid
 import app.validators.schema_validator as schema_validator
+import app.utils.nhs_number_validator as nhs_number_validator
 import csv
 import logging
 import file_processor.format_time as format_time
@@ -73,7 +74,11 @@ def valid_row(row) -> bool:
 
 
 def valid_nhs_number(nhs_number: str) -> bool:
-    return bool(nhs_number) and len(nhs_number) == 10 and nhs_number.isdigit()
+    """Validate NHS number using Modulus 11 algorithm."""
+    is_valid, error = nhs_number_validator.is_valid_nhs_number(nhs_number)
+    if not is_valid:
+        logging.warning("Invalid NHS number: %s - %s", nhs_number, error)
+    return is_valid
 
 
 def valid_date_or_time(val: str) -> bool:

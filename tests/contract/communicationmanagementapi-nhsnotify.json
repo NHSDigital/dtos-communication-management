@@ -1,0 +1,125 @@
+{
+  "consumer": {
+    "name": "CommunicationManagementAPI"
+  },
+  "provider": {
+    "name": "NHSNotify"
+  },
+  "interactions": [
+    {
+      "description": "A request to create a message batch",
+      "providerState": "A message batch is created",
+      "request": {
+        "method": "post",
+        "path": "/comms/v1/message-batches",
+        "headers": {
+          "content-type": "application/vnd.api+json",
+          "accept": "application/vnd.api+json",
+          "x-correlation-id": "b0631601-8b69-4b28-9215-65411fb0cf8d",
+          "authorization": "Bearer an_access_token"
+        },
+        "body": {
+          "data": {
+            "type": "MessageBatch",
+            "attributes": {
+              "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+              "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+              "messages": [
+                {
+                  "messageReference": "703b8008-545d-4a04-bb90-1f2946ce1575",
+                  "recipient": {
+                    "nhsNumber": "9990548609",
+                    "contactDetails": {
+                      "email": "recipient@nhs.net",
+                      "sms": "07777777777",
+                      "address": {
+                        "lines": [
+                          "NHS England",
+                          "6th Floor",
+                          "7&8 Wellington Place",
+                          "Leeds",
+                          "West Yorkshire"
+                        ],
+                        "postcode": "LS1 4AP"
+                      }
+                    }
+                  },
+                  "originator": {
+                    "odsCode": "X26"
+                  },
+                  "personalisation": {
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+        },
+        "body": {
+          "data": {
+            "type": "Message",
+            "id": "2WL3qFTEFM0qMY8xjRbt1LIKCzM",
+            "attributes": {
+              "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+              "routingPlan": {
+                "id": "2HL3qFTEFM0qMY8xjRbt1LIKCzM",
+                "name": "Test Routing Plan",
+                "version": "ztoe2qRAM8M8vS0bqajhyEBcvXacrGPp",
+                "createdDate": "2023-11-17T14:30:00.000Z"
+              }
+            },
+            "messages": [
+              {
+                "id": "2WL3qFTEFM0qMY8xjRbt1LIKCzM",
+                "messageReference": "da0b1495-c7cb-468c-9d81-07dee089d728"
+              }
+            ]
+          }
+        },
+        "matchingRules": {
+          "$.body.data.id": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z]+"
+          },
+          "$.body.data.attributes.messageBatchReference": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\-]{36}"
+          },
+          "$.body.data.attributes.routingPlan.id": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\-]{27}"
+          },
+          "$.body.data.attributes.routingPlan.name": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\- ]+"
+          },
+          "$.body.data.attributes.routingPlan.version": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z]+"
+          },
+          "$.body.data.attributes.routingPlan.createdDate": {
+            "match": "regex",
+            "regex": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z"
+          },
+          "$.body.data.messages[0].id": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\-]{27}"
+          },
+          "$.body.data.messages[0].messageReference": {
+            "match": "regex",
+            "regex": "[0-9a-zA-Z\\-]{36}"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
