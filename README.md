@@ -11,7 +11,7 @@ This service manages communication delivery for the National Screening Platform,
 - Python 3.11 or higher
 - PostgreSQL 14 or higher
 - Docker (for containerized development)
-- Pipenv (for dependency management)
+- pipenv (for dependency management)
 
 ### Environment Setup
 
