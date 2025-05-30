@@ -11,6 +11,7 @@ This service manages communication delivery for the National Screening Platform,
 - Python 3.11 or higher
 - PostgreSQL 14 or higher
 - Docker (for containerized development)
+- Pipenv (for dependency management)
 
 ### Environment Setup
 
@@ -31,7 +32,7 @@ This service manages communication delivery for the National Screening Platform,
 3. Install dependencies:
 
    ```bash
-   pip install -r requirements.txt
+   pipenv install --dev
    ```
 
 4. Set up environment variables:
