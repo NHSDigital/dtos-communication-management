@@ -19,3 +19,4 @@ Trufflehog
 SQLAlchemy
 batchReference
 created_at
+pipenv
