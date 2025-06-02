@@ -1,8 +1,8 @@
-# Communication Management (National Screening Platform)
+# Communication Management API
 
 ## Overview
 
-This service manages communication delivery for the National Screening Platform, handling message status updates and delivery tracking across multiple channels. It provides a robust API for recording and retrieving message statuses, with support for various delivery channels and status types.
+This service manages communication delivery via NHS Notify, handling message status updates and delivery tracking across multiple channels. It provides a robust API for recording and retrieving message statuses, with support for various delivery channels and status types.
 
 ## Getting Started
 
@@ -11,6 +11,7 @@ This service manages communication delivery for the National Screening Platform,
 - Python 3.11 or higher
 - PostgreSQL 14 or higher
 - Docker (for containerized development)
+- pipenv (for dependency management)
 
 ### Environment Setup
 
@@ -21,20 +22,15 @@ This service manages communication delivery for the National Screening Platform,
    cd dtos-communication-management
    ```
 
-2. Create and activate a virtual environment:
+2. Install dependencies:
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install pipenv
+   pipenv install --dev
+   pipenv shell
    ```
 
-3. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Set up environment variables:
+3. Set up environment variables:
 
    ```bash
    cp .env.example .env
