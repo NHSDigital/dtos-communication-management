@@ -4,8 +4,11 @@ import app.services.status_recorder as status_recorder
 import json
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
+import pytest
+from compliance_framework import compliance
 
 
+@compliance({"DTOSS-4691#2.1": ["RISK-007", "RISK-008"]})
 def test_save_statuses_with_channel_status_data(channel_status_post_body):
     """Test saving channel status data to database"""
     assert status_recorder.save_statuses(channel_status_post_body)
@@ -19,7 +22,7 @@ def test_save_statuses_with_channel_status_data(channel_status_post_body):
         assert str(status_record.message_reference) == channel_status_data["attributes"]["messageReference"]
         assert status_record.status == models.ChannelStatuses(channel_status_data["attributes"]["supplierStatus"])
 
-
+@compliance({"DTOSS-4691#2.1": ["RISK-007", "RISK-008"]})
 def test_save_statuses_with_message_status_data(message_status_post_body):
     """Test saving message status data to datastore"""
     assert status_recorder.save_statuses(message_status_post_body)
@@ -33,7 +36,7 @@ def test_save_statuses_with_message_status_data(message_status_post_body):
         assert str(status_record.message_reference) == message_status_data["attributes"]["messageReference"]
         assert status_record.status == models.MessageStatuses(message_status_data["attributes"]["messageStatus"])
 
-
+@compliance({"DTOSS-4691#2.1": ["RISK-007", "RISK-008"]})
 def test_save_statuses_with_error(mocker, channel_status_post_body):
     """Test saving status data to database with error"""
     mocker.patch("app.services.status_recorder.Session", side_effect=Exception)
