@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 import azure.functions as func
-from function_app import main, process_file_upload
+from function_app import main, migrate_database
 import json
 
 
@@ -24,20 +24,23 @@ def test_function_app_calls_flask_app():
     assert json.loads(resp.get_body()) == {"status": "healthy"}
 
 
-def test_function_app_blob_trigger(mocker, csv_data, expected_message_batch_body):
-    """Test that the function calls the blob trigger."""
-    mock = mocker.patch(
-        "app.services.message_batch_dispatcher.dispatch",
-        return_value=(201, {"status": "OK"})
+def test_function_app_migrates(mocker, monkeypatch):
+    """Test that the function calls to migrate."""
+    monkeypatch.setenv("DATABASE_PASSWORD", "password")
+    mocked_migrate = mocker.patch(
+        "function_app.alembic_migrate",
+        return_value=("success")
+    )
+    mocked_migrate.start()
+
+    req = func.HttpRequest(
+        method="POST",
+        body=json.dumps({}).encode(),
+        headers={"x-migration-key": "password"},
+        url="/api/migrate-database",
     )
 
-    input_stream = func.blob.InputStream(
-        data=bytes("\n".join(csv_data), "utf-8"),
-        name="file-upload-data/HWA NHS App Pilot 002 SPRPT.csv",
-    )
+    func_call = migrate_database.build().get_user_function()
+    func_call(req)
 
-    func_call = process_file_upload.build().get_user_function()
-    func_call(input_stream)
-
-    mock.assert_called_once()
-    mock.assert_called_with(expected_message_batch_body)
+    mocked_migrate.assert_called_once()
