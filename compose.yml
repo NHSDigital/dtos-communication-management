@@ -38,8 +38,6 @@ services:
       - 10000:10000
       - 10001:10001
       - 10002:10002
-    profiles:
-      - test-end-to-end
 
   azurite-setup:
     build:
@@ -50,8 +48,6 @@ services:
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
-    profiles:
-      - test-end-to-end
 
   db:
     container_name: db
@@ -98,10 +94,6 @@ services:
       dockerfile: Dockerfile
     container_name: end-to-end-tests
     depends_on:
-      azurite:
-        condition: service_started
-      azurite-setup:
-        condition: service_completed_successfully
       db:
         condition: service_healthy
       nhs-notify-api-stub:
@@ -109,8 +101,6 @@ services:
       notify:
         condition: service_started
     environment:
-      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
-      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
       - CLIENT_API_KEY=${CLIENT_API_KEY}
       - CLIENT_APPLICATION_ID=${CLIENT_APPLICATION_ID}
       - DATABASE_HOST=${DATABASE_HOST}
