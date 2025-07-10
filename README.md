@@ -48,23 +48,7 @@ This service manages communication delivery via NHS Notify, handling message sta
 
 ### Running Locally
 
-1. Start the PostgreSQL database:
-
-   ```bash
-   docker-compose up -d db
-   ```
-
-2. Run database migrations:
-
-   ```bash
-   alembic upgrade head
-   ```
-
-3. Start the development server:
-
-   ```bash
-   python -m src.notify.app.main
-   ```
+[Local development docs](docs/developer-guides/Local_development_setup.md)
 
 ### Database Migrations
 
@@ -133,6 +117,7 @@ pytest --cov=src
 The application is deployed using Azure DevOps pipelines and Terraform infrastructure as code. The deployment process is automated and follows these stages:
 
 1. **Infrastructure Deployment**
+
    - Core infrastructure is deployed using Terraform
    - Separate pipelines for core and audit infrastructure
    - Environments: Development (DEV), Integration (INT), Pre-production (PRE), and Production (PRD)
@@ -141,12 +126,14 @@ The application is deployed using Azure DevOps pipelines and Terraform infrastru
      - Audit: `.azuredevops/pipelines/cd-infrastructure-{env}-audit.yaml`
 
 2. **Application Deployment**
+
    - Docker image is built and pushed to Azure Container Registry
    - Function App is deployed with environment-specific configuration
    - Production and Pre-production environments include a staging slot for zero-downtime deployments
    - Environment-specific variables are managed through Azure Key Vault
 
 3. **Deployment Environments**
+
    - Development (DEV): `https://int.api.service.nhs.uk`
    - Integration (INT): `https://int.api.service.nhs.uk`
    - Pre-production (PRE): `https://api.service.nhs.uk`
