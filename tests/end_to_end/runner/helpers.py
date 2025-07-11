@@ -1,6 +1,4 @@
-import azure.storage.blob
 import dotenv
-import logging
 import os
 import requests
 
