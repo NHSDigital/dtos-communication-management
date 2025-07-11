@@ -90,6 +90,47 @@ def message_batch_post_body():
         }
     }
 
+@pytest.fixture
+def message_batch_post_body_with_origin():
+    # Generate message reference using the reference_uuid function
+    message_ref = uuid_generator.reference_uuid("4010232137.Thursday 03 February 2022.10:00am")
+
+    return {
+        "data": {
+            "type": "MessageBatch",
+            "messageOriginKey": "some-origin-service",
+            "attributes": {
+                "routingPlanId": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+                "messages": [
+                    {
+                        "messageReference": message_ref,
+                        "recipient": {
+                            "nhsNumber": "4010232137",
+                            "contactDetails": {
+                                "email": "recipient@nhs.net",
+                                "sms": "07777777777",
+                                "address": {
+                                    "lines": [
+                                        "NHS England",
+                                        "6th Floor",
+                                        "7&8 Wellington Place",
+                                        "Leeds",
+                                        "West Yorkshire"
+                                    ],
+                                    "postcode": "LS1 4AP"
+                                }
+                            }
+                        },
+                        "originator": {
+                            "odsCode": "X26"
+                        },
+                        "personalisation": {}
+                    }
+                ]
+            }
+        }
+    }
 
 @pytest.fixture
 def message_batch_post_response():
@@ -118,6 +159,33 @@ def message_batch_post_response():
         }
     }
 
+@pytest.fixture
+def message_batch_post_response_with_origin():
+    # Generate message reference using the reference_uuid function
+    message_ref = uuid_generator.reference_uuid("4010232137.Thursday 03 February 2022.10:00am")
+
+    return {
+        "data": {
+            "type": "MessageBatch",
+            "id": "2ZljUiS8NjJNs95PqiYOO7gAfJb",
+            "messageOriginKey": "some-origin-service",
+            "attributes": {
+                "messageBatchReference": "da0b1495-c7cb-468c-9d81-07dee089d728",
+                "routingPlan": {
+                    "id": "b838b13c-f98c-4def-93f0-515d4e4f4ee1",
+                    "name": "Plan Abc",
+                    "version": "ztoe2qRAM8M8vS0bqajhyEBcvXacrGPp",
+                    "createdDate": "2023-11-17T14:27:51.413Z"
+                },
+                "messages": [
+                    {
+                        "messageReference": message_ref,
+                        "id": "2WL3qFTEFM0qMY8xjRbt1LIKCzM"
+                    }
+                ]
+            }
+        }
+    }
 
 @pytest.fixture
 def channel_status_post_body():

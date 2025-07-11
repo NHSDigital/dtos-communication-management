@@ -10,9 +10,11 @@ from sqlalchemy.orm import Session
 def save_batch(body, response, status) -> tuple[bool, str]:
     try:
         with Session(database.engine(), expire_on_commit=False) as session:
+            message_origin, _ = find_or_create_message_origin(session, response.get("data").get("messageOriginKey"))
             message_batch = models.MessageBatch(
                 batch_id=response["data"]["id"],
                 batch_reference=response["data"]["attributes"]["messageBatchReference"],
+                message_origin_id = message_origin.id if message_origin else None,
                 details=body,
                 response=response,
                 status=status,
@@ -50,3 +52,25 @@ def merged_messages(data: dict, response: dict) -> list[dict]:
         collector[collectible["messageReference"]].update(collectible.items())
 
     return list(collector.values())
+
+def find_or_create_message_origin(session, key) -> tuple[models.MessageOrigin, bool] | tuple[None, None]:
+    if key:
+        return get_or_create(session, key=key)
+    return (None, None)
+
+#  having to do this because Flask doesn't have Django method built in - we might want to make this more generic?
+def get_or_create(session, key) -> tuple[models.MessageOrigin, bool]:
+    instance = session.query(models.MessageOrigin).filter_by(key=key).one_or_none()
+    if instance:
+        return instance, False
+    else:
+        instance = models.MessageOrigin(key=key)
+        try:
+            session.add(instance)
+            session.commit()
+        except Exception:
+            session.rollback()
+            instance = session.query(models.MessageOrigin).filter_by(key=key).one()
+            return instance, False
+        else:
+            return instance, True
