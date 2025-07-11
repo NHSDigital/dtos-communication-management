@@ -38,6 +38,14 @@ class MessageStatuses(enum.Enum):
 
 
 # Tables
+class MessageOrigin(Base):
+    __tablename__ = "message_origins"
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String, unique=True, nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+
+
 class MessageBatch(Base):
     __tablename__ = "message_batches"
 
@@ -51,6 +59,7 @@ class MessageBatch(Base):
         postgresql.ENUM(MessageBatchStatuses, values_callable=lambda x: [e.value for e in x]),
         default=MessageBatchStatuses.NOT_SENT,
     )
+    message_origin_id = Column(Integer, ForeignKey("message_origins.id"), nullable=True)
 
 
 class Message(Base):
