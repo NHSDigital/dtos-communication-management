@@ -3,7 +3,7 @@ import app.utils.database as database
 import app.utils.hmac_signature as hmac_signature
 import dotenv
 from .helpers import post_message_batch_endpoint, get_status_endpoint
-from pytest_steps import test_steps
+from pytest_steps.steps import test_steps
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
 import time
