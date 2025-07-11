@@ -85,3 +85,23 @@ def test_verify_batch_headers_valid(setup):
         "X-Consumer-Key": 'some-key'
     }
     assert request_validator.verify_batch_headers(headers)
+
+
+def test_verify_consumer_not_found(setup):
+    """Test that a Consumer is found with given consumer_key"""
+    returned_consumer, error_message = request_validator.verify_consumer("not-a-consumer")
+    assert returned_consumer == None
+    assert error_message == "Consumer not valid"
+
+
+def test_verify_consumer_no_key(setup):
+    """Test that a Consumer is found with given consumer_key"""
+    returned_consumer, error_message = request_validator.verify_consumer(None)
+    assert returned_consumer == None
+    assert error_message == "Consumer not valid"
+
+
+def test_verify_consumer_found(setup, consumer):
+    """Test that a Consumer is found with given consumer_key"""
+    returned_consumer, _ = request_validator.verify_consumer("some-consumer")
+    assert returned_consumer.id == consumer.id

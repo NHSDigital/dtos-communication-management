@@ -7,7 +7,7 @@ import requests
 import uuid
 
 
-def dispatch(body: dict, bearer_token: str | None = None) -> tuple[int, str]:
+def dispatch(body: dict, consumer_id: int, bearer_token: str | None = None) -> tuple[int, str]:
     if not bearer_token:
         bearer_token = access_token.get_token()
 
@@ -16,7 +16,7 @@ def dispatch(body: dict, bearer_token: str | None = None) -> tuple[int, str]:
 
     success = response.status_code == 201
     status = models.MessageBatchStatuses.SENT if success else models.MessageBatchStatuses.FAILED
-    message_batch_recorder.save_batch(body, response.json(), status)
+    message_batch_recorder.save_batch(body, response.json(), status, consumer_id)
 
     return response.status_code, response.json()
 

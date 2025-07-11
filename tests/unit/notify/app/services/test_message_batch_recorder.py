@@ -5,12 +5,13 @@ from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
 
 
-def test_save_batch(message_batch_post_body, message_batch_post_response):
+def test_save_batch(message_batch_post_body, message_batch_post_response, consumer):
     """When save_batch is called with a valid batch, the batch and messages should be saved."""
     success, response = message_batch_recorder.save_batch(
         message_batch_post_body,
         message_batch_post_response,
-        models.MessageBatchStatuses.SENT
+        models.MessageBatchStatuses.SENT,
+        consumer.id
     )
     assert success
     assert response == "Batch id: 1 saved successfully"
@@ -35,12 +36,13 @@ def test_save_batch(message_batch_post_body, message_batch_post_response):
         assert messages[0].nhs_number == merged_messages[0]["recipient"]["nhsNumber"]
 
 
-def test_save_batch_with_failed_status(message_batch_post_body, message_batch_post_response):
+def test_save_batch_with_failed_status(message_batch_post_body, message_batch_post_response, consumer):
     """When save_batch is called with a failed status, the batch should still be saved without message records."""
     success, response = message_batch_recorder.save_batch(
         message_batch_post_body,
         message_batch_post_response,
-        models.MessageBatchStatuses.FAILED
+        models.MessageBatchStatuses.FAILED,
+        consumer.id
     )
     assert success
     assert response == "Batch id: 1 saved successfully"
@@ -56,15 +58,31 @@ def test_save_batch_with_failed_status(message_batch_post_body, message_batch_po
         assert message_batch.status == models.MessageBatchStatuses.FAILED
 
 
-def test_save_batch_with_errors(message_batch_post_body, message_batch_post_response):
+def test_save_batch_with_invalid_status(message_batch_post_body, message_batch_post_response, consumer):
     """When save_batch fails with an error, the batch should not be saved."""
     success, response = message_batch_recorder.save_batch(
         message_batch_post_body,
         message_batch_post_response,
-        "invalid"
+        "invalid",
+        consumer.id
     )
     assert not success
     assert 'invalid input value for enum messagebatchstatuses: "invalid"' in response
+
+    with Session(database.engine()) as session:
+        assert len(session.scalars(select(models.MessageBatch)).all()) == 0
+        assert len(session.scalars(select(models.Message)).all()) == 0
+
+def test_save_batch_with_invalid_consumer(message_batch_post_body, message_batch_post_response, teardown_consumer):
+    """When save_batch fails with an error, the batch should not be saved."""
+    success, response = message_batch_recorder.save_batch(
+        message_batch_post_body,
+        message_batch_post_response,
+        models.MessageBatchStatuses.SENT,
+        1
+    )
+    assert not success
+    assert 'insert or update on table "message_batches" violates foreign key constraint' in response
 
     with Session(database.engine()) as session:
         assert len(session.scalars(select(models.MessageBatch)).all()) == 0

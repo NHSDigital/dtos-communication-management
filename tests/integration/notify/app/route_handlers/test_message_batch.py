@@ -1,5 +1,4 @@
 from app import create_app
-from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME
 import pytest
 import requests_mock
 
@@ -16,10 +15,13 @@ def client():
     yield app.test_client()
 
 
-def test_message_batch_succeeds(setup, client, message_batch_post_body, message_batch_post_response):
+def test_message_batch_succeeds(setup, client, message_batch_post_body, message_batch_post_response, consumer):
     """Test that valid auth header and payload succeeds."""
 
-    headers = {"Authorization": "Bearer client_token"}
+    headers = {
+        "Authorization": "Bearer client_token",
+        "X-Consumer-Key": consumer.key
+    }
 
     with requests_mock.Mocker() as rm:
         rm.post(
@@ -39,6 +41,7 @@ def test_message_batch_preserves_auth_header(setup, client, message_batch_post_b
 
     headers = {
         "Authorization": "Bearer client_token",
+        "X-Consumer-Key": "some-consumer"
     }
 
     with requests_mock.Mocker() as rm:
@@ -58,6 +61,7 @@ def test_message_batch_fails_with_invalid_auth_header(setup, client, message_bat
     """Test that invalid Bearer token fails authentication."""
     headers = {
         "Authorization": "some_invalid_value",
+        "X-Consumer-Key": "some-consumer"
     }
 
     with requests_mock.Mocker() as rm:
@@ -75,7 +79,9 @@ def test_message_batch_fails_with_invalid_auth_header(setup, client, message_bat
 
 def test_message_batch_fails_with_missing_auth_header(setup, client, message_batch_post_body):
     """Test that missing auth header fails authentication."""
-    headers = {}
+    headers = {
+        "X-Consumer-Key": "some-consumer"
+    }
 
     with requests_mock.Mocker() as rm:
         adapter = rm.post(
@@ -89,12 +95,37 @@ def test_message_batch_fails_with_missing_auth_header(setup, client, message_bat
         assert response.status_code == 401
         assert response.get_json() == {"status": "failed", "error": "Authorization header not present"}
 
+def test_message_batch_fails_with_missing_consumer_header(setup, client, message_batch_post_body):
+    """Test that missing auth header fails authentication."""
+    headers = {
+        "Authorization": "Bearer client_token",
+    }
+
+    response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
+
+    assert response.status_code == 401
+    assert response.get_json() == {"status": "failed", "error": "Consumer Key header not present"}
+
+def test_message_batch_fails_with_nonexistent_consumer_header(setup, client, message_batch_post_body):
+    """Test that missing auth header fails authentication."""
+    headers = {
+        "Authorization": "Bearer client_token",
+        "X-Consumer-Key": "invalid-consumer"
+    }
+
+    response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
+
+    assert response.status_code == 401
+    assert response.get_json() == {"status": "failed", "error": "Consumer not valid"}
 
 def test_message_batch_fails_with_invalid_post_body(setup, client, message_batch_post_body):
     """Test that invalid request body fails schema validation."""
     message_batch_post_body["data"]["type"] = "invalid"
 
-    headers = {"Authorization": "Bearer client_token"}
+    headers = {
+        "Authorization": "Bearer client_token",
+        "X-Consumer-Key": "some-consumer"
+    }
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
 

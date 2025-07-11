@@ -9,7 +9,7 @@ def setup(monkeypatch):
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
 
 
-def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_body, message_batch_post_response):
+def test_message_batch_dispatcher_succeeds(mocker, setup, consumer, message_batch_post_body, message_batch_post_response):
     """When dispatch is called with a valid body, a success response should be returned."""
     mock_recorder = mocker.patch(
         "app.services.message_batch_recorder.save_batch",
@@ -24,7 +24,7 @@ def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_bod
             json=message_batch_post_response
         )
 
-        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, None)
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, consumer.id, None)
 
         assert adapter.call_count == 1
         assert status_code == 201
@@ -35,10 +35,11 @@ def test_message_batch_dispatcher_succeeds(mocker, setup, message_batch_post_bod
     mock_recorder.assert_called_with(
         message_batch_post_body,
         message_batch_post_response,
-        models.MessageBatchStatuses.SENT
+        models.MessageBatchStatuses.SENT,
+        consumer.id
     )
 
-def test_message_batch_dispatcher_includes_bearer_token(mocker, setup, message_batch_post_body, message_batch_post_response):
+def test_message_batch_dispatcher_includes_bearer_token(mocker, setup, consumer, message_batch_post_body, message_batch_post_response):
     """When dispatch is called with a bearer token, the request headers should include it."""
     mock_recorder = mocker.patch(
         "app.services.message_batch_recorder.save_batch",
@@ -52,13 +53,13 @@ def test_message_batch_dispatcher_includes_bearer_token(mocker, setup, message_b
             json=message_batch_post_response
         )
 
-        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, "client_bearer_token")
+        status_code, _ = message_batch_dispatcher.dispatch(message_batch_post_body, consumer.id, "client_bearer_token", )
 
         assert status_code == 201
         assert adapter.last_request.headers["Authorization"] == "Bearer client_bearer_token"
 
 
-def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
+def test_message_batch_dispatcher_fails_with_invalid_body(mocker, setup, consumer, message_batch_post_body):
     """When dispatch is called with an invalid body, a failed response should be returned."""
     mock_recorder = mocker.patch(
         "app.services.message_batch_recorder.save_batch",
@@ -73,7 +74,7 @@ def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
             json={"error": "Bad request"}
         )
 
-        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, None)
+        status_code, response = message_batch_dispatcher.dispatch(message_batch_post_body, consumer.id, None)
 
         assert adapter.call_count == 1
         assert status_code == 400
@@ -84,5 +85,6 @@ def test_message_batch_dispatcher_fails(mocker, setup, message_batch_post_body):
     mock_recorder.assert_called_with(
         message_batch_post_body,
         {"error": "Bad request"},
-        models.MessageBatchStatuses.FAILED
+        models.MessageBatchStatuses.FAILED,
+        consumer.id
     )

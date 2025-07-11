@@ -3,6 +3,7 @@ import app.utils.database as database
 import app.utils.hmac_signature as hmac_signature
 import dotenv
 from .helpers import post_message_batch_endpoint, get_status_endpoint
+import logging
 from pytest_steps.steps import test_steps
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session
@@ -16,7 +17,7 @@ dotenv.load_dotenv()
     'status_create_endpoint_saves_to_database',
     'statuses_endpoint_returns_correct_statuses'
 )
-def test_post_message_batch_end_to_end(message_batch_post_body, message_batch_post_response):
+def test_post_message_batch_end_to_end(message_batch_post_body, message_batch_post_response, consumer):
     response = post_message_batch_endpoint(message_batch_post_body)
 
     # Wait for the callbacks to be received and saved to the database

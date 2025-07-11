@@ -22,6 +22,7 @@ def post_message_batch_endpoint(message_batch_post_body):
     headers = {
         "Authorization": "Bearer client_token",
         "Content-Type": "application/json",
+        "X-Consumer-Key": "some-consumer",
     }
 
     return requests.post(

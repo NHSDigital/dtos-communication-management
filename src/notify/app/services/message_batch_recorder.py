@@ -5,14 +5,16 @@ from collections import defaultdict
 from itertools import chain
 import logging
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 
-def save_batch(body, response, status) -> tuple[bool, str]:
+def save_batch(body, response, status, consumer_id) -> tuple[bool, str]:
     try:
         with Session(database.engine(), expire_on_commit=False) as session:
             message_batch = models.MessageBatch(
                 batch_id=response["data"]["id"],
                 batch_reference=response["data"]["attributes"]["messageBatchReference"],
+                consumer_id = consumer_id,
                 details=body,
                 response=response,
                 status=status,
@@ -35,6 +37,9 @@ def save_batch(body, response, status) -> tuple[bool, str]:
             session.commit()
 
         return True, f"Batch id: {message_batch.id} saved successfully"
+    except IntegrityError as e:
+        logging.error("Failed to save batch: %s", e.__cause__)
+        return False, str(e.__cause__)
     except Exception as e:
         logging.error("Failed to save batch: %s", e)
         return False, str(e)
