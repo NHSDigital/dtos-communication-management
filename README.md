@@ -188,6 +188,7 @@ This endpoint is used to send a batch of messages. It accepts a JSON payload con
   {
     "data": {
       "type": "MessageBatch",
+      "messageOriginKey": "some-origin-team",
       "attributes": {
         "routingPlanId": "<routing_plan_id>",
         "messageBatchReference": "<batch_reference>",
@@ -233,6 +234,7 @@ This endpoint is used to send a batch of messages. It accepts a JSON payload con
       "data": {
         "type": "MessageBatch",
         "id": "<batch_id>",
+        "messageOriginKey": "some-origin-team",
         "attributes": {
           "messageBatchReference": "<batch_reference>",
           "routingPlan": {
