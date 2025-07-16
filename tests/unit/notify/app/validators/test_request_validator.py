@@ -68,7 +68,7 @@ def test_verify_batch_headers_missing_all(setup):
 
 def test_verify_batch_headers_missing_authorization(setup):
     """Test that missing Authorization fails verification."""
-    headers = {"X-Consumer-Key": 'some-key'}
+    headers = {request_validator.CONSUMER_KEY: 'some-key'}
     assert request_validator.verify_batch_headers(headers) == (False, 'Authorization header not present')
 
 
@@ -82,7 +82,7 @@ def test_verify_batch_headers_valid(setup):
     """Test that valid API key and signature headers pass verification."""
     headers = {
         "Authorization": 'auth',
-        "X-Consumer-Key": 'some-key'
+        request_validator.CONSUMER_KEY: 'some-key'
     }
     assert request_validator.verify_batch_headers(headers)
 

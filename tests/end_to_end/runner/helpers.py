@@ -1,3 +1,4 @@
+from app.validators.request_validator import CONSUMER_KEY
 import dotenv
 import os
 import requests
@@ -10,6 +11,7 @@ def get_status_endpoint(batch_reference):
         "Content-Type": "application/json",
         "x-api-key": os.getenv('CLIENT_API_KEY'),
         "x-hmac-sha256-signature": "anything",
+        CONSUMER_KEY: "some-consumer",
     }
 
     return requests.get(
@@ -22,7 +24,7 @@ def post_message_batch_endpoint(message_batch_post_body):
     headers = {
         "Authorization": "Bearer client_token",
         "Content-Type": "application/json",
-        "X-Consumer-Key": "some-consumer",
+        CONSUMER_KEY: "some-consumer",
     }
 
     return requests.post(

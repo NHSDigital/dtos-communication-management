@@ -1,4 +1,5 @@
 from app import create_app
+from app.validators.request_validator import CONSUMER_KEY
 import pytest
 import requests_mock
 
@@ -20,7 +21,7 @@ def test_message_batch_succeeds(setup, client, message_batch_post_body, message_
 
     headers = {
         "Authorization": "Bearer client_token",
-        "X-Consumer-Key": consumer.key
+        CONSUMER_KEY: consumer.key
     }
 
     with requests_mock.Mocker() as rm:
@@ -41,7 +42,7 @@ def test_message_batch_preserves_auth_header(setup, client, message_batch_post_b
 
     headers = {
         "Authorization": "Bearer client_token",
-        "X-Consumer-Key": "some-consumer"
+        CONSUMER_KEY: "some-consumer"
     }
 
     with requests_mock.Mocker() as rm:
@@ -61,7 +62,7 @@ def test_message_batch_fails_with_invalid_auth_header(setup, client, message_bat
     """Test that invalid Bearer token fails authentication."""
     headers = {
         "Authorization": "some_invalid_value",
-        "X-Consumer-Key": "some-consumer"
+        CONSUMER_KEY: "some-consumer"
     }
 
     with requests_mock.Mocker() as rm:
@@ -80,7 +81,7 @@ def test_message_batch_fails_with_invalid_auth_header(setup, client, message_bat
 def test_message_batch_fails_with_missing_auth_header(setup, client, message_batch_post_body):
     """Test that missing auth header fails authentication."""
     headers = {
-        "X-Consumer-Key": "some-consumer"
+        CONSUMER_KEY: "some-consumer"
     }
 
     with requests_mock.Mocker() as rm:
@@ -110,7 +111,7 @@ def test_message_batch_fails_with_nonexistent_consumer_header(setup, client, mes
     """Test that missing auth header fails authentication."""
     headers = {
         "Authorization": "Bearer client_token",
-        "X-Consumer-Key": "invalid-consumer"
+        CONSUMER_KEY: "invalid-consumer"
     }
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
@@ -124,7 +125,7 @@ def test_message_batch_fails_with_invalid_post_body(setup, client, message_batch
 
     headers = {
         "Authorization": "Bearer client_token",
-        "X-Consumer-Key": "some-consumer"
+        CONSUMER_KEY: "some-consumer"
     }
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
