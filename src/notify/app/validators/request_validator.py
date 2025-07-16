@@ -21,6 +21,15 @@ def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
 
     return True, ""
 
+def verify_batch_headers(headers: dict) -> tuple[bool, str]:
+    lc_headers = header_keys_to_lower(headers)
+    if lc_headers.get('authorization') is None:
+        return False, "Authorization header not present"
+    if lc_headers.get('x-consumer-key') is None:
+        return False, "Consumer Key header not present"
+
+    return True, ""
+
 
 def verify_signature(headers: dict, body: dict, signature: str) -> bool:
     lc_headers = header_keys_to_lower(headers)
