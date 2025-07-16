@@ -1,7 +1,6 @@
 from app import create_app
 import app.services.status_recorder as status_recorder
-from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, signature_secret
-import json
+from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, CONSUMER_KEY
 import pytest
 import app.utils.uuid_generator as uuid_generator
 
@@ -20,7 +19,7 @@ def client():
     yield app.test_client()
 
 
-def test_get_statuses_request_validation_fails(setup, client, message_status_post_body):
+def test_get_statuses_request_validation_fails_on_api_key(setup, client, message_status_post_body):
     """Test that invalid request header values fail HMAC signature validation."""
     headers = {API_KEY_HEADER_NAME: "not_the_api_key", SIGNATURE_HEADER_NAME: "signature"}
 
@@ -28,6 +27,15 @@ def test_get_statuses_request_validation_fails(setup, client, message_status_pos
 
     assert response.status_code == 401
     assert response.get_json() == {"status": "Invalid API key"}
+
+def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client, message_status_post_body):
+    """Test that invalid request header values fail HMAC signature validation."""
+    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature"}
+
+    response = client.get('/api/statuses', headers=headers)
+
+    assert response.status_code == 401
+    assert response.get_json() == {"status": "Missing Consumer key header"}
 
 
 def test_get_statuses(setup, client, channel_status_post_body):
@@ -44,7 +52,7 @@ def test_get_statuses(setup, client, channel_status_post_body):
         "supplierStatus": "read",
     }
 
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature"}
+    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature", CONSUMER_KEY: "some-consumer"}
 
     response = client.get('/api/statuses', query_string=query_params, headers=headers)
     response_json = response.get_json()

@@ -30,7 +30,7 @@ def create():
 
 
 def get():
-    valid_headers, error_message = request_validator.verify_headers(
+    valid_headers, error_message = request_validator.verify_get_statuses_headers(
         dict(request.headers), str(os.getenv("CLIENT_API_KEY"))
     )
 
