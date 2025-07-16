@@ -182,6 +182,7 @@ This endpoint is used to send a batch of messages. It accepts a JSON payload con
 - **Headers:**
   - Authorization: `Bearer <CLIENT_TOKEN>`
   - Content-Type: application/json
+  - X-Consumer-Key: `some-consumer`
 - **Body (JSON):**
 
   ```json
