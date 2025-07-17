@@ -1,3 +1,4 @@
+import app.models as models
 import app.utils.database as database
 import dotenv
 import logging
@@ -5,6 +6,8 @@ import os
 import psycopg2
 import pytest
 import app.utils.uuid_generator as uuid_generator
+from sqlalchemy.orm import Session
+
 
 if not bool(os.getenv("CI")):
     dotenv.load_dotenv(".env.test")
@@ -185,3 +188,21 @@ def message_status_post_body():
             }
         ]
     }
+
+@pytest.fixture
+def consumer():
+    with Session(database.engine()) as session:
+        consumer = session.query(models.Consumer).filter_by(key="some-consumer").one_or_none()
+        if not consumer:
+            consumer = models.Consumer(key="some-consumer")
+            session.add(consumer)
+        session.commit()
+        yield consumer
+
+@pytest.fixture
+def teardown_consumer():
+    with Session(database.engine()) as session:
+        consumer = session.query(models.Consumer).filter_by(key="some-consumer").one_or_none()
+        if consumer:
+            session.delete(consumer)
+        session.commit()

@@ -1,11 +1,15 @@
+from app.models import Consumer
+import app.utils.database as database
 import hmac
 import json
 import os
 import app.validators.schema_validator as schema_validator
 import app.utils.hmac_signature as hmac_signature
+from sqlalchemy.orm import Session
 
 API_KEY_HEADER_NAME = 'x-api-key'
 SIGNATURE_HEADER_NAME = 'x-hmac-sha256-signature'
+CONSUMER_KEY = 'x-consumer-key'
 
 
 def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
@@ -21,6 +25,22 @@ def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
 
     return True, ""
 
+def verify_batch_headers(headers: dict) -> tuple[bool, str]:
+    lc_headers = header_keys_to_lower(headers)
+    if lc_headers.get('authorization') is None:
+        return False, "Authorization header not present"
+    if lc_headers.get(CONSUMER_KEY) is None:
+        return False, "Consumer Key header not present"
+
+    return True, ""
+
+def verify_consumer(consumer_key: str | None) -> tuple[Consumer, str] | tuple[None, str]:
+    consumer = Session(database.engine()).query(Consumer).filter_by(key=consumer_key).one_or_none()
+
+    if not consumer:
+        return None, "Consumer not valid"
+
+    return consumer, ""
 
 def verify_signature(headers: dict, body: dict, signature: str) -> bool:
     lc_headers = header_keys_to_lower(headers)
