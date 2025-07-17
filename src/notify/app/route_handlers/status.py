@@ -43,7 +43,7 @@ def get():
     if not consumer:
         return {"status": consumer_error_message}, 401
 
-    statuses = status_reporter.get_statuses(request.args)
+    statuses = status_reporter.get_statuses(request.args, consumer.id)
     statuses_as_json = [status_presenter.as_json(status) for status in statuses]
 
     return {"status": "success", "data": statuses_as_json}, 200
