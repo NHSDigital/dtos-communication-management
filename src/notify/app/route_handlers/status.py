@@ -37,6 +37,12 @@ def get():
     if not valid_headers:
         return {"status": error_message}, 401
 
+    consumer, consumer_error_message = request_validator.verify_consumer(
+        consumer_key())
+
+    if not consumer:
+        return {"status": consumer_error_message}, 401
+
     statuses = status_reporter.get_statuses(request.args)
     statuses_as_json = [status_presenter.as_json(status) for status in statuses]
 
@@ -45,3 +51,7 @@ def get():
 
 def signature_secret() -> str:
     return f"{os.getenv('APPLICATION_ID')}.{os.getenv('NOTIFY_API_KEY')}"
+
+
+def consumer_key() -> str | None:
+    return request.headers.get(request_validator.CONSUMER_KEY)

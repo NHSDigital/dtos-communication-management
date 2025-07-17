@@ -38,6 +38,16 @@ def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client
     assert response.get_json() == {"status": "Missing Consumer key header"}
 
 
+def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client, message_status_post_body):
+    """Test that invalid request header values fail signature validation."""
+    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature", CONSUMER_KEY: "not-a-consumer"}
+
+    response = client.get('/api/statuses', headers=headers)
+
+    assert response.status_code == 401
+    assert response.get_json() == {"status": "Consumer not valid"}
+
+
 def test_get_statuses(setup, client, channel_status_post_body):
     """Test that statuses are returned by the endpoint."""
     # Generate message reference using the reference_uuid function
