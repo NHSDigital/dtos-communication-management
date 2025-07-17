@@ -52,6 +52,7 @@ def verify_batch_headers(headers: dict) -> tuple[bool, str]:
 
     return True, ""
 
+
 def verify_consumer(consumer_key: str | None) -> tuple[Consumer, str] | tuple[None, str]:
     consumer = Session(database.engine()).query(Consumer).filter_by(key=consumer_key).one_or_none()
 
@@ -59,6 +60,7 @@ def verify_consumer(consumer_key: str | None) -> tuple[Consumer, str] | tuple[No
         return None, "Consumer not valid"
 
     return consumer, ""
+
 
 def verify_signature(headers: dict, body: dict, signature: str) -> bool:
     lc_headers = header_keys_to_lower(headers)
