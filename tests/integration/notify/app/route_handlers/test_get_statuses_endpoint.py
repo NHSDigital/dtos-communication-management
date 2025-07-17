@@ -2,7 +2,6 @@ from app import create_app
 import app.services.status_recorder as status_recorder
 from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, CONSUMER_KEY
 import pytest
-import app.utils.uuid_generator as uuid_generator
 
 
 @pytest.fixture
@@ -48,13 +47,15 @@ def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client
     assert response.get_json() == {"status": "Consumer not valid"}
 
 
-def test_get_statuses(setup, client, channel_status_post_body):
+def test_get_statuses(setup, client, channel_status_post_body, message_batch_post_response, message_batch):
     """Test that statuses are returned by the endpoint."""
-    # Generate message reference using the reference_uuid function
-    message_ref = uuid_generator.reference_uuid("4010232137.Thursday 03 February 2022.10:00am")
+    # Generate message reference from test fixture
+    message = message_batch_post_response["data"]["attributes"]["messages"][0]
+    message_ref = message["messageReference"]
 
     # Update the message reference in the channel status post body
     channel_status_post_body["data"][0]["attributes"]["messageReference"] = message_ref
+    channel_status_post_body["data"][0]["attributes"]["messageId"] = message["id"]
 
     status_recorder.save_statuses(channel_status_post_body)
     query_params = {
