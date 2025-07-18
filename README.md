@@ -357,6 +357,7 @@ This endpoint retrieves status records based on query parameters. It filters sta
 - **Method:** GET
 - **Headers:**
   - x-api-key: `<CLIENT_API_KEY>`
+  - x-consumer-key: 'some-key'
 - **Query Parameters (optional):**
   - channel: Filter by channel (e.g., "nhsapp")
   - supplierStatus: Filter by supplier status (e.g., "read")
