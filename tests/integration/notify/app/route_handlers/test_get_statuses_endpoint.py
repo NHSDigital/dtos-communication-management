@@ -1,6 +1,6 @@
 from app import create_app
 import app.services.status_recorder as status_recorder
-from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, CONSUMER_KEY
+from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
 
 
@@ -39,7 +39,11 @@ def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client
 
 def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client, message_status_post_body):
     """Test that invalid request header values fail signature validation."""
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature", CONSUMER_KEY: "not-a-consumer"}
+    headers = {
+        API_KEY_HEADER_NAME: "api_key",
+        SIGNATURE_HEADER_NAME: "signature",
+        CONSUMER_KEY_NAME: "not-a-consumer"
+    }
 
     response = client.get('/api/statuses', headers=headers)
 
@@ -63,7 +67,11 @@ def test_get_statuses(setup, client, channel_status_post_body, message_batch_pos
         "supplierStatus": "read",
     }
 
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature", CONSUMER_KEY: "some-consumer"}
+    headers = {
+        API_KEY_HEADER_NAME: "api_key",
+        SIGNATURE_HEADER_NAME: "signature",
+        CONSUMER_KEY_NAME: "some-consumer",
+    }
 
     response = client.get('/api/statuses', query_string=query_params, headers=headers)
     response_json = response.get_json()

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 API_KEY_HEADER_NAME = 'x-api-key'
 SIGNATURE_HEADER_NAME = 'x-hmac-sha256-signature'
-CONSUMER_KEY = 'x-consumer-key'
+CONSUMER_KEY_NAME = 'x-consumer-key'
 
 
 def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
@@ -37,7 +37,7 @@ def verify_get_statuses_headers(headers: dict, api_key: str) -> tuple[bool, str]
     if lc_headers.get(SIGNATURE_HEADER_NAME) is None:
         return False, "Missing signature header"
 
-    if lc_headers.get(CONSUMER_KEY) is None:
+    if lc_headers.get(CONSUMER_KEY_NAME) is None:
         return False, "Missing Consumer key header"
 
     return True, ""
@@ -47,7 +47,7 @@ def verify_batch_headers(headers: dict) -> tuple[bool, str]:
     lc_headers = header_keys_to_lower(headers)
     if lc_headers.get('authorization') is None:
         return False, "Authorization header not present"
-    if lc_headers.get(CONSUMER_KEY) is None:
+    if lc_headers.get(CONSUMER_KEY_NAME) is None:
         return False, "Consumer Key header not present"
 
     return True, ""

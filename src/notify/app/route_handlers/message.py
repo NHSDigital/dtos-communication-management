@@ -34,4 +34,4 @@ def bearer_token() -> str:
     return "invalid"
 
 def consumer_key() -> str | None:
-    return request.headers.get(request_validator.CONSUMER_KEY)
+    return request.headers.get(request_validator.CONSUMER_KEY_NAME)
