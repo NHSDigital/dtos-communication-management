@@ -1,5 +1,6 @@
 import app.models as models
 import app.utils.database as database
+import app.services.message_batch_recorder as message_batch_recorder
 import dotenv
 import logging
 import os
@@ -206,3 +207,12 @@ def teardown_consumer():
         if consumer:
             session.delete(consumer)
         session.commit()
+
+@pytest.fixture
+def message_batch(consumer, message_batch_post_body, message_batch_post_response):
+    message_batch_recorder.save_batch(
+        message_batch_post_body,
+        message_batch_post_response,
+        models.MessageBatchStatuses.SENT,
+        consumer.id
+    )

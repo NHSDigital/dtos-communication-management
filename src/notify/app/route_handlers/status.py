@@ -30,14 +30,20 @@ def create():
 
 
 def get():
-    valid_headers, error_message = request_validator.verify_headers(
+    valid_headers, error_message = request_validator.verify_get_statuses_headers(
         dict(request.headers), str(os.getenv("CLIENT_API_KEY"))
     )
 
     if not valid_headers:
         return {"status": error_message}, 401
 
-    statuses = status_reporter.get_statuses(request.args)
+    consumer, consumer_error_message = request_validator.verify_consumer(
+        consumer_key())
+
+    if not consumer:
+        return {"status": consumer_error_message}, 401
+
+    statuses = status_reporter.get_statuses(request.args, consumer.id)
     statuses_as_json = [status_presenter.as_json(status) for status in statuses]
 
     return {"status": "success", "data": statuses_as_json}, 200
@@ -45,3 +51,7 @@ def get():
 
 def signature_secret() -> str:
     return f"{os.getenv('APPLICATION_ID')}.{os.getenv('NOTIFY_API_KEY')}"
+
+
+def consumer_key() -> str | None:
+    return request.headers.get(request_validator.CONSUMER_KEY_NAME)

@@ -2,14 +2,15 @@ import app.models as models
 import app.utils.database as database
 import logging
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 
-def get_statuses(query_params):
+def get_statuses(query_params, consumer_id: int):
     statuses = []
     model = models.ChannelStatus
     query = select(model)
 
+    query = filter_on_consumer(query, consumer_id)
     query = filter_on_batch_reference(query, query_params)
     query = filter_on_nhs_number(query, query_params)
     query = filter_on_created_at(query, query_params)
@@ -24,6 +25,19 @@ def get_statuses(query_params):
         logging.error("Error getting statuses: %s",  e)
 
     return statuses
+
+
+def filter_on_consumer(query, consumer_id):
+    aliased_messages_consumer = aliased(models.Message)
+    aliased_batches_consumer = aliased(models.MessageBatch)
+
+    return query.join(
+            aliased_messages_consumer, aliased_messages_consumer.message_id == models.ChannelStatus.message_id
+        ).join(
+            aliased_batches_consumer, aliased_batches_consumer.id == aliased_messages_consumer.batch_id
+        ).where(
+            aliased_batches_consumer.consumer_id == consumer_id
+        )
 
 
 def filter_on_batch_reference(query, query_params):
