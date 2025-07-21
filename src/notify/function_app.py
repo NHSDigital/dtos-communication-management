@@ -10,8 +10,6 @@ flaskapp = create_app()
 if "ENV_FILE" in os.environ:
     dotenv.load_dotenv(os.environ["ENV_FILE"])
 
-BLOB_CONTAINER_NAME = os.getenv("BLOB_CONTAINER_NAME", "file-upload-data")
-
 
 @funcapp.function_name(name="NotifyApi")
 @funcapp.route(
