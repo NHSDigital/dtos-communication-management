@@ -50,7 +50,6 @@ locals {
     {
       APPLICATION_ID                   = "@Microsoft.KeyVault(SecretUri=${module.key_vault[local.primary_region].key_vault_url}secrets/APPLICATION-ID)"
       AzureWebJobsStorage__accountName = module.storage["fnapp-${local.primary_region}"].storage_account_name
-      BLOB_CONTAINER_NAME              = "file-upload-data"
 
       CLIENT_APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${module.key_vault[local.primary_region].key_vault_url}secrets/CLIENT-APPLICATION-ID)"
       CLIENT_API_KEY        = "@Microsoft.KeyVault(SecretUri=${module.key_vault[local.primary_region].key_vault_url}secrets/CLIENT-API-KEY)"
