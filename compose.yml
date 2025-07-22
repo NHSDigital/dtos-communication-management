@@ -9,9 +9,7 @@ services:
       additional_contexts:
         root_dir: .
     environment:
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - APPLICATION_ID=${APPLICATION_ID}
-      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
       - CLIENT_API_KEY=${CLIENT_API_KEY}
       - CLIENT_APPLICATION_ID=${CLIENT_APPLICATION_ID}
       - DATABASE_HOST=${DATABASE_HOST}
@@ -29,25 +27,6 @@ services:
       - 7071:7071
     volumes:
       - ./log/function/notify:/tmp/Functions/Host
-
-  azurite:
-    container_name: azurite
-    command: "azurite --loose --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001"
-    image: mcr.microsoft.com/azure-storage/azurite
-    ports:
-      - 10000:10000
-      - 10001:10001
-      - 10002:10002
-
-  azurite-setup:
-    build:
-      context: ./
-      dockerfile: ./dependencies/azurite/Dockerfile
-    depends_on:
-      - azurite
-    environment:
-      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
-      - BLOB_CONTAINER_NAME=${BLOB_CONTAINER_NAME}
 
   db:
     container_name: db
