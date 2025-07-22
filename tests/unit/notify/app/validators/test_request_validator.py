@@ -130,6 +130,58 @@ def test_verify_batch_headers_valid(setup):
     assert request_validator.verify_batch_headers(headers)
 
 
+def test_verify_get_headers_for_missing_auth(setup):
+    """Test that valid headers pass verification."""
+    headers = {
+        request_validator.API_KEY_HEADER_NAME: 'api_key',
+        request_validator.CONSUMER_KEY_NAME: 'some-key'
+    }
+    assert request_validator.verify_headers_for_consumers(
+        headers, 'api_key') == (False, "Missing Authorization header")
+
+
+def test_verify_headers_for_consumers_invalid_api_key(setup):
+    """Test that valid headers pass verification."""
+    headers = {
+        "Authorization": 'auth',
+        request_validator.API_KEY_HEADER_NAME: 'wrong',
+        request_validator.CONSUMER_KEY_NAME: 'some-key'
+    }
+    assert request_validator.verify_headers_for_consumers(
+        headers, 'api_key') == (False, "Invalid API key")
+
+
+def test_verify_headers_for_consumers_missing_api_key(setup):
+    """Test that valid headers pass verification."""
+    headers = {
+        "Authorization": 'auth',
+        request_validator.CONSUMER_KEY_NAME: 'some-key'
+    }
+    assert request_validator.verify_headers_for_consumers(
+        headers, 'api_key') == (False, "Missing API key header")
+
+
+def test_verify_headers_for_consumers_missing_consumer(setup):
+    """Test that valid headers pass verification."""
+    headers = {
+        "Authorization": 'auth',
+        request_validator.API_KEY_HEADER_NAME: 'api_key',
+    }
+    assert request_validator.verify_headers_for_consumers(
+        headers, 'api_key') == (False, "Missing Consumer key header")
+
+
+def test_verify_headers_for_consumers_valid(setup):
+    """Test that valid headers pass verification."""
+    headers = {
+        "Authorization": 'auth',
+        request_validator.API_KEY_HEADER_NAME: 'api_key',
+        request_validator.CONSUMER_KEY_NAME: 'some-key'
+    }
+    assert request_validator.verify_headers_for_consumers(
+        headers, 'api_key') == (True, "")
+
+
 def test_verify_consumer_not_found(setup):
     """Test that a Consumer is found with given consumer_key"""
     returned_consumer, error_message = request_validator.verify_consumer("not-a-consumer")
