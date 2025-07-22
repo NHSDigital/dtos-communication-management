@@ -52,13 +52,56 @@ def test_verify_headers_valid(setup):
         request_validator.API_KEY_HEADER_NAME: 'api_key',
         request_validator.SIGNATURE_HEADER_NAME: 'signature',
     }
-    assert request_validator.verify_headers(headers, 'api_key')
+    assert request_validator.verify_headers(headers, 'api_key') == (True, "")
 
 
 def test_verify_headers_invalid_api_key(setup):
     """Test that an invalid API key fails verification."""
     headers = {request_validator.API_KEY_HEADER_NAME: 'invalid_api_key'}
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Invalid API key')
+
+def test_verify_get_statuses_headers_missing_all(setup):
+    """Test that missing all headers fails verification."""
+    headers = {}
+    assert request_validator.verify_get_statuses_headers(headers, 'api_key') == (False, 'Missing API key header')
+
+
+def test_verify_get_statuses_headers_missing_api_key(setup):
+    """Test that missing API key header fails verification."""
+    headers = {request_validator.SIGNATURE_HEADER_NAME: 'signature'}
+    assert request_validator.verify_get_statuses_headers(headers, 'api_key') == (False, 'Missing API key header')
+
+
+def test_verify_get_statuses_headers_missing_signature(setup):
+    """Test that missing signature header fails verification."""
+    headers = {request_validator.API_KEY_HEADER_NAME: 'api_key'}
+    assert request_validator.verify_get_statuses_headers(headers, 'api_key') == (False, 'Missing signature header')
+
+
+def test_verify_get_statuses_headers_missing_consumer(setup):
+    """Test that missing consumer header fails verification."""
+    headers = {
+        request_validator.API_KEY_HEADER_NAME: 'api_key',
+        request_validator.SIGNATURE_HEADER_NAME: 'signature',
+    }
+    assert request_validator.verify_get_statuses_headers(headers, 'api_key') == (False, 'Missing Consumer key header')
+
+
+def test_verify_get_statuses_headers_valid(setup):
+    """Test that valid API key and signature headers pass verification."""
+    headers = {
+        request_validator.API_KEY_HEADER_NAME: 'api_key',
+        request_validator.SIGNATURE_HEADER_NAME: 'signature',
+        request_validator.CONSUMER_KEY_NAME: 'something'
+    }
+    assert request_validator.verify_get_statuses_headers(headers, 'api_key') == (True, '')
+
+
+def test_verify_get_statuses_headers_invalid_api_key(setup):
+    """Test that an invalid API key fails verification."""
+    headers = {request_validator.API_KEY_HEADER_NAME: 'invalid_api_key'}
+    assert request_validator.verify_get_statuses_headers(headers, 'api_key') == (False, 'Invalid API key')
+
 
 def test_verify_batch_headers_missing_all(setup):
     """Test that missing all headers for batch requests fails verification."""
@@ -68,7 +111,7 @@ def test_verify_batch_headers_missing_all(setup):
 
 def test_verify_batch_headers_missing_authorization(setup):
     """Test that missing Authorization fails verification."""
-    headers = {request_validator.CONSUMER_KEY: 'some-key'}
+    headers = {request_validator.CONSUMER_KEY_NAME: 'some-key'}
     assert request_validator.verify_batch_headers(headers) == (False, 'Authorization header not present')
 
 
@@ -82,7 +125,7 @@ def test_verify_batch_headers_valid(setup):
     """Test that valid API key and signature headers pass verification."""
     headers = {
         "Authorization": 'auth',
-        request_validator.CONSUMER_KEY: 'some-key'
+        request_validator.CONSUMER_KEY_NAME: 'some-key'
     }
     assert request_validator.verify_batch_headers(headers)
 
