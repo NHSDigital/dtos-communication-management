@@ -1,6 +1,6 @@
 from app import create_app
 import app.services.status_recorder as status_recorder
-from app.validators.request_validator import API_KEY_HEADER_NAME, SIGNATURE_HEADER_NAME, CONSUMER_KEY_NAME
+from app.validators.request_validator import API_KEY_HEADER_NAME, AUTHORIZATION_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
 
 
@@ -19,17 +19,37 @@ def client():
 
 
 def test_get_statuses_request_validation_fails_on_api_key(setup, client, message_status_post_body):
-    """Test that invalid request header values fail HMAC signature validation."""
-    headers = {API_KEY_HEADER_NAME: "not_the_api_key", SIGNATURE_HEADER_NAME: "signature"}
+    """Test that invalid request header values fails on invalid api key validation."""
+    headers = {
+        AUTHORIZATION_HEADER_NAME: 'bearer auth',
+        API_KEY_HEADER_NAME: "not_the_api_key",
+    }
 
     response = client.get('/api/statuses', headers=headers)
 
     assert response.status_code == 401
     assert response.get_json() == {"status": "Invalid API key"}
 
+
+def test_get_statuses_request_validation_fails_on_missing_auth(setup, client, message_status_post_body):
+    """Test that invalid request header values fails on invalid api key validation."""
+    headers = {
+        API_KEY_HEADER_NAME: "api_key",
+    }
+
+    response = client.get('/api/statuses', headers=headers)
+
+    assert response.status_code == 401
+    assert response.get_json() == {
+        "status": "Missing Authorization header"}
+
+
 def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client, message_status_post_body):
-    """Test that invalid request header values fail HMAC signature validation."""
-    headers = {API_KEY_HEADER_NAME: "api_key", SIGNATURE_HEADER_NAME: "signature"}
+    """Test that invalid request header values fail when Consumer missing."""
+    headers = {
+        AUTHORIZATION_HEADER_NAME: 'bearer auth',
+        API_KEY_HEADER_NAME: "api_key",
+    }
 
     response = client.get('/api/statuses', headers=headers)
 
@@ -38,10 +58,10 @@ def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client
 
 
 def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client, message_status_post_body):
-    """Test that invalid request header values fail signature validation."""
+    """Test that invalid request header values fail on invalid consumer."""
     headers = {
         API_KEY_HEADER_NAME: "api_key",
-        SIGNATURE_HEADER_NAME: "signature",
+        AUTHORIZATION_HEADER_NAME: 'bearer auth',
         CONSUMER_KEY_NAME: "not-a-consumer"
     }
 
@@ -69,7 +89,7 @@ def test_get_statuses(setup, client, channel_status_post_body, message_batch_pos
 
     headers = {
         API_KEY_HEADER_NAME: "api_key",
-        SIGNATURE_HEADER_NAME: "signature",
+        AUTHORIZATION_HEADER_NAME: 'bearer auth',
         CONSUMER_KEY_NAME: "some-consumer",
     }
 
