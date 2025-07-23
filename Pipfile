@@ -35,6 +35,7 @@ alembic = "*"
 sqlalchemy-utils = "*"
 alembic-postgresql-enum = "*"
 jsonschema = "*"
+flask-caching = "*"
 
 [dev-packages]
 anyio = "==4.9.0"
