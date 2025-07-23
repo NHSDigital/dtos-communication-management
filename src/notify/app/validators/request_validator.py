@@ -27,23 +27,6 @@ def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
     return True, ""
 
 
-def verify_get_statuses_headers(headers: dict, api_key: str) -> tuple[bool, str]:
-    lc_headers = header_keys_to_lower(headers)
-    if lc_headers.get(API_KEY_HEADER_NAME) is None:
-        return False, "Missing API key header"
-
-    if lc_headers.get(API_KEY_HEADER_NAME) != api_key:
-        return False, "Invalid API key"
-
-    if lc_headers.get(SIGNATURE_HEADER_NAME) is None:
-        return False, "Missing signature header"
-
-    if lc_headers.get(CONSUMER_KEY_NAME) is None:
-        return False, "Missing Consumer key header"
-
-    return True, ""
-
-
 def verify_batch_headers(headers: dict) -> tuple[bool, str]:
     lc_headers = header_keys_to_lower(headers)
     if lc_headers.get('authorization') is None:
