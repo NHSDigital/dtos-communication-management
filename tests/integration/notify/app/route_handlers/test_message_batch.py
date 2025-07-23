@@ -1,5 +1,5 @@
 from app import create_app
-from app.validators.request_validator import CONSUMER_KEY_NAME
+from app.validators.request_validator import API_KEY_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
 import requests_mock
 
@@ -8,6 +8,7 @@ import requests_mock
 def setup(monkeypatch):
     """Set up environment variables for tests."""
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
+    monkeypatch.setenv("CLIENT_API_KEY", "api_key")
 
 
 @pytest.fixture
@@ -21,7 +22,8 @@ def test_message_batch_succeeds(setup, client, message_batch_post_body, message_
 
     headers = {
         "Authorization": "Bearer client_token",
-        CONSUMER_KEY_NAME: consumer.key
+        CONSUMER_KEY_NAME: consumer.key,
+        API_KEY_HEADER_NAME: "api_key"
     }
 
     with requests_mock.Mocker() as rm:
@@ -42,7 +44,8 @@ def test_message_batch_preserves_auth_header(setup, client, message_batch_post_b
 
     headers = {
         "Authorization": "Bearer client_token",
-        CONSUMER_KEY_NAME: "some-consumer"
+        CONSUMER_KEY_NAME: "some-consumer",
+        API_KEY_HEADER_NAME: "api_key"
     }
 
     with requests_mock.Mocker() as rm:
@@ -62,7 +65,8 @@ def test_message_batch_fails_with_invalid_auth_header(setup, client, message_bat
     """Test that invalid Bearer token fails authentication."""
     headers = {
         "Authorization": "some_invalid_value",
-        CONSUMER_KEY_NAME: "some-consumer"
+        CONSUMER_KEY_NAME: "some-consumer",
+        API_KEY_HEADER_NAME: "api_key"
     }
 
     with requests_mock.Mocker() as rm:
@@ -88,30 +92,35 @@ def test_message_batch_fails_with_missing_auth_header(setup, client, message_bat
         adapter = rm.post(
             "http://example.com/comms/v1/message-batches",
             status_code=401,
-            json={"status": "failed", "error": "Authorization header not present"}
+            json={"status": "failed", "error": "Missing Authorization header"}
         )
 
         response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
 
         assert response.status_code == 401
-        assert response.get_json() == {"status": "failed", "error": "Authorization header not present"}
+        assert response.get_json() == {
+            "status": "failed", "error": "Missing Authorization header"}
+
 
 def test_message_batch_fails_with_missing_consumer_header(setup, client, message_batch_post_body):
     """Test that missing auth header fails authentication."""
     headers = {
         "Authorization": "Bearer client_token",
+        API_KEY_HEADER_NAME: "api_key"
     }
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
 
     assert response.status_code == 401
-    assert response.get_json() == {"status": "failed", "error": "Consumer Key header not present"}
+    assert response.get_json() == {
+        "status": "failed", "error": "Missing Consumer key header"}
 
 def test_message_batch_fails_with_nonexistent_consumer_header(setup, client, message_batch_post_body):
     """Test that missing auth header fails authentication."""
     headers = {
         "Authorization": "Bearer client_token",
-        CONSUMER_KEY_NAME: "invalid-consumer"
+        CONSUMER_KEY_NAME: "invalid-consumer",
+        API_KEY_HEADER_NAME: "api_key"
     }
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
@@ -119,13 +128,53 @@ def test_message_batch_fails_with_nonexistent_consumer_header(setup, client, mes
     assert response.status_code == 401
     assert response.get_json() == {"status": "failed", "error": "Consumer not valid"}
 
+
+def test_message_batch_fails_with_missing_api_key(setup, client, message_batch_post_body):
+    """Test that missing auth header fails authentication."""
+    headers = {
+        "Authorization": "Bearer client_token",
+        CONSUMER_KEY_NAME: "some-consumer",
+    }
+
+    response = client.post(
+        '/api/message/batch',
+        json=message_batch_post_body,
+        headers=headers
+    )
+
+    assert response.status_code == 401
+    assert response.get_json() == {
+        "status": "failed", "error": "Missing API key header"
+    }
+
+
+def test_message_batch_fails_with_invalid_api_key(setup, client, message_batch_post_body):
+    """Test that missing auth header fails authentication."""
+    headers = {
+        "Authorization": "Bearer client_token",
+        CONSUMER_KEY_NAME: "some-consumer",
+        API_KEY_HEADER_NAME: "invaid_api_key"
+    }
+
+    response = client.post(
+        '/api/message/batch',
+        json=message_batch_post_body, headers=headers
+    )
+
+    assert response.status_code == 401
+    assert response.get_json() == {
+        "status": "failed", "error": "Invalid API key"
+    }
+
+
 def test_message_batch_fails_with_invalid_post_body(setup, client, message_batch_post_body):
     """Test that invalid request body fails schema validation."""
     message_batch_post_body["data"]["type"] = "invalid"
 
     headers = {
         "Authorization": "Bearer client_token",
-        CONSUMER_KEY_NAME: "some-consumer"
+        CONSUMER_KEY_NAME: "some-consumer",
+        API_KEY_HEADER_NAME: "api_key"
     }
 
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
