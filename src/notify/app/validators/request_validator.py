@@ -27,16 +27,6 @@ def verify_headers(headers: dict, api_key: str) -> tuple[bool, str]:
     return True, ""
 
 
-def verify_batch_headers(headers: dict) -> tuple[bool, str]:
-    lc_headers = header_keys_to_lower(headers)
-    if lc_headers.get('authorization') is None:
-        return False, "Authorization header not present"
-    if lc_headers.get(CONSUMER_KEY_NAME) is None:
-        return False, "Consumer Key header not present"
-
-    return True, ""
-
-
 def verify_headers_for_consumers(headers: dict, api_key: str) -> tuple[bool, str]:
     lc_headers = header_keys_to_lower(headers)
     if lc_headers.get(AUTHORIZATION_HEADER_NAME) is None:
