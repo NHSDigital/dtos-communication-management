@@ -56,7 +56,7 @@ services:
       additional_contexts:
         root_dir: .
       target: builder
-    container_name: nhs-notify-api
+    container_name: nhs-notify-api-stub
     # flask requires SIGINT to stop gracefully
     # (default stop signal from Compose is SIGTERM)
     ports:
