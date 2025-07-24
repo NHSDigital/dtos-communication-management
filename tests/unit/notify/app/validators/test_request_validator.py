@@ -1,17 +1,19 @@
+import app.cache as cache
+import app.services.consumer_fetcher as fetcher
 import app.validators.request_validator as request_validator
 import app.utils.hmac_signature as hmac_signature
 import json
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def setup(monkeypatch):
     """Set up environment variables for tests."""
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
     monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
 
 
-def test_verify_signature_invalid(setup):
+def test_verify_signature_invalid():
     """Test that an invalid signature fails verification."""
     headers = {request_validator.SIGNATURE_HEADER_NAME: 'signature'}
     body = {'data': 'body'}
@@ -19,7 +21,7 @@ def test_verify_signature_invalid(setup):
     assert not request_validator.verify_signature(headers, body, 'invalid_signature')
 
 
-def test_verify_signature_valid(setup):
+def test_verify_signature_valid():
     """Test that a valid signature passes verification."""
     body = {'data': 'body'}
     signature = hmac_signature.create_digest('application_id.api_key', json.dumps(body))
@@ -28,25 +30,25 @@ def test_verify_signature_valid(setup):
     assert request_validator.verify_signature(headers, body, 'application_id.api_key')
 
 
-def test_verify_headers_missing_all(setup):
+def test_verify_headers_missing_all():
     """Test that missing all headers fails verification."""
     headers = {}
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Missing API key header')
 
 
-def test_verify_headers_missing_api_key(setup):
+def test_verify_headers_missing_api_key():
     """Test that missing API key header fails verification."""
     headers = {request_validator.SIGNATURE_HEADER_NAME: 'signature'}
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Missing API key header')
 
 
-def test_verify_headers_missing_signature(setup):
+def test_verify_headers_missing_signature():
     """Test that missing signature header fails verification."""
     headers = {request_validator.API_KEY_HEADER_NAME: 'api_key'}
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Missing signature header')
 
 
-def test_verify_headers_valid(setup):
+def test_verify_headers_valid():
     """Test that valid API key and signature headers pass verification."""
     headers = {
         request_validator.API_KEY_HEADER_NAME: 'api_key',
@@ -55,13 +57,13 @@ def test_verify_headers_valid(setup):
     assert request_validator.verify_headers(headers, 'api_key') == (True, "")
 
 
-def test_verify_headers_invalid_api_key(setup):
+def test_verify_headers_invalid_api_key():
     """Test that an invalid API key fails verification."""
     headers = {request_validator.API_KEY_HEADER_NAME: 'invalid_api_key'}
     assert request_validator.verify_headers(headers, 'api_key') == (False, 'Invalid API key')
 
 
-def test_verify_get_headers_for_missing_auth(setup):
+def test_verify_get_headers_for_missing_auth():
     """Test that valid headers pass verification."""
     headers = {
         request_validator.API_KEY_HEADER_NAME: 'api_key',
@@ -71,7 +73,7 @@ def test_verify_get_headers_for_missing_auth(setup):
         headers, 'api_key') == (False, "Missing Authorization header")
 
 
-def test_verify_headers_for_consumers_invalid_api_key(setup):
+def test_verify_headers_for_consumers_invalid_api_key():
     """Test that valid headers pass verification."""
     headers = {
         "Authorization": 'auth',
@@ -82,7 +84,7 @@ def test_verify_headers_for_consumers_invalid_api_key(setup):
         headers, 'api_key') == (False, "Invalid API key")
 
 
-def test_verify_headers_for_consumers_missing_api_key(setup):
+def test_verify_headers_for_consumers_missing_api_key():
     """Test that valid headers pass verification."""
     headers = {
         "Authorization": 'auth',
@@ -92,7 +94,7 @@ def test_verify_headers_for_consumers_missing_api_key(setup):
         headers, 'api_key') == (False, "Missing API key header")
 
 
-def test_verify_headers_for_consumers_missing_consumer(setup):
+def test_verify_headers_for_consumers_missing_consumer():
     """Test that valid headers pass verification."""
     headers = {
         "Authorization": 'auth',
@@ -102,7 +104,7 @@ def test_verify_headers_for_consumers_missing_consumer(setup):
         headers, 'api_key') == (False, "Missing Consumer key header")
 
 
-def test_verify_headers_for_consumers_valid(setup):
+def test_verify_headers_for_consumers_valid():
     """Test that valid headers pass verification."""
     headers = {
         "Authorization": 'auth',
@@ -113,21 +115,22 @@ def test_verify_headers_for_consumers_valid(setup):
         headers, 'api_key') == (True, "")
 
 
-def test_verify_consumer_not_found(setup):
+def test_verify_consumer_not_found(app):
     """Test that a Consumer is found with given consumer_key"""
     returned_consumer, error_message = request_validator.verify_consumer("not-a-consumer")
     assert returned_consumer == None
     assert error_message == "Consumer not valid"
 
 
-def test_verify_consumer_no_key(setup):
+def test_verify_consumer_no_key(app):
     """Test that a Consumer is found with given consumer_key"""
     returned_consumer, error_message = request_validator.verify_consumer(None)
     assert returned_consumer == None
     assert error_message == "Consumer not valid"
 
 
-def test_verify_consumer_found(setup, consumer):
+def test_verify_consumer_found(app, consumer):
     """Test that a Consumer is found with given consumer_key"""
+    cache.delete_memoized(fetcher.fetch_all)
     returned_consumer, _ = request_validator.verify_consumer("some-consumer")
     assert returned_consumer.id == consumer.id
