@@ -1,15 +1,16 @@
 from flask import request
-import app.validators.request_validator as request_validator
 import app.presenters.channel_status_presenter as status_presenter
+import app.services.consumer_fetcher as consumer_fetcher
 import app.services.status_recorder as status_recorder
 import app.services.status_reporter as status_reporter
+import app.validators.request_validator as request_validator
 import os
 
 
 def create():
     json_data = request.json or {}
-    valid_headers, error_message = request_validator.verify_headers(
-        dict(request.headers), str(os.getenv("NOTIFY_API_KEY"))
+    valid_headers, error_message = request_validator.verify_callback_headers(
+        dict(request.headers)
     )
 
     if not valid_headers:
@@ -30,19 +31,12 @@ def create():
 
 
 def get():
-    valid_headers, error_message = request_validator.verify_headers_for_consumers(
-        dict(request.headers), str(os.getenv("CLIENT_API_KEY"))
-    )
+    valid_headers, error_message = request_validator.verify_headers(dict(request.headers))
 
     if not valid_headers:
         return {"status": error_message}, 401
 
-    consumer, consumer_error_message = request_validator.verify_consumer(
-        consumer_key())
-
-    if not consumer:
-        return {"status": consumer_error_message}, 401
-
+    consumer = consumer_fetcher.fetch(consumer_key())
     statuses = status_reporter.get_statuses(request.args, consumer.id)
     statuses_as_json = [status_presenter.as_json(status) for status in statuses]
 
@@ -51,7 +45,6 @@ def get():
 
 def signature_secret() -> str:
     return f"{os.getenv('APPLICATION_ID')}.{os.getenv('NOTIFY_API_KEY')}"
-
 
 def consumer_key() -> str | None:
     return request.headers.get(request_validator.CONSUMER_KEY_NAME)

@@ -129,7 +129,7 @@ def test_message_batch_fails_with_nonexistent_consumer_header(setup, client, con
     response = client.post('/api/message/batch', json=message_batch_post_body, headers=headers)
 
     assert response.status_code == 401
-    assert response.get_json() == {"status": "failed", "error": "Consumer not valid"}
+    assert response.get_json() == {"status": "failed", "error": "Invalid Consumer key"}
 
 
 def test_message_batch_fails_with_missing_api_key(setup, client, consumer, message_batch_post_body):
