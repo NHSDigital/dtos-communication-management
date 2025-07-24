@@ -47,7 +47,12 @@ def truncatedb():
     try:
         with database.connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("TRUNCATE TABLE message_batches, messages, channel_statuses, message_statuses RESTART IDENTITY")
+                cur.execute((
+                    "TRUNCATE TABLE "
+                    "consumers, message_batches, messages, "
+                    "channel_statuses, message_statuses "
+                    "RESTART IDENTITY"
+                ))
                 cur.connection.commit()
     except psycopg2.OperationalError as e:
         logging.error(f"Error: {e}")
