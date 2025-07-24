@@ -1,7 +1,9 @@
+import app.cache as cache
 import app.models as models
 import app.utils.database as database
 import app.services.message_batch_recorder as message_batch_recorder
 import dotenv
+import flask
 import logging
 import os
 import psycopg2
@@ -47,7 +49,12 @@ def truncatedb():
     try:
         with database.connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("TRUNCATE TABLE message_batches, messages, channel_statuses, message_statuses RESTART IDENTITY")
+                cur.execute((
+                    "TRUNCATE TABLE "
+                    "consumers, message_batches, messages, "
+                    "channel_statuses, message_statuses "
+                    "RESTART IDENTITY"
+                ))
                 cur.connection.commit()
     except psycopg2.OperationalError as e:
         logging.error(f"Error: {e}")
@@ -216,3 +223,10 @@ def message_batch(consumer, message_batch_post_body, message_batch_post_response
         models.MessageBatchStatuses.SENT,
         consumer.id
     )
+
+@pytest.fixture
+def app():
+    app = flask.Flask(__name__)
+    app.testing = True
+    cache.init_app(app)
+    return app

@@ -1,4 +1,5 @@
 from app import create_app
+import app.cache as cache
 import app.services.status_recorder as status_recorder
 from app.validators.request_validator import API_KEY_HEADER_NAME, AUTHORIZATION_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
@@ -15,6 +16,7 @@ def setup(monkeypatch):
 @pytest.fixture
 def client():
     app = create_app()
+    cache.init_app(app)
     yield app.test_client()
 
 
@@ -68,7 +70,7 @@ def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client
     response = client.get('/api/statuses', headers=headers)
 
     assert response.status_code == 401
-    assert response.get_json() == {"status": "Consumer not valid"}
+    assert response.get_json() == {"status": "Invalid Consumer key"}
 
 
 def test_get_statuses(setup, client, channel_status_post_body, message_batch_post_response, message_batch):
