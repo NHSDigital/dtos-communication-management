@@ -1,8 +1,10 @@
 import azure.functions as func
 from app import create_app
+from app.commands.create_consumer import _create_consumer
 import dotenv
 from migrations.utils import alembic_migrate
 import os
+import json
 
 funcapp = func.FunctionApp()
 flaskapp = create_app()
@@ -38,4 +40,31 @@ def migrate_database(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse(
         f"Database migration complete: {migration_info}",
         status_code=200,
+    )
+
+@funcapp.function_name(name="CreateConsumer")
+@funcapp.route(
+    route="consumer",
+    auth_level=func.AuthLevel.FUNCTION,
+    methods=[func.HttpMethod.POST],
+)
+def create_consumer(req: func.HttpRequest) -> func.HttpResponse:
+    key = req.get_json().get("key")
+    if key is None:
+        return func.HttpResponse(
+            "Missing key field",
+            status_code=400,
+        )
+
+    consumer, message = _create_consumer(key)
+
+    if consumer:
+        return func.HttpResponse(
+            json.dumps({ 'id': consumer.id, 'key': consumer.key}).encode(),
+            status_code=201,
+        )
+
+    return func.HttpResponse(
+        message,
+        status_code=500,
     )
