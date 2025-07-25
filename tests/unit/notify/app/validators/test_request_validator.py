@@ -1,3 +1,4 @@
+from app.queries.consumer import fetch_all_cached
 import app.validators.request_validator as request_validator
 import app.utils.hmac_signature as hmac_signature
 import json
@@ -9,6 +10,7 @@ def setup(monkeypatch):
     """Set up environment variables for tests."""
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
     monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
+    fetch_all_cached.cache_clear()
 
 
 def test_verify_signature_invalid(setup):

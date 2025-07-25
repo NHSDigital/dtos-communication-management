@@ -1,4 +1,5 @@
 from app import create_app
+from app.queries.consumer import fetch_all_cached
 from app.validators.request_validator import API_KEY_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
 import requests_mock
@@ -9,6 +10,7 @@ def setup(monkeypatch):
     """Set up environment variables for tests."""
     monkeypatch.setenv("NOTIFY_API_URL", "http://example.com")
     monkeypatch.setenv("CLIENT_API_KEY", "api_key")
+    fetch_all_cached.cache_clear()
 
 
 @pytest.fixture
@@ -39,7 +41,7 @@ def test_message_batch_succeeds(setup, client, message_batch_post_body, message_
         assert response.get_json() == {"status": "success", "response": message_batch_post_response}
 
 
-def test_message_batch_preserves_auth_header(setup, client, message_batch_post_body, message_batch_post_response):
+def test_message_batch_preserves_auth_header(setup, client, consumer, message_batch_post_body, message_batch_post_response):
     """Test that the supplied auth header is preserved in the request to the Notify API."""
 
     headers = {
@@ -61,7 +63,7 @@ def test_message_batch_preserves_auth_header(setup, client, message_batch_post_b
         assert adapter.last_request.headers["Authorization"] == "Bearer client_token"
 
 
-def test_message_batch_fails_with_invalid_auth_header(setup, client, message_batch_post_body):
+def test_message_batch_fails_with_invalid_auth_header(setup, client, consumer, message_batch_post_body):
     """Test that invalid Bearer token fails authentication."""
     headers = {
         "Authorization": "some_invalid_value",
@@ -167,7 +169,7 @@ def test_message_batch_fails_with_invalid_api_key(setup, client, message_batch_p
     }
 
 
-def test_message_batch_fails_with_invalid_post_body(setup, client, message_batch_post_body):
+def test_message_batch_fails_with_invalid_post_body(setup, client, consumer, message_batch_post_body):
     """Test that invalid request body fails schema validation."""
     message_batch_post_body["data"]["type"] = "invalid"
 
