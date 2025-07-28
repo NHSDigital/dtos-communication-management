@@ -13,11 +13,12 @@ def runner():
 
 
 def test_creates_consumer_with_new_key(runner, teardown_consumer):
-    key = "some-consumer"
-    assert Session(database.engine()).query(exists().where(Consumer.key==key)).scalar() == False
-    result = runner.invoke(args=["create-consumer", key])
-    assert Session(database.engine()).query(exists().where(Consumer.key==key)).scalar() == True
-    assert f"Consumer with key '{key}' created" in result.output
+    with Session(database.engine()) as session:
+        key = "some-consumer"
+        assert session.query(exists().where(Consumer.key == key)).scalar() is False
+        result = runner.invoke(args=["create-consumer", key])
+        assert session.query(exists().where(Consumer.key == key)).scalar() is True
+        assert f"Consumer with key '{key}' created" in result.output
 
 
 def test_errors_with_existing_key(runner, consumer):
