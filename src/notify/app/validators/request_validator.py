@@ -1,11 +1,10 @@
 from app.models import Consumer
-import app.utils.database as database
+from app.queries.consumer import fetch_from_cache
 import hmac
 import json
 import os
 import app.validators.schema_validator as schema_validator
 import app.utils.hmac_signature as hmac_signature
-from sqlalchemy.orm import Session
 
 API_KEY_HEADER_NAME = 'x-api-key'
 AUTHORIZATION_HEADER_NAME = 'authorization'
@@ -42,7 +41,7 @@ def verify_headers_for_consumers(headers: dict, api_key: str) -> tuple[bool, str
 
 
 def verify_consumer(consumer_key: str | None) -> tuple[Consumer, str] | tuple[None, str]:
-    consumer = Session(database.engine()).query(Consumer).filter_by(key=consumer_key).one_or_none()
+    consumer = fetch_from_cache(consumer_key)
 
     if not consumer:
         return None, "Consumer not valid"
