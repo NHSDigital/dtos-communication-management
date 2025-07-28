@@ -1,5 +1,6 @@
 from app import create_app
 from app.models import Consumer
+from app.queries import consumer
 from sqlalchemy.orm import Session
 from sqlalchemy import exists
 import app.utils.database as database
@@ -32,3 +33,23 @@ def test_errors_with_db_error(runner, teardown_consumer, monkeypatch):
     key = "some-consumer"
     result = runner.invoke(args=["create-consumer", key])
     assert "FATAL:  role \"wrong_user\" does not exist\n\n" in result.output
+
+
+def test_creates_consumer_clears_cache(runner):
+    runner.invoke(args=["create-consumer", "some-consumer"])
+
+    assert len(consumer.fetch_all_cached()) == 1
+
+    runner.invoke(args=["create-consumer", "another-consumer"])
+
+    assert len(consumer.fetch_all_cached()) == 2
+
+    with Session(database.engine()) as session:
+        session.add(Consumer(key="and-another-consumer"))
+        session.commit()
+
+    assert len(consumer.fetch_all_cached()) == 2
+
+    consumer.fetch_all_cached.cache_clear()
+
+    assert len(consumer.fetch_all_cached()) == 3
