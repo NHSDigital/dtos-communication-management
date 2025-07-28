@@ -1,4 +1,5 @@
 from app import create_app
+from app.queries.consumer import fetch_all_cached
 import app.services.status_recorder as status_recorder
 from app.validators.request_validator import API_KEY_HEADER_NAME, AUTHORIZATION_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
@@ -10,6 +11,7 @@ def setup(monkeypatch):
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
     monkeypatch.setenv('CLIENT_API_KEY', 'api_key')
     monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
+    fetch_all_cached.cache_clear()
 
 
 @pytest.fixture
@@ -71,7 +73,7 @@ def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client
     assert response.get_json() == {"status": "Consumer not valid"}
 
 
-def test_get_statuses(setup, client, channel_status_post_body, message_batch_post_response, message_batch):
+def test_get_statuses(setup, client, consumer, channel_status_post_body, message_batch_post_response, message_batch):
     """Test that statuses are returned by the endpoint."""
     # Generate message reference from test fixture
     message = message_batch_post_response["data"]["attributes"]["messages"][0]
