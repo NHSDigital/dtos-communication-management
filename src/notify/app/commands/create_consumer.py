@@ -1,4 +1,5 @@
 from app.models import Consumer
+from app.queries.consumer import fetch_all_cached
 import app.utils.database as database
 from flask.cli import with_appcontext
 import click
@@ -13,6 +14,7 @@ def _create_consumer(key) -> tuple[Consumer, None] | tuple[None, str]:
             consumer = Consumer(key=key)
             session.add(consumer)
             session.commit()
+            fetch_all_cached.cache_clear()
             print(f"Consumer with key '{consumer.key}' created")
             return (consumer, None)
     except IntegrityError as e:

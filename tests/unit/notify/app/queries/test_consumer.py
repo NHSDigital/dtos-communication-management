@@ -2,6 +2,12 @@ import app.queries.consumer as query
 from app.utils.database import engine
 from app.models import Consumer
 from sqlalchemy.orm import Session
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def setup():
+    query.fetch_all_cached.cache_clear()
 
 
 def test_fetch_from_cache():
@@ -23,8 +29,6 @@ def test_fetch_from_cache_with_unmatched_key():
 
 
 def test_indexed_by_key():
-    query.fetch_all_cached.cache_clear()
-
     consumer = Consumer(key="aaa123")
     another_consumer = Consumer(key="bbb456")
 
@@ -45,8 +49,6 @@ def test_indexed_by_key():
 
 
 def test_fetch_all_is_memoized():
-    query.fetch_all_cached.cache_clear()
-
     with Session(engine()) as session:
         session.add(Consumer(key="abc123"))
         session.commit()
