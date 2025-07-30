@@ -52,7 +52,6 @@ locals {
       AzureWebJobsStorage__accountName = module.storage["fnapp-${local.primary_region}"].storage_account_name
 
       CLIENT_APPLICATION_ID = "@Microsoft.KeyVault(SecretUri=${module.key_vault[local.primary_region].key_vault_url}secrets/CLIENT-APPLICATION-ID)"
-      CLIENT_API_KEY        = "@Microsoft.KeyVault(SecretUri=${module.key_vault[local.primary_region].key_vault_url}secrets/CLIENT-API-KEY)"
 
       DATABASE_NAME     = "communication_management"
       DATABASE_HOST     = "${module.regions_config[local.primary_region].names.postgres-sql-server}.postgres.database.azure.com"
