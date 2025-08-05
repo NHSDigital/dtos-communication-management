@@ -40,7 +40,6 @@ This service manages communication delivery via NHS Notify, handling message sta
 ### Required Environment Variables
 
 - `NOTIFY_API_KEY`: API key for the notification service
-- `CLIENT_API_KEY`: API key for client authentication
 - `DATABASE_URL`: PostgreSQL connection string
 - `HMAC_SECRET`: Secret key for HMAC signature generation
 
@@ -356,7 +355,6 @@ This endpoint retrieves status records based on query parameters. It filters sta
 
 - **Method:** GET
 - **Headers:**
-  - x-api-key: `<CLIENT_API_KEY>`
   - x-consumer-key: 'some-key'
 - **Query Parameters (optional):**
   - channel: Filter by channel (e.g., "nhsapp")

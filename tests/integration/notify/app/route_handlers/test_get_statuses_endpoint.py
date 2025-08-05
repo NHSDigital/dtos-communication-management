@@ -1,7 +1,7 @@
 from app import create_app
 from app.queries.consumer import fetch_all_cached
 import app.services.status_recorder as status_recorder
-from app.validators.request_validator import API_KEY_HEADER_NAME, AUTHORIZATION_HEADER_NAME, CONSUMER_KEY_NAME
+from app.validators.request_validator import AUTHORIZATION_HEADER_NAME, CONSUMER_KEY_NAME
 import pytest
 
 
@@ -9,7 +9,6 @@ import pytest
 def setup(monkeypatch):
     """Set up environment variables for tests."""
     monkeypatch.setenv('APPLICATION_ID', 'application_id')
-    monkeypatch.setenv('CLIENT_API_KEY', 'api_key')
     monkeypatch.setenv('NOTIFY_API_KEY', 'api_key')
     fetch_all_cached.cache_clear()
 
@@ -20,24 +19,9 @@ def client():
     yield app.test_client()
 
 
-def test_get_statuses_request_validation_fails_on_api_key(setup, client, message_status_post_body):
-    """Test that invalid request header values fails on invalid api key validation."""
-    headers = {
-        AUTHORIZATION_HEADER_NAME: 'bearer auth',
-        API_KEY_HEADER_NAME: "not_the_api_key",
-    }
-
-    response = client.get('/api/statuses', headers=headers)
-
-    assert response.status_code == 401
-    assert response.get_json() == {"status": "Invalid API key"}
-
-
 def test_get_statuses_request_validation_fails_on_missing_auth(setup, client, message_status_post_body):
-    """Test that invalid request header values fails on invalid api key validation."""
-    headers = {
-        API_KEY_HEADER_NAME: "api_key",
-    }
+    """Test that invalid request header values fails on missing auth validation."""
+    headers = {}
 
     response = client.get('/api/statuses', headers=headers)
 
@@ -50,7 +34,6 @@ def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client
     """Test that invalid request header values fail when Consumer missing."""
     headers = {
         AUTHORIZATION_HEADER_NAME: 'bearer auth',
-        API_KEY_HEADER_NAME: "api_key",
     }
 
     response = client.get('/api/statuses', headers=headers)
@@ -62,7 +45,6 @@ def test_get_statuses_request_validation_fails_on_missing_consumer(setup, client
 def test_get_statuses_request_validation_fails_on_invalid_consumer(setup, client, message_status_post_body):
     """Test that invalid request header values fail on invalid consumer."""
     headers = {
-        API_KEY_HEADER_NAME: "api_key",
         AUTHORIZATION_HEADER_NAME: 'bearer auth',
         CONSUMER_KEY_NAME: "not-a-consumer"
     }
@@ -90,7 +72,6 @@ def test_get_statuses(setup, client, consumer, channel_status_post_body, message
     }
 
     headers = {
-        API_KEY_HEADER_NAME: "api_key",
         AUTHORIZATION_HEADER_NAME: 'bearer auth',
         CONSUMER_KEY_NAME: "some-consumer",
     }

@@ -31,7 +31,7 @@ def create():
 
 def get():
     valid_headers, error_message = request_validator.verify_headers_for_consumers(
-        dict(request.headers), str(os.getenv("CLIENT_API_KEY"))
+        dict(request.headers)
     )
 
     if not valid_headers:
