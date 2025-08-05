@@ -1,11 +1,10 @@
 from flask import request
 import app.validators.request_validator as request_validator
 import app.services.message_batch_dispatcher as message_batch_dispatcher
-import os
 
 
 def batch():
-    valid_headers, headers_error_message = request_validator.verify_headers_for_consumers(dict(request.headers), str(os.getenv("CLIENT_API_KEY")))
+    valid_headers, headers_error_message = request_validator.verify_headers_for_consumers(dict(request.headers))
 
     if not valid_headers:
         return {"status": "failed", "error": headers_error_message}, 401

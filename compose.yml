@@ -10,7 +10,6 @@ services:
         root_dir: .
     environment:
       - APPLICATION_ID=${APPLICATION_ID}
-      - CLIENT_API_KEY=${CLIENT_API_KEY}
       - CLIENT_APPLICATION_ID=${CLIENT_APPLICATION_ID}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
@@ -80,7 +79,6 @@ services:
       notify:
         condition: service_started
     environment:
-      - CLIENT_API_KEY=${CLIENT_API_KEY}
       - CLIENT_APPLICATION_ID=${CLIENT_APPLICATION_ID}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_NAME=${DATABASE_NAME}
