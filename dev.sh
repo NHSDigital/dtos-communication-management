@@ -13,4 +13,4 @@ echo "Migrating database to latest version..."
 ENV_FILE=${ENV_FILE} alembic -c src/notify/alembic.ini upgrade head
 
 echo "Starting the API function app..."
-cd src/notify && ENV_FILE="../../${ENV_FILE}" func start --verbose
+cd src/notify && ENV_FILE="../../${ENV_FILE}" func start --debug
