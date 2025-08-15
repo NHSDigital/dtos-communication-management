@@ -38,7 +38,7 @@ data "azurerm_subnet" "subnet_audit_pep" {
 
   provider = azurerm.audit
 
-  name                 = "VNET-${upper(local.environment_short)}-UKS-COMMGT-pep"
+  name                 = "SN-${upper(local.environment_short)}-UKS-COMMGT-pep"
   resource_group_name  = "rg-commgt-${lower(local.environment_short)}-uks-audit-networking"
   virtual_network_name = "VNET-${upper(local.environment_short)}-UKS-COMMGT"
 }
