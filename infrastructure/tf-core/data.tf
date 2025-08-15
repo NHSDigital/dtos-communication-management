@@ -29,8 +29,8 @@ data "azurerm_virtual_network" "vnet_audit" {
 
   provider = azurerm.audit
 
-  name                = "VNET-${upper(local.environment_short)}-UKS-COMMGT"
-  resource_group_name = "rg-commgt-${lower(local.environment_short)}-uks-audit-networking"
+  name                = "VNET-PRD-UKS-COMMGT"
+  resource_group_name = "rg-commgt-prd-uks-audit-networking"
 }
 
 data "azurerm_subnet" "subnet_audit_pep" {
@@ -38,9 +38,9 @@ data "azurerm_subnet" "subnet_audit_pep" {
 
   provider = azurerm.audit
 
-  name                 = "SN-${upper(local.environment_short)}-UKS-COMMGT-pep"
-  resource_group_name  = "rg-commgt-${lower(local.environment_short)}-uks-audit-networking"
-  virtual_network_name = "VNET-${upper(local.environment_short)}-UKS-COMMGT"
+  name                 = "SN-PRD-UKS-COMMGT-pep"
+  resource_group_name  = "rg-commgt-prd-uks-audit-networking"
+  virtual_network_name = "VNET-PRD-UKS-COMMGT"
 }
 
 data "azurerm_container_registry" "acr" {
