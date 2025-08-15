@@ -29,7 +29,7 @@ data "azurerm_virtual_network" "vnet_audit" {
 
   provider = azurerm.audit
 
-  name                = module.regions_config[each.key].names.virtual-network
+  name                = "VNET-${upper(local.environment_short)}-UKS-COMMGT"
   resource_group_name = "rg-commgt-${lower(local.environment_short)}-uks-audit-networking"
 }
 
@@ -38,7 +38,7 @@ data "azurerm_subnet" "subnet_audit_pep" {
 
   provider = azurerm.audit
 
-  name                 = "${module.regions_config[each.key].names.subnet}-pep"
+  name                 = "VNET-${upper(local.environment_short)}-UKS-COMMGT-pep"
   resource_group_name  = "rg-commgt-${lower(local.environment_short)}-uks-audit-networking"
   virtual_network_name = module.regions_config[each.key].names.virtual-network
 }
