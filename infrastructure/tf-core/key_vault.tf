@@ -3,7 +3,7 @@ module "key_vault" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/key-vault"
 
-  name                = module.regions_config[each.key].names.key-vault
+  name                = "KV-COMMGT-${upper(local.environment_short)}-UKS"
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
